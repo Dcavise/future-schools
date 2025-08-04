@@ -252,8 +252,8 @@ export function PropertyPanel({
   };
 
   return (
-    <div className="fixed top-[56px] right-0 w-[420px] bottom-0 bg-white border-l border-[#E5E7EB] shadow-[-2px_0_8px_rgba(0,0,0,0.05)] z-40 overflow-y-auto">
-      {/* Panel Header */}
+    <div className="fixed top-[56px] right-0 w-[420px] bottom-0 bg-white border-l border-[#E5E7EB] shadow-[-2px_0_8px_rgba(0,0,0,0.05)] z-40 flex flex-col">
+      {/* Fixed Panel Header */}
       <div className={`h-[200px] p-6 relative ${getHeaderClass(property.status)}`}>
         {/* Navigation Arrows */}
         <div className="absolute top-4 left-4 flex gap-1">
@@ -381,7 +381,9 @@ export function PropertyPanel({
 
       </div>
 
-      <div className="p-6">
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="p-6">
         {/* Compliance Requirements Section */}
         <div className="mb-6">
           <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-wide mb-4">Compliance Requirements</h3>
@@ -867,6 +869,7 @@ export function PropertyPanel({
         {/* Action Section */}
         <div className="pt-4 border-t border-gray-200">
           {getPrimaryAction(property.status)}
+        </div>
         </div>
       </div>
     </div>
