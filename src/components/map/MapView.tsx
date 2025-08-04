@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Property } from '@/types/property';
+import { MapLegend } from './MapLegend';
 
 const MAPBOX_TOKEN = 'pk.eyJ1IjoiZ3J1YmNsdWIxMjMiLCJhIjoiY203bmszdnFsMDF5czJxbjFuampiNXUwOSJ9.YixeEGA2iZd5yFhbyKv9Vg';
 
@@ -484,6 +485,9 @@ export function MapView({
         </div>
       )}
       
+      {/* Map Legend */}
+      <MapLegend isVisible={properties.length > 0 && !isHeatmapMode} />
+
       {/* Zoom level indicator for debugging */}
       {isHeatmapMode && (
         <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm rounded px-2 py-1 text-xs text-muted-foreground">
