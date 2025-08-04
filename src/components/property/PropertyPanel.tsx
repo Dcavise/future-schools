@@ -482,6 +482,29 @@ export function PropertyPanel({
                 placeholder="Enter zoning code"
               />
             </div>
+            
+            <div>
+              <div className="text-xs text-[#6B7280] mb-1">Folio #</div>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="text"
+                  value={property.folio_int || ''}
+                  onChange={(e) => onPropertyUpdate?.({ ...property, folio_int: e.target.value || null })}
+                  className="text-sm flex-1"
+                  placeholder="Enter folio number"
+                />
+                {property.folio_int && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0 hover:bg-gray-100"
+                    onClick={() => navigator.clipboard.writeText(property.folio_int!)}
+                  >
+                    <Copy className="h-3 w-3" />
+                  </Button>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
