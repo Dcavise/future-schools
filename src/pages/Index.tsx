@@ -13,9 +13,11 @@ const Index = () => {
   const [filters, setFilters] = useState<FilterCriteria>({
     zoningByRight: null,
     fireSprinklers: null,
-    occupancyType: [],
+    currentOccupancy: [],
     minSquareFootage: 0,
-    maxSquareFootage: 100000
+    maxSquareFootage: 100000,
+    status: [],
+    assignedTo: null
   });
 
   const filteredProperties = useMemo(() => {
@@ -30,9 +32,19 @@ const Index = () => {
         return false;
       }
       
-      // Occupancy type filter
-      if (filters.occupancyType.length > 0 && 
-          (!property.occupancyType || !filters.occupancyType.includes(property.occupancyType))) {
+      // Current occupancy filter
+      if (filters.currentOccupancy.length > 0 && 
+          (!property.currentOccupancy || !filters.currentOccupancy.includes(property.currentOccupancy))) {
+        return false;
+      }
+      
+      // Status filter
+      if (filters.status.length > 0 && !filters.status.includes(property.status)) {
+        return false;
+      }
+
+      // Assigned analyst filter
+      if (filters.assignedTo && property.assignedTo !== filters.assignedTo) {
         return false;
       }
       
@@ -46,7 +58,7 @@ const Index = () => {
     });
   }, [properties, filters]);
 
-  const qualifiedCount = filteredProperties.filter(p => p.qualificationStatus === 'qualified').length;
+  const qualifiedCount = filteredProperties.filter(p => p.status === 'qualified').length;
 
   const handlePropertyUpdate = (updatedProperty: Property) => {
     setProperties(prev => 

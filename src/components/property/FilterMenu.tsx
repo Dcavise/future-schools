@@ -28,16 +28,20 @@ export function FilterMenu({ filters, onFiltersChange, qualifiedCount, totalCoun
     onFiltersChange({
       zoningByRight: null,
       fireSprinklers: null,
-      occupancyType: [],
+      currentOccupancy: [],
       minSquareFootage: 0,
-      maxSquareFootage: 100000
+      maxSquareFootage: 100000,
+      status: [],
+      assignedTo: null
     });
   };
 
   const hasActiveFilters = 
     filters.zoningByRight !== null ||
     filters.fireSprinklers !== null ||
-    filters.occupancyType.length > 0 ||
+    filters.currentOccupancy.length > 0 ||
+    filters.status.length > 0 ||
+    filters.assignedTo !== null ||
     filters.minSquareFootage > 0 ||
     filters.maxSquareFootage < 100000;
 
@@ -55,7 +59,9 @@ export function FilterMenu({ filters, onFiltersChange, qualifiedCount, totalCoun
             {[
               filters.zoningByRight !== null,
               filters.fireSprinklers !== null,
-              filters.occupancyType.length > 0,
+              filters.currentOccupancy.length > 0,
+              filters.status.length > 0,
+              filters.assignedTo !== null,
               filters.minSquareFootage > 0 || filters.maxSquareFootage < 100000
             ].filter(Boolean).length}
           </Badge>
@@ -82,6 +88,27 @@ export function FilterMenu({ filters, onFiltersChange, qualifiedCount, totalCoun
                 <span className="text-muted-foreground">Total Shown:</span>
                 <span className="font-medium">{totalCount}</span>
               </div>
+            </div>
+
+            {/* Status Filter */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Status</label>
+              <Select
+                value={filters.status.length > 0 ? filters.status[0] : "all"}
+                onValueChange={(value) => handleFilterChange('status', value === "all" ? [] : [value])}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-background border border-border shadow-lg z-50">
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="qualified">Qualified</SelectItem>
+                  <SelectItem value="reviewing">Under Review</SelectItem>
+                  <SelectItem value="disqualified">Disqualified</SelectItem>
+                  <SelectItem value="unreviewed">Unreviewed</SelectItem>
+                  <SelectItem value="on_hold">On Hold</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Zoning by Right */}
@@ -120,22 +147,21 @@ export function FilterMenu({ filters, onFiltersChange, qualifiedCount, totalCoun
               </Select>
             </div>
 
-            {/* Occupancy Type */}
+            {/* Current Occupancy */}
             <div className="space-y-2">
-              <label className="text-sm font-medium">Occupancy Type</label>
+              <label className="text-sm font-medium">Current Occupancy</label>
               <Select
-                value={filters.occupancyType.length > 0 ? filters.occupancyType[0] : "all"}
-                onValueChange={(value) => handleFilterChange('occupancyType', value === "all" ? [] : [value])}
+                value={filters.currentOccupancy.length > 0 ? filters.currentOccupancy[0] : "all"}
+                onValueChange={(value) => handleFilterChange('currentOccupancy', value === "all" ? [] : [value])}
               >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-background border border-border shadow-lg z-50">
                   <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="Educational">Educational</SelectItem>
-                  <SelectItem value="Commercial">Commercial</SelectItem>
-                  <SelectItem value="Industrial">Industrial</SelectItem>
-                  <SelectItem value="Institutional">Institutional</SelectItem>
+                  <SelectItem value="E">Educational</SelectItem>
+                  <SelectItem value="A">Assembly</SelectItem>
+                  <SelectItem value="Other">Other</SelectItem>
                 </SelectContent>
               </Select>
             </div>

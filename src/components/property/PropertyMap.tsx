@@ -83,12 +83,13 @@ export function PropertyMap({ properties, selectedProperty, onPropertySelect, se
     
     const colors = {
       qualified: '#10b981',
-      review: '#f59e0b', 
+      reviewing: '#f59e0b', 
       disqualified: '#dc2626',
-      unknown: '#dc2626'
+      unreviewed: '#6b7280',
+      on_hold: '#8b5cf6'
     };
     
-    el.style.backgroundColor = colors[property.qualificationStatus];
+    el.style.backgroundColor = colors[property.status];
 
     if (selectedProperty?.id === property.id) {
       el.style.transform = 'scale(1.2)';
