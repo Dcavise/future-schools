@@ -367,6 +367,13 @@ export function MapView({
   useEffect(() => {
     if (!map.current) return;
 
+    console.log('MapView - properties changed:', {
+      propertiesCount: properties.length,
+      selectedProperty: selectedProperty?.address || 'none',
+      isHeatmapMode,
+      showPanel
+    });
+
     // Clear existing markers
     Object.values(markersRef.current).forEach(marker => marker.remove());
     markersRef.current = {};
@@ -374,7 +381,10 @@ export function MapView({
     // Remove existing heatmap
     removeHeatmapLayer();
 
-    if (properties.length === 0) return;
+    if (properties.length === 0) {
+      console.log('MapView - no properties to display');
+      return;
+    }
 
     if (isHeatmapMode) {
       // Use heatmap for large datasets

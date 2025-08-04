@@ -16,19 +16,27 @@ const PropertyDetail = () => {
   // Get properties from state (passed from search page) or generate them
   const allProperties = useState<Property[]>(() => {
     const state = location.state as { properties?: Property[] } | null;
+    console.log('PropertyDetail - location state:', state);
     if (state?.properties) {
+      console.log('PropertyDetail - using state properties:', state.properties.length);
       return state.properties;
     }
     // If no properties in state, generate a default set
-    return [...mockProperties, ...generateMockProperties(75)];
+    const fallbackProperties = [...mockProperties, ...generateMockProperties(75)];
+    console.log('PropertyDetail - using fallback properties:', fallbackProperties.length);
+    return fallbackProperties;
   })[0];
   
   const [currentIndex, setCurrentIndex] = useState<number>(() => {
-    return allProperties.findIndex(p => p.id === id) || 0;
+    const foundIndex = allProperties.findIndex(p => p.id === id);
+    console.log('PropertyDetail - found property index:', foundIndex, 'for id:', id);
+    return foundIndex !== -1 ? foundIndex : 0;
   });
   
   const [property, setProperty] = useState<Property | null>(() => {
-    return allProperties.find(p => p.id === id) || null;
+    const foundProperty = allProperties.find(p => p.id === id);
+    console.log('PropertyDetail - found property:', foundProperty?.address || 'NOT FOUND', 'for id:', id);
+    return foundProperty || null;
   });
 
   if (!property) {
@@ -59,7 +67,10 @@ const PropertyDetail = () => {
       const newProperty = allProperties[newIndex];
       setCurrentIndex(newIndex);
       setProperty(newProperty);
-      navigate(`/property/${newProperty.id}`, { replace: true });
+      navigate(`/property/${newProperty.id}`, { 
+        replace: true,
+        state: { properties: allProperties }
+      });
     }
   };
 
@@ -69,7 +80,10 @@ const PropertyDetail = () => {
       const newProperty = allProperties[newIndex];
       setCurrentIndex(newIndex);
       setProperty(newProperty);
-      navigate(`/property/${newProperty.id}`, { replace: true });
+      navigate(`/property/${newProperty.id}`, { 
+        replace: true,
+        state: { properties: allProperties }
+      });
     }
   };
 
