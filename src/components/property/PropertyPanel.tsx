@@ -313,51 +313,57 @@ export function PropertyPanel({
           </div>
         </div>
 
-        {/* Assignment Section */}
-        <div className="mb-3">
-          <div className="flex items-center gap-2 mb-2">
-            <User className="h-4 w-4 text-gray-700" />
-            <span className="text-xs font-medium text-gray-700 uppercase tracking-wide">Assigned To</span>
+        {/* Two-Column Layout for Assignment and Sync Queue */}
+        <div className="grid grid-cols-2 gap-4 mb-3">
+          {/* Assignment Section */}
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <User className="h-4 w-4 text-gray-700" />
+              <span className="text-xs font-medium text-gray-700 uppercase tracking-wide">Assigned To</span>
+            </div>
+            
+            {/* Assignment Dropdown */}
+            <Select 
+              value={selectedAssignee} 
+              onValueChange={handleAssignmentChange}
+            >
+              <SelectTrigger className="w-full h-8 bg-white">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-white z-50">
+                {TEAM_MEMBERS.map((member) => (
+                  <SelectItem key={member.value} value={member.value}>
+                    {member.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-          
-          {/* Assignment Dropdown */}
-          <Select 
-            value={selectedAssignee} 
-            onValueChange={handleAssignmentChange}
-          >
-            <SelectTrigger className="w-full h-8 bg-white">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-white z-50">
-              {TEAM_MEMBERS.map((member) => (
-                <SelectItem key={member.value} value={member.value}>
-                  {member.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        
-        {/* Add to Sync Queue Checkbox */}
-        <div className="mb-3">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={property.sync_status === 'pending'}
-              onChange={(e) => {
-                if (onPropertyUpdate) {
-                  const updatedProperty = {
-                    ...property,
-                    sync_status: (e.target.checked ? 'pending' : null) as Property['sync_status'],
-                    updated_at: new Date().toISOString()
-                  };
-                  onPropertyUpdate(updatedProperty);
-                }
-              }}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-            />
-            <span className="text-sm text-gray-700">Add to sync queue</span>
-          </label>
+
+          {/* Add to Sync Queue Section */}
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-xs font-medium text-gray-700 uppercase tracking-wide">Sync Queue</span>
+            </div>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={property.sync_status === 'pending'}
+                onChange={(e) => {
+                  if (onPropertyUpdate) {
+                    const updatedProperty = {
+                      ...property,
+                      sync_status: (e.target.checked ? 'pending' : null) as Property['sync_status'],
+                      updated_at: new Date().toISOString()
+                    };
+                    onPropertyUpdate(updatedProperty);
+                  }
+                }}
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              <span className="text-sm text-gray-700">Add to sync queue</span>
+            </label>
+          </div>
         </div>
         
         {/* Status Badge - Editable */}
