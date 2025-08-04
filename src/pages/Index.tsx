@@ -3,6 +3,7 @@ import { Header } from '@/components/shared/Header';
 import { MapView } from '@/components/map/MapView';
 import { SearchOverlay } from '@/components/search/SearchOverlay';
 import { PropertyPanel } from '@/components/property/PropertyPanel';
+import { FilterPanel } from '@/components/filters/FilterPanel';
 
 interface Property {
   id: string;
@@ -40,6 +41,22 @@ interface Property {
   sqft: number;
   type: string;
 }
+
+interface FilterCriteria {
+  status: string[];
+  compliance: string[];
+  propertyType: string[];
+  minSquareFeet: string;
+  maxSquareFeet: string;
+}
+
+const defaultFilters: FilterCriteria = {
+  status: [],
+  compliance: [],
+  propertyType: [],
+  minSquareFeet: '',
+  maxSquareFeet: ''
+};
 
 const generateProperties = (city: string, count = 75): Property[] => {
   return Array.from({ length: count }, (_, i) => {
@@ -101,6 +118,69 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [properties, setProperties] = useState<Property[]>([]);
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
+  const [isFilterPanelOpen, setIsFilterPanelOpen] = useState<boolean>(false);
+  const [filters, setFilters] = useState<FilterCriteria>(defaultFilters);
+  const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
+  const [hasActiveFilters, setHasActiveFilters] = useState<boolean>(false);
+
+  // Filter logic
+  const applyFilters = () => {
+    let filtered = [...properties];
+    
+    // Status filters
+    if (filters.status.length > 0) {
+      filtered = filtered.filter(p => filters.status.includes(p.status));
+    }
+    
+    // Compliance filters
+    if (filters.compliance.length > 0) {
+      filtered = filtered.filter(p => {
+        return filters.compliance.every(filterType => {
+          switch (filterType) {
+            case 'zoning': return p.compliance.zoning !== 'Unknown';
+            case 'occupancy': return p.compliance.currentOccupancy !== 'Unknown';
+            case 'byRight': return p.compliance.byRightStatus === 'Compliant';
+            case 'sprinkler': return p.compliance.fireSprinklerStatus === 'Compliant';
+            default: return true;
+          }
+        });
+      });
+    }
+    
+    // Property type filters
+    if (filters.propertyType.length > 0) {
+      filtered = filtered.filter(p => {
+        return filters.propertyType.includes(p.compliance.currentOccupancy) ||
+               (filters.propertyType.includes('Unknown') && p.compliance.currentOccupancy === 'Unknown');
+      });
+    }
+    
+    // Size filters
+    if (filters.minSquareFeet) {
+      filtered = filtered.filter(p => p.propertyDetails.squareFeet >= parseInt(filters.minSquareFeet));
+    }
+    if (filters.maxSquareFeet) {
+      filtered = filtered.filter(p => p.propertyDetails.squareFeet <= parseInt(filters.maxSquareFeet));
+    }
+    
+    setFilteredProperties(filtered);
+    
+    // Check if we have active filters
+    const isActive = filters.status.length > 0 || 
+                    filters.compliance.length > 0 || 
+                    filters.propertyType.length > 0 ||
+                    filters.minSquareFeet !== '' ||
+                    filters.maxSquareFeet !== '';
+    setHasActiveFilters(isActive);
+  };
+
+  const getActiveFilterCount = () => {
+    return filters.status.length + 
+           filters.compliance.length + 
+           filters.propertyType.length + 
+           (filters.minSquareFeet ? 1 : 0) + 
+           (filters.maxSquareFeet ? 1 : 0);
+  };
 
   const handleCitySearch = () => {
     // This will be called when overlay closes
@@ -119,6 +199,7 @@ const Index = () => {
     // Generate properties for the selected city
     const newProperties = generateProperties(city);
     setProperties(newProperties);
+    setFilteredProperties(newProperties);
     
     // Select the first property by default
     setSelectedProperty(newProperties[0]);
@@ -133,15 +214,71 @@ const Index = () => {
     setSelectedProperty(property);
   };
 
+  const handleFiltersToggle = () => {
+    setIsFilterPanelOpen(!isFilterPanelOpen);
+  };
+
+  const handleFiltersChange = (newFilters: FilterCriteria) => {
+    setFilters(newFilters);
+  };
+
+  const handleApplyFilters = () => {
+    applyFilters();
+    setIsFilterPanelOpen(false);
+  };
+
+  const handleClearFilters = () => {
+    setFilters(defaultFilters);
+    setFilteredProperties(properties);
+    setHasActiveFilters(false);
+  };
+
   const showPropertiesView = !isEmptyState && !isLoading && properties.length > 0;
+  const displayProperties = hasActiveFilters ? filteredProperties : properties;
 
   return (
     <div className="h-screen bg-background relative">
       {/* Header */}
-      <Header />
+      <Header 
+        onFiltersClick={showPropertiesView ? handleFiltersToggle : undefined}
+        activeFilterCount={getActiveFilterCount()}
+      />
+
+      {/* Filter Panel */}
+      <FilterPanel
+        isOpen={isFilterPanelOpen}
+        filters={filters}
+        onFiltersChange={handleFiltersChange}
+        onClose={() => setIsFilterPanelOpen(false)}
+        onApply={handleApplyFilters}
+        onClear={handleClearFilters}
+      />
+
+      {/* Active Filters Bar */}
+      {hasActiveFilters && (
+        <div className="fixed top-[294px] left-0 right-0 z-30 bg-yellow-100 border-b border-yellow-200 px-6 py-2">
+          <div className="flex items-center justify-between">
+            <span className="text-sm text-yellow-800">
+              {getActiveFilterCount()} filter{getActiveFilterCount() !== 1 ? 's' : ''} active
+            </span>
+            <button 
+              onClick={handleClearFilters}
+              className="text-sm text-yellow-800 hover:text-yellow-900 underline"
+            >
+              Clear
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Main Content Area */}
-      <div className="flex" style={{ height: 'calc(100vh - 56px)' }}>
+      <div 
+        className="flex" 
+        style={{ 
+          height: 'calc(100vh - 56px)',
+          marginTop: isFilterPanelOpen ? '280px' : hasActiveFilters ? '36px' : '0'
+        }}
+      >
         {/* Map View */}
         <MapView 
           className="z-0"
@@ -149,7 +286,7 @@ const Index = () => {
             filter: (isEmptyState && !isLoading) ? 'grayscale(100%) brightness(1.2)' : 'none',
             opacity: (isEmptyState && !isLoading) ? 0.3 : 1
           }}
-          properties={showPropertiesView ? properties : []}
+          properties={showPropertiesView ? displayProperties : []}
           selectedProperty={selectedProperty}
           onPropertySelect={handlePropertySelect}
           showPanel={showPropertiesView}

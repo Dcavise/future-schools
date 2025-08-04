@@ -1,7 +1,14 @@
 import React from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Filter } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
-export function Header() {
+interface HeaderProps {
+  onFiltersClick?: () => void;
+  activeFilterCount?: number;
+}
+
+export function Header({ onFiltersClick, activeFilterCount = 0 }: HeaderProps) {
   return (
     <header 
       className="fixed top-0 left-0 right-0 z-[100] h-14 bg-white flex items-center justify-between px-6"
@@ -10,8 +17,8 @@ export function Header() {
         backgroundColor: '#FFFFFF'
       }}
     >
-      {/* Left side - Logo */}
-      <div className="flex items-center">
+      {/* Left side - Logo and Filters */}
+      <div className="flex items-center gap-6">
         <h1 
           className="text-xl font-semibold cursor-pointer"
           style={{ 
@@ -21,6 +28,25 @@ export function Header() {
         >
           Primer
         </h1>
+        
+        {onFiltersClick && (
+          <div className="relative">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onFiltersClick}
+              className="flex items-center gap-2"
+            >
+              <Filter className="h-4 w-4" />
+              Add Filters
+              {activeFilterCount > 0 && (
+                <Badge variant="secondary" className="ml-1 h-5 w-5 p-0 flex items-center justify-center text-xs">
+                  {activeFilterCount}
+                </Badge>
+              )}
+            </Button>
+          </div>
+        )}
       </div>
       
       {/* Right side - User Menu */}
