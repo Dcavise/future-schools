@@ -80,9 +80,7 @@ export function MapView({
         zoom,
         bearing: 0,
         pitch: 0,
-        dragRotate: false,
-        minZoom: 10, // City level minimum
-        maxZoom: 14  // Neighborhood level maximum
+        dragRotate: false
       });
 
       // Navigation controls are added in a separate effect based on properties
@@ -280,187 +278,57 @@ export function MapView({
     }
   };
 
-  // Add individual markers with enhanced styling
+  // Add individual markers
   const addMarkers = () => {
-    // Group properties by proximity for clustering
-    const clusters = clusterMarkers(properties);
-    
-    clusters.forEach(cluster => {
-      if (cluster.properties.length > 1) {
-        // Create cluster marker
-        addClusterMarker(cluster);
-      } else {
-        // Create individual marker
-        addIndividualMarker(cluster.properties[0]);
-      }
-    });
-  };
-
-  // Cluster markers when too many are close together
-  const clusterMarkers = (properties: Property[]) => {
-    const clusters: Array<{
-      lat: number;
-      lng: number;
-      properties: Property[];
-    }> = [];
-    const processed = new Set<string>();
-    
     properties.forEach(property => {
-      if (processed.has(property.id)) return;
+      const isSelected = selectedProperty?.id === property.id;
       
-      const cluster = {
-        lat: property.lat,
-        lng: property.lng,
-        properties: [property]
+      // Create marker element
+      const el = document.createElement('div');
+      el.className = 'property-marker';
+      el.style.width = isSelected ? '20px' : '16px';
+      el.style.height = isSelected ? '20px' : '16px';
+      el.style.borderRadius = '50%';
+      el.style.cursor = 'pointer';
+      el.style.border = isSelected ? '3px solid #fff' : '2px solid #fff';
+      el.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
+      el.style.transition = 'all 0.2s ease';
+      
+      // Set color based on status
+      const colors = {
+        qualified: '#10B981',
+        review: '#F59E0B', 
+        disqualified: '#EF4444'
       };
-      
-      // Find nearby properties (within ~50px at current zoom)
-      const threshold = 0.01; // Rough distance threshold
-      properties.forEach(otherProperty => {
-        if (processed.has(otherProperty.id) || otherProperty.id === property.id) return;
-        
-        const distance = Math.sqrt(
-          Math.pow(property.lat - otherProperty.lat, 2) + 
-          Math.pow(property.lng - otherProperty.lng, 2)
-        );
-        
-        if (distance < threshold && cluster.properties.length < 20) {
-          cluster.properties.push(otherProperty);
-          processed.add(otherProperty.id);
+      el.style.backgroundColor = colors[property.status];
+
+      // Add hover effects
+      el.addEventListener('mouseenter', () => {
+        if (!isSelected) {
+          el.style.width = '20px';
+          el.style.height = '20px';
         }
       });
-      
-      processed.add(property.id);
-      clusters.push(cluster);
+
+      el.addEventListener('mouseleave', () => {
+        if (!isSelected) {
+          el.style.width = '16px';
+          el.style.height = '16px';
+        }
+      });
+
+      // Add click handler
+      el.addEventListener('click', () => {
+        onPropertySelect?.(property);
+      });
+
+      // Create and add marker
+      const marker = new mapboxgl.Marker(el)
+        .setLngLat([property.lng, property.lat])
+        .addTo(map.current!);
+
+      markersRef.current[property.id] = marker;
     });
-    
-    return clusters;
-  };
-
-  // Create individual property marker
-  const addIndividualMarker = (property: Property) => {
-    const isSelected = selectedProperty?.id === property.id;
-    
-    // Create marker element
-    const el = document.createElement('div');
-    el.className = 'property-marker';
-    el.style.width = '32px';
-    el.style.height = '32px';
-    el.style.borderRadius = '50%';
-    el.style.cursor = 'pointer';
-    el.style.border = '2px solid white';
-    el.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
-    el.style.transition = 'all 0.2s ease';
-    el.style.position = 'relative';
-    el.style.zIndex = isSelected ? '10' : '1';
-    
-    // Status colors
-    const colors = {
-      qualified: '#10B981',
-      review: '#F59E0B', 
-      disqualified: '#EF4444'
-    };
-    el.style.backgroundColor = colors[property.status];
-
-    // Selected state styling
-    if (isSelected) {
-      el.style.transform = 'scale(1.2)';
-      
-      // Add outer ring animation
-      const ring = document.createElement('div');
-      ring.style.position = 'absolute';
-      ring.style.top = '-4px';
-      ring.style.left = '-4px';
-      ring.style.width = '40px';
-      ring.style.height = '40px';
-      ring.style.borderRadius = '50%';
-      ring.style.border = '2px solid ' + colors[property.status];
-      ring.style.opacity = '0.6';
-      ring.style.animation = 'pulse 2s infinite';
-      el.appendChild(ring);
-    }
-
-    // Add hover effects
-    el.addEventListener('mouseenter', () => {
-      if (!isSelected) {
-        el.style.transform = 'scale(1.1)';
-      }
-    });
-
-    el.addEventListener('mouseleave', () => {
-      if (!isSelected) {
-        el.style.transform = 'scale(1)';
-      }
-    });
-
-    // Add click handler
-    el.addEventListener('click', () => {
-      onPropertySelect?.(property);
-    });
-
-    // Create and add marker
-    const marker = new mapboxgl.Marker(el)
-      .setLngLat([property.lng, property.lat])
-      .addTo(map.current!);
-
-    markersRef.current[property.id] = marker;
-  };
-
-  // Create cluster marker
-  const addClusterMarker = (cluster: { lat: number; lng: number; properties: Property[] }) => {
-    const count = cluster.properties.length;
-    
-    // Create cluster element
-    const el = document.createElement('div');
-    el.className = 'cluster-marker';
-    
-    // Size scales with count (40-60px)
-    const size = Math.min(60, 40 + (count - 20) * 0.5);
-    el.style.width = `${size}px`;
-    el.style.height = `${size}px`;
-    el.style.backgroundColor = '#3B82F6';
-    el.style.borderRadius = '50%';
-    el.style.cursor = 'pointer';
-    el.style.border = '2px solid white';
-    el.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
-    el.style.display = 'flex';
-    el.style.alignItems = 'center';
-    el.style.justifyContent = 'center';
-    el.style.color = 'white';
-    el.style.fontWeight = 'bold';
-    el.style.fontSize = '14px';
-    el.style.transition = 'all 0.2s ease';
-    
-    el.textContent = count.toString();
-
-    // Add hover effect
-    el.addEventListener('mouseenter', () => {
-      el.style.transform = 'scale(1.1)';
-    });
-
-    el.addEventListener('mouseleave', () => {
-      el.style.transform = 'scale(1)';
-    });
-
-    // Add click handler to zoom in
-    el.addEventListener('click', () => {
-      if (map.current) {
-        map.current.flyTo({
-          center: [cluster.lng, cluster.lat],
-          zoom: Math.min(map.current.getZoom() + 2, 14),
-          duration: 1000
-        });
-      }
-    });
-
-    // Create and add marker
-    const marker = new mapboxgl.Marker(el)
-      .setLngLat([cluster.lng, cluster.lat])
-      .addTo(map.current!);
-
-    // Store cluster marker with a unique ID
-    const clusterId = `cluster_${cluster.lat}_${cluster.lng}`;
-    markersRef.current[clusterId] = marker;
   };
 
   // Update property visualization when properties change
@@ -490,16 +358,11 @@ export function MapView({
           bounds.extend([property.lng, property.lat]);
         });
         
-        // Fly to bounds with proper padding for header and panel
+        // Fly to bounds with smooth animation
         map.current.fitBounds(bounds, { 
-          padding: { 
-            top: 50, 
-            bottom: 50, 
-            left: 50, 
-            right: showPanel ? 470 : 50 // Account for property panel
-          },
-          maxZoom: 14, // Neighborhood level max
-          duration: 1000
+          padding: showPanel ? { right: 440, top: 50, bottom: 50, left: 50 } : 50,
+          maxZoom: 15,
+          duration: 1000  // 1 second smooth transition
         });
       }
     }
@@ -517,13 +380,10 @@ export function MapView({
 
   return (
     <div 
-      className={`absolute ${className}`} 
+      className={`relative ${className}`} 
       style={{ 
         ...style,
-        top: '56px',
-        bottom: 0,
-        left: 0,
-        right: showPanel && !isHeatmapMode ? '420px' : 0
+        width: showPanel && !isHeatmapMode ? 'calc(100% - 420px)' : '100%'
       }}
     >
       <div ref={mapContainer} className="w-full h-full" />
