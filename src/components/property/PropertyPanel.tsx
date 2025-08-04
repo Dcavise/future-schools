@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Building, Check, HelpCircle, X as XIcon, User, ChevronLeft, ChevronRight, UserPlus, Calendar, Clock, AlertCircle, ChevronDown } from 'lucide-react';
@@ -447,8 +448,22 @@ export function PropertyPanel({
           <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-wide mb-3">Property Details</h3>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <div className="text-xs text-[#6B7280] mb-1">Square Feet</div>
-              <div className="text-sm text-[#1A1A1A]">{property.square_feet?.toLocaleString() || 'N/A'}</div>
+              <div className="text-xs text-[#6B7280] mb-1">Parcel Sq Ft</div>
+              <Input
+                type="number"
+                value={property.parcel_sq_ft || ''}
+                onChange={(e) => onPropertyUpdate?.({ ...property, parcel_sq_ft: e.target.value ? parseInt(e.target.value) : null })}
+                className="text-sm"
+              />
+            </div>
+            <div>
+              <div className="text-xs text-[#6B7280] mb-1">Building Sq Ft</div>
+              <Input
+                type="number"
+                value={property.square_feet || ''}
+                onChange={(e) => onPropertyUpdate?.({ ...property, square_feet: e.target.value ? parseInt(e.target.value) : null })}
+                className="text-sm"
+              />
             </div>
             <div>
               <div className="text-xs text-[#6B7280] mb-1">ZIP Code</div>
