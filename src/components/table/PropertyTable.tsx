@@ -305,23 +305,29 @@ export function PropertyTable({
     <div className="flex flex-col h-full bg-white">
       {/* Bulk Actions Bar */}
       {selectedProperties.length > 0 && (
-        <div className="border border-blue-500 bg-blue-50 px-6 py-3 animate-in slide-in-from-top-2 duration-200">
-          <div className="flex items-center justify-between">
+        <div 
+          className="h-14 border border-[#3B82F6] bg-[#EBF5FF] px-6 animate-in slide-in-from-top-2 duration-200"
+          style={{ backgroundColor: '#EBF5FF', borderColor: '#3B82F6' }}
+        >
+          <div className="flex items-center justify-between h-full">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-blue-600" />
+                <Checkbox 
+                  checked={true} 
+                  className="h-4 w-4 pointer-events-none" 
+                />
                 <span className="text-sm font-medium text-blue-900">
                   {selectedProperties.length} properties selected
                 </span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button size="sm" variant="outline" className="bg-white">
+                    <Button size="sm" variant="outline" className="bg-white border-gray-300 hover:bg-gray-50">
                       Assign Owner <ChevronDown className="h-4 w-4 ml-1" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start">
+                  <DropdownMenuContent align="start" className="bg-white">
                     <DropdownMenuItem onClick={() => handleAssignOwner('John Smith')}>
                       John Smith
                     </DropdownMenuItem>
@@ -331,28 +337,28 @@ export function PropertyTable({
                     <DropdownMenuItem onClick={() => handleAssignOwner('Mike Chen')}>
                       Mike Chen
                     </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleAssignOwner('Lisa Williams')}>
+                      Lisa Williams
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => handleAssignOwner('Unassigned')}>
                       Unassigned
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
                 
-                <Button size="sm" variant="outline" onClick={handleExport} className="bg-white">
-                  <Download className="h-4 w-4 mr-1" />
-                  Export
+                <Button size="sm" variant="outline" onClick={handleExport} className="bg-white border-gray-300 hover:bg-gray-50">
+                  Export CSV
                 </Button>
                 
                 {getContextualActions() && (
-                  <Button size="sm" variant="outline" className="bg-white">
-                    <CheckCircle className="h-4 w-4 mr-1" />
+                  <Button size="sm" variant="outline" className="bg-white border-gray-300 hover:bg-gray-50">
                     Schedule Site Visits
                   </Button>
                 )}
                 
                 <AlertDialog open={showArchiveDialog} onOpenChange={setShowArchiveDialog}>
                   <AlertDialogTrigger asChild>
-                    <Button size="sm" variant="outline" className="bg-white text-orange-700 border-orange-300 hover:bg-orange-50">
-                      <Archive className="h-4 w-4 mr-1" />
+                    <Button size="sm" variant="outline" className="bg-white border-gray-300 hover:bg-gray-50">
                       Archive
                     </Button>
                   </AlertDialogTrigger>
@@ -360,8 +366,7 @@ export function PropertyTable({
                     <AlertDialogHeader>
                       <AlertDialogTitle>Archive Properties</AlertDialogTitle>
                       <AlertDialogDescription>
-                        Are you sure you want to archive {selectedProperties.length} properties? 
-                        This will remove them from the current view.
+                        Archive {selectedProperties.length} properties? This action cannot be undone.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -372,14 +377,12 @@ export function PropertyTable({
                 </AlertDialog>
               </div>
             </div>
-            <Button 
-              variant="ghost" 
-              size="sm"
+            <button 
               onClick={() => onSelectionChange([])}
-              className="text-blue-700 hover:text-blue-900 hover:bg-blue-100"
+              className="text-sm text-blue-700 hover:text-blue-900 underline font-medium"
             >
               Deselect All
-            </Button>
+            </button>
           </div>
         </div>
       )}
