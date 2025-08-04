@@ -1,10 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Property, PropertyCluster } from '@/types/property';
-import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { MapPin } from 'lucide-react';
 
 interface PropertyMapProps {
   properties: Property[];
