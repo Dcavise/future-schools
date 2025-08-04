@@ -1,73 +1,122 @@
-# Welcome to your Lovable project
+# SEEK - Future Schools Property Management Platform
 
-## Project info
+## Project Overview
 
-**URL**: https://lovable.dev/projects/0ad8503d-a0ea-4d34-abec-2d10621cdd43
+SEEK is a comprehensive property management platform designed for analyzing and managing educational properties. The application provides powerful tools for property search, filtering, visualization, and compliance tracking.
 
-## How can I edit this code?
+### Key Features
 
-There are several ways of editing your application.
+- **Interactive Property Search**: Search by city or address to discover educational properties
+- **Advanced Mapping**: MapBox-powered interactive maps with property visualization and heatmap support
+- **Smart Filtering**: Multi-criteria filtering with live preview and quick filter overlays
+- **Property Management**: Detailed property information including compliance tracking and assignment management  
+- **Table View**: Comprehensive data table with selection and export capabilities
+- **Data Import**: CSV import functionality with column mapping and validation
+- **Analytics Dashboard**: Performance metrics and reporting tools
+- **Team Management**: User assignments and collaboration features
 
-**Use Lovable**
+## Architecture
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/0ad8503d-a0ea-4d34-abec-2d10621cdd43) and start prompting.
+### Frontend Structure
+```
+src/
+├── components/           # Reusable UI components
+│   ├── filters/         # Filter panels and overlays
+│   ├── import/          # Data import components
+│   ├── layout/          # Navigation and layout
+│   ├── map/             # MapBox integration
+│   ├── property/        # Property management UI
+│   ├── search/          # Search functionality
+│   ├── shared/          # Common components
+│   ├── table/           # Data table components
+│   └── ui/              # shadcn/ui component library
+├── data/                # Mock data and fixtures
+├── hooks/               # Custom React hooks
+├── lib/                 # Utility functions
+├── pages/               # Route components
+├── types/               # TypeScript definitions
+└── main.tsx            # Application entry point
+```
 
-Changes made via Lovable will be committed automatically to this repo.
+## Technology Stack
 
-**Use your preferred IDE**
+- **Frontend Framework**: React 18 with TypeScript
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS with shadcn/ui components
+- **Mapping**: MapBox GL JS
+- **Routing**: React Router v6
+- **State Management**: React hooks and context
+- **Form Handling**: React Hook Form with Zod validation
+- **Charts**: Recharts
+- **Development**: ESLint, TypeScript compiler
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## Getting Started
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Prerequisites
+- Node.js 18+ 
+- npm or bun package manager
 
-Follow these steps:
+### Installation
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+```bash
+# Clone the repository
+git clone <repository-url>
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Navigate to the project directory
+cd seek-property-platform
 
-# Step 3: Install the necessary dependencies.
-npm i
+# Install dependencies
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start the development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Available Scripts
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```bash
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run build:dev    # Build in development mode
+npm run lint         # Run ESLint
+npm run preview      # Preview production build
+```
 
-**Use GitHub Codespaces**
+## Development
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Project Structure
+The application follows a modular component architecture with clear separation of concerns:
 
-## What technologies are used for this project?
+- **Components**: Organized by feature area (filters, map, property, etc.)
+- **Pages**: Route-level components handling page logic
+- **Hooks**: Custom hooks for shared logic
+- **Types**: Centralized TypeScript definitions
+- **Data**: Mock data and API integrations
 
-This project is built with:
+### Key Components
+- `MapView`: Interactive MapBox-powered property visualization
+- `PropertyPanel`: Detailed property information and editing
+- `FilterPanel`: Advanced filtering with live preview
+- `PropertyTable`: Data table with sorting and selection
+- `SearchOverlay`: City and address search functionality
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## Property Data Model
 
-## How can I deploy this project?
+Properties include comprehensive information:
+- Location data (address, coordinates, zoning)
+- Compliance tracking (fire sprinklers, occupancy, zoning by right)
+- Assignment and workflow status
+- External system integration
+- Historical tracking and notes
 
-Simply open [Lovable](https://lovable.dev/projects/0ad8503d-a0ea-4d34-abec-2d10621cdd43) and click on Share -> Publish.
+## Contributing
 
-## Can I connect a custom domain to my Lovable project?
+1. Follow the existing code structure and naming conventions
+2. Use TypeScript for all new code
+3. Implement responsive design with Tailwind CSS
+4. Add appropriate error handling and loading states
+5. Run linting before submitting changes
 
-Yes, you can!
+## License
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+This project is private and proprietary.
