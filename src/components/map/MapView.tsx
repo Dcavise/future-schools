@@ -4,14 +4,14 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { Property } from '@/types/property';
 import { cities } from '@/components/layout/TopNavigation';
 
-interface PropertyMapProps {
+interface MapViewProps {
   properties: Property[];
   selectedProperty: Property | null;
   onPropertySelect: (property: Property | null) => void;
   selectedCity: string;
 }
 
-export function PropertyMap({ properties, selectedProperty, onPropertySelect, selectedCity }: PropertyMapProps) {
+export function MapView({ properties, selectedProperty, onPropertySelect, selectedCity }: MapViewProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const mapboxToken = 'pk.eyJ1IjoiZ3J1YmNsdWIxMjMiLCJhIjoiY203bmszdnFsMDF5czJxbjFuampiNXUwOSJ9.YixeEGA2iZd5yFhbyKv9Vg';

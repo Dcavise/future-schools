@@ -1,8 +1,8 @@
 import { useState, useMemo } from 'react';
 import { Property, FilterCriteria } from '@/types/property';
 import { mockProperties } from '@/data/mockProperties';
-import { TopNavigation } from '@/components/layout/TopNavigation';
-import { PropertyMap } from '@/components/property/PropertyMap';
+import { Header } from '@/components/shared/Header';
+import { MapView } from '@/components/map/MapView';
 import { PropertyDetailsPanel } from '@/components/property/PropertyDetailsPanel';
 import { FilterMenu } from '@/components/property/FilterMenu';
 import { SearchOverlay } from '@/components/search/SearchOverlay';
@@ -83,18 +83,15 @@ const Index = () => {
 
   return (
     <div className="h-screen flex flex-col bg-background">
-      {/* Top Navigation */}
-      <TopNavigation
-        selectedCity={selectedCity}
-        onCityChange={setSelectedCity}
-      />
+      {/* Header */}
+      <Header />
 
       {/* Main Content */}
       <div className="flex-1 flex gap-4 p-4 min-h-0">
         {/* Map Section - Full width in empty state, 70% otherwise */}
         <div className={`${isEmptyState ? 'flex-1' : 'flex-[7]'} min-h-0 relative`}>
           <div className={isEmptyState ? 'opacity-30 grayscale' : ''}>
-            <PropertyMap
+            <MapView
               properties={isEmptyState ? [] : filteredProperties}
               selectedProperty={selectedProperty}
               selectedCity={selectedCity}
