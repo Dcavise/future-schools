@@ -16,6 +16,7 @@ interface FilterCriteria {
   propertyType: string[];
   minSquareFeet: string;
   maxSquareFeet: string;
+  sizeRange: string[];
 }
 
 const defaultFilters: FilterCriteria = {
@@ -23,7 +24,8 @@ const defaultFilters: FilterCriteria = {
   compliance: [],
   propertyType: [],
   minSquareFeet: '',
-  maxSquareFeet: ''
+  maxSquareFeet: '',
+  sizeRange: []
 };
 
 const generateProperties = (city: string, count?: number): Property[] => {
@@ -164,6 +166,7 @@ const Index = () => {
     const isActive = filters.status.length > 0 || 
                     filters.compliance.length > 0 || 
                     filters.propertyType.length > 0 ||
+                    (filters.sizeRange?.length || 0) > 0 ||
                     filters.minSquareFeet !== '' ||
                     filters.maxSquareFeet !== '';
     setHasActiveFilters(isActive);
@@ -173,6 +176,7 @@ const Index = () => {
     return filters.status.length + 
            filters.compliance.length + 
            filters.propertyType.length + 
+           (filters.sizeRange?.length || 0) +
            (filters.minSquareFeet ? 1 : 0) + 
            (filters.maxSquareFeet ? 1 : 0);
   };
