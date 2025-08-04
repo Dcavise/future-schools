@@ -365,9 +365,12 @@ export function MapView({
 
   // Update property visualization when properties change
   useEffect(() => {
-    if (!map.current) return;
+    if (!map.current) {
+      console.log('MapView - useEffect: No map instance');
+      return;
+    }
 
-    console.log('MapView - properties changed:', {
+    console.log('MapView - useEffect: Starting properties processing', {
       propertiesCount: properties.length,
       selectedProperty: selectedProperty?.address || 'none',
       selectedPropertyId: selectedProperty?.id || 'none',
@@ -401,9 +404,11 @@ export function MapView({
 
     if (isHeatmapMode) {
       // Use heatmap for large datasets
+      console.log('MapView - Adding heatmap layer');
       addHeatmapLayer();
     } else {
       // Use individual markers for smaller datasets
+      console.log('MapView - Adding individual markers');
       addMarkers();
       
       // Fly to selected property if specified, otherwise show all properties
