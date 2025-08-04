@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Building, Check, HelpCircle, X as XIcon, User, ChevronLeft, ChevronRight, UserPlus, Calendar, Clock, AlertCircle } from 'lucide-react';
+import { Building, Check, HelpCircle, X as XIcon, User, ChevronLeft, ChevronRight, UserPlus, Calendar, Clock, AlertCircle, ChevronDown } from 'lucide-react';
 import { Property } from '@/types/property';
 
 interface PropertyPanelProps {
@@ -129,25 +129,40 @@ export function PropertyPanel({
     }
   };
 
-  const getComplianceIcon = (value: boolean | string | null) => {
-    if (value === true || value === 'Yes') return <Check className="h-4 w-4 text-green-600" />;
-    if (value === false || value === 'No') return <XIcon className="h-4 w-4 text-red-600" />;
+  const getComplianceIcon = (value: boolean | string | null, field: 'zoning' | 'sprinkler' | 'occupancy') => {
+    if (field === 'occupancy') {
+      // Occupancy never shows green, always neutral
+      return <HelpCircle className="h-4 w-4 text-gray-400" />;
+    }
+    
+    if (value === true || value === 'yes') return <Check className="h-4 w-4 text-green-600" />;
+    if (value === false || value === 'no') return <XIcon className="h-4 w-4 text-red-600" />;
     return <HelpCircle className="h-4 w-4 text-yellow-600" />;
   };
 
   const getComplianceStatus = (value: boolean | string | null) => {
-    if (value === true || value === 'Yes') return "Compliant";
-    if (value === false || value === 'No') return "Non-compliant"; 
+    if (value === true || value === 'yes') return "Yes";
+    if (value === false || value === 'no') return "No"; 
+    if (value === 'special-exemption') return "Special Exemption";
     return "Unknown";
   };
 
   const getOccupancyLabel = (occupancy: string | null) => {
-    switch (occupancy) {
-      case 'E': return 'Educational';
-      case 'A': return 'Assembly';
-      case 'Other': return 'Other';
-      default: return 'Unknown';
-    }
+    const occupancyMap: { [key: string]: string } = {
+      'assembly': 'Assembly',
+      'business': 'Business',
+      'educational': 'Educational',
+      'factory': 'Factory',
+      'industrial': 'Industrial',
+      'institutional': 'Institutional',
+      'mercantile': 'Mercantile',
+      'residential': 'Residential',
+      'storage': 'Storage',
+      'utility': 'Utility',
+      'other': 'Other',
+      'unknown': 'Unknown'
+    };
+    return occupancyMap[occupancy || 'unknown'] || 'Unknown';
   };
 
   const getPrimaryAction = (status: string) => {
@@ -324,66 +339,101 @@ export function PropertyPanel({
         {/* Compliance Requirements Section */}
         <div className="mb-6">
           <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-wide mb-4">Compliance Requirements</h3>
-          <div className="grid grid-cols-2 gap-3 p-4 bg-[#F9FAFB] rounded-lg">
+          <div className="space-y-3">
             {/* Zoning By-Right */}
-            <div className={`flex items-center gap-2 p-3 bg-white rounded border-l-3 ${
-              property.zoning_by_right === true ? 'border-l-[#10B981] bg-[#F0FDF4]' :
-              property.zoning_by_right === false ? 'border-l-[#EF4444] bg-[#FEF2F2]' : 
-              'border-l-[#F59E0B] bg-[#FFFBEB] cursor-pointer hover:border-l-[#D97706] hover:shadow-sm'
+            <div className={`flex items-center gap-3 p-3 bg-white rounded border ${
+              property.zoning_by_right === true ? 'border-green-200 bg-green-50' :
+              property.zoning_by_right === false ? 'border-red-200 bg-red-50' : 
+              property.zoning_by_right === 'special-exemption' ? 'border-yellow-200 bg-yellow-50' :
+              'border-gray-200'
             }`}>
-              {getComplianceIcon(property.zoning_by_right)}
-              <div className="min-w-0 flex-1">
-                <div className="text-xs font-medium text-gray-900">Zoning By-Right</div>
-                <div className="text-xs text-gray-600">{getComplianceStatus(property.zoning_by_right)}</div>
-                {property.zoning_by_right === false && (
-                  <div className="text-xs text-[#DC2626] mt-1">Non-conforming use</div>
-                )}
-                {property.zoning_by_right === null && property.status === 'new' && (
-                  <div className="text-xs text-[#D97706] mt-1">Click to update</div>
-                )}
+              {getComplianceIcon(property.zoning_by_right, 'zoning')}
+              <div className="flex-1">
+                <div className="text-sm font-medium text-gray-900 mb-1">Zoning By-Right</div>
+                <Select 
+                  value={property.zoning_by_right === true ? 'yes' : 
+                         property.zoning_by_right === false ? 'no' : 
+                         property.zoning_by_right === 'special-exemption' ? 'special-exemption' : 'unknown'} 
+                  onValueChange={(value) => {
+                    let newValue: boolean | string | null;
+                    if (value === 'yes') newValue = true;
+                    else if (value === 'no') newValue = false;
+                    else if (value === 'special-exemption') newValue = 'special-exemption';
+                    else newValue = null;
+                    onPropertyUpdate?.({ ...property, zoning_by_right: newValue });
+                  }}
+                >
+                  <SelectTrigger className="h-8 w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="yes">Yes</SelectItem>
+                    <SelectItem value="special-exemption">Special Exemption</SelectItem>
+                    <SelectItem value="no">No</SelectItem>
+                    <SelectItem value="unknown">Unknown</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
-            
+
             {/* Fire Sprinklers */}
-            <div className={`flex items-center gap-2 p-3 bg-white rounded border-l-3 ${
-              property.fire_sprinkler_status === 'Yes' ? 'border-l-[#10B981] bg-[#F0FDF4]' :
-              property.fire_sprinkler_status === 'No' ? 'border-l-[#EF4444] bg-[#FEF2F2]' : 
-              'border-l-[#F59E0B] bg-[#FFFBEB] cursor-pointer hover:border-l-[#D97706] hover:shadow-sm'
+            <div className={`flex items-center gap-3 p-3 bg-white rounded border ${
+              property.fire_sprinkler_status === 'yes' ? 'border-green-200 bg-green-50' :
+              property.fire_sprinkler_status === 'no' ? 'border-red-200 bg-red-50' : 
+              'border-gray-200'
             }`}>
-              {getComplianceIcon(property.fire_sprinkler_status)}
-              <div className="min-w-0 flex-1">
-                <div className="text-xs font-medium text-gray-900">Fire Sprinklers</div>
-                <div className="text-xs text-gray-600">{getComplianceStatus(property.fire_sprinkler_status)}</div>
-                {property.fire_sprinkler_status === 'No' && (
-                  <div className="text-xs text-[#DC2626] mt-1">System not present</div>
-                )}
-                {property.fire_sprinkler_status === null && property.status === 'new' && (
-                  <div className="text-xs text-[#D97706] mt-1">Click to update</div>
-                )}
+              {getComplianceIcon(property.fire_sprinkler_status, 'sprinkler')}
+              <div className="flex-1">
+                <div className="text-sm font-medium text-gray-900 mb-1">Fire Sprinklers</div>
+                <Select 
+                  value={property.fire_sprinkler_status || 'unknown'} 
+                  onValueChange={(value) => {
+                    const newValue = value === 'unknown' ? null : value;
+                    onPropertyUpdate?.({ ...property, fire_sprinkler_status: newValue });
+                  }}
+                >
+                  <SelectTrigger className="h-8 w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="yes">Yes</SelectItem>
+                    <SelectItem value="no">No</SelectItem>
+                    <SelectItem value="unknown">Unknown</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
-            
+
             {/* Current Occupancy */}
-            <div className={`flex items-center gap-2 p-3 bg-white rounded border-l-3 ${
-              property.current_occupancy !== null ? 'border-l-[#10B981] bg-[#F0FDF4]' : 
-              'border-l-[#F59E0B] bg-[#FFFBEB] cursor-pointer hover:border-l-[#D97706] hover:shadow-sm'
-            }`}>
-              {getComplianceIcon(property.current_occupancy !== null)}
-              <div className="min-w-0 flex-1">
-                <div className="text-xs font-medium text-gray-900">Current Occupancy</div>
-                <div className="text-xs text-gray-600">{getOccupancyLabel(property.current_occupancy)}</div>
-                {property.current_occupancy === null && property.status === 'new' && (
-                  <div className="text-xs text-[#D97706] mt-1">Click to update</div>
-                )}
-              </div>
-            </div>
-            
-            {/* Building Access */}
-            <div className="flex items-center gap-2 p-3 bg-white rounded border-l-3 border-l-gray-200">
-              <HelpCircle className="h-4 w-4 text-gray-400" />
-              <div className="min-w-0 flex-1">
-                <div className="text-xs font-medium text-gray-900">Building Access</div>
-                <div className="text-xs text-gray-600">Pending Review</div>
+            <div className="flex items-center gap-3 p-3 bg-white rounded border border-gray-200">
+              {getComplianceIcon(property.current_occupancy, 'occupancy')}
+              <div className="flex-1">
+                <div className="text-sm font-medium text-gray-900 mb-1">Current Occupancy</div>
+                <Select 
+                  value={property.current_occupancy || 'unknown'} 
+                  onValueChange={(value) => {
+                    const newValue = value === 'unknown' ? null : value;
+                    onPropertyUpdate?.({ ...property, current_occupancy: newValue });
+                  }}
+                >
+                  <SelectTrigger className="h-8 w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="assembly">Assembly</SelectItem>
+                    <SelectItem value="business">Business</SelectItem>
+                    <SelectItem value="educational">Educational</SelectItem>
+                    <SelectItem value="factory">Factory</SelectItem>
+                    <SelectItem value="industrial">Industrial</SelectItem>
+                    <SelectItem value="institutional">Institutional</SelectItem>
+                    <SelectItem value="mercantile">Mercantile</SelectItem>
+                    <SelectItem value="residential">Residential</SelectItem>
+                    <SelectItem value="storage">Storage</SelectItem>
+                    <SelectItem value="utility">Utility</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                    <SelectItem value="unknown">Unknown</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>

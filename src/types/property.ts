@@ -9,7 +9,7 @@ export interface Property {
   parcel_number: string | null; // VARCHAR(50)
   square_feet: number | null; // INTEGER
   zoning_code: string | null; // VARCHAR(20)
-  zoning_by_right: boolean | null; // BOOLEAN
+  zoning_by_right: boolean | string | null; // BOOLEAN or VARCHAR(50) for special-exemption
   current_occupancy: string | null; // VARCHAR(50) - E, A, Other
   fire_sprinkler_status: string | null; // VARCHAR(20) - Yes, No
   assigned_to: string | null; // UUID (FK)
@@ -34,7 +34,7 @@ export interface Property {
 }
 
 export interface FilterCriteria {
-  zoning_by_right: boolean | null;
+  zoning_by_right: boolean | string | null;
   fire_sprinkler_status: string | null;
   current_occupancy: string[];
   min_square_feet: number;
