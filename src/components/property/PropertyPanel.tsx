@@ -145,14 +145,14 @@ export function PropertyPanel({
       case 'unreviewed':
         return (
           <div className="space-y-2">
-            <Button variant="outline" className="w-full border-blue-200 text-blue-700 hover:bg-blue-50 py-3">
+            <Button className="w-full bg-[#3B82F6] hover:bg-blue-700 text-white font-semibold py-3">
               Complete Review
             </Button>
             {!property?.assignedAnalyst && (
               <Button 
                 onClick={() => onAssignAnalyst?.(property!)}
-                variant="secondary" 
-                className="w-full py-3"
+                variant="outline"
+                className="w-full bg-transparent border border-[#E5E7EB] text-[#6B7280] hover:bg-gray-50 py-3"
               >
                 <UserPlus className="h-4 w-4 mr-2" />
                 Assign Analyst
@@ -395,18 +395,10 @@ export function PropertyPanel({
           />
         </div>
 
-        {/* Action Section */}
-        <div className="pt-6 border-t border-gray-200 mb-6">
-          {getPrimaryAction(property.status)}
-        </div>
 
-        {/* Scoping Notes */}
-        <div className="mb-6">
-          <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-wide mb-3">Scoping Notes</h3>
-          <Textarea 
-            placeholder="Add notes about this property..."
-            className="min-h-[100px] resize-none border-gray-200"
-          />
+        {/* Action Section */}
+        <div className="pt-4 border-t border-gray-200">
+          {getPrimaryAction(property.status)}
         </div>
       </div>
     </div>
