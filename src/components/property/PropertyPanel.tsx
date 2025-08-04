@@ -48,6 +48,61 @@ const TEAM_MEMBERS = [
   { value: 'ryan-d', label: 'Ryan D' },
 ];
 
+// Editable field component
+const EditableField = ({ label, value, onSave, type = "text" }: {
+  label: string;
+  value: string | number | null;
+  onSave: (value: string) => void;
+  type?: string;
+}) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [tempValue, setTempValue] = useState(value?.toString() || '');
+
+  const handleSave = () => {
+    onSave(tempValue);
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    setTempValue(value?.toString() || '');
+    setIsEditing(false);
+  };
+
+  if (isEditing) {
+    return (
+      <div className="flex items-center gap-2">
+        <Input 
+          value={tempValue}
+          onChange={(e) => setTempValue(e.target.value)}
+          className="h-7 text-sm"
+          type={type}
+          autoFocus
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') handleSave();
+            if (e.key === 'Escape') handleCancel();
+          }}
+        />
+        <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={handleSave}>
+          <Check className="h-3 w-3" />
+        </Button>
+        <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={handleCancel}>
+          <X className="h-3 w-3" />
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <div 
+      className="cursor-pointer hover:bg-muted/50 rounded px-1 -mx-1 transition-colors group"
+      onClick={() => setIsEditing(true)}
+    >
+      <span className="text-sm font-medium">{value || 'N/A'}</span>
+      <Edit className="h-3 w-3 ml-1 opacity-0 group-hover:opacity-50 inline" />
+    </div>
+  );
+};
+
 export function PropertyPanel({ 
   property, 
   onClose, 
@@ -113,6 +168,23 @@ export function PropertyPanel({
         updated_at: new Date().toISOString()
       };
       onPropertyUpdate(updatedProperty);
+    }
+  };
+
+  const handleFieldUpdate = (field: keyof Property, value: string) => {
+    if (onPropertyUpdate) {
+      let processedValue: any = value;
+      
+      // Process value based on field type
+      if (field === 'square_feet' || field === 'parcel_sq_ft') {
+        processedValue = value ? parseInt(value.replace(/,/g, '')) : null;
+      }
+      
+      onPropertyUpdate({
+        ...property,
+        [field]: processedValue,
+        updated_at: new Date().toISOString()
+      });
     }
   };
 
@@ -297,23 +369,45 @@ export function PropertyPanel({
             <div className="grid grid-cols-1 gap-3">
               <div className="flex justify-between py-2 border-b border-border">
                 <span className="text-sm text-muted-foreground">Parcel Sq Ft</span>
-                <span className="text-sm font-medium">{property.parcel_sq_ft?.toLocaleString() || 'N/A'}</span>
+                <EditableField
+                  label="Parcel Sq Ft"
+                  value={property.parcel_sq_ft?.toLocaleString()}
+                  onSave={(value) => handleFieldUpdate('parcel_sq_ft', value)}
+                  type="number"
+                />
               </div>
               <div className="flex justify-between py-2 border-b border-border">
                 <span className="text-sm text-muted-foreground">Building Sq Ft</span>
-                <span className="text-sm font-medium">{property.square_feet?.toLocaleString() || 'N/A'}</span>
+                <EditableField
+                  label="Building Sq Ft"
+                  value={property.square_feet?.toLocaleString()}
+                  onSave={(value) => handleFieldUpdate('square_feet', value)}
+                  type="number"
+                />
               </div>
               <div className="flex justify-between py-2 border-b border-border">
                 <span className="text-sm text-muted-foreground">County</span>
-                <span className="text-sm font-medium">{property.county || 'N/A'}</span>
+                <EditableField
+                  label="County"
+                  value={property.county}
+                  onSave={(value) => handleFieldUpdate('county', value)}
+                />
               </div>
               <div className="flex justify-between py-2 border-b border-border">
                 <span className="text-sm text-muted-foreground">Zoning Code</span>
-                <span className="text-sm font-medium">{property.zoning_code || 'N/A'}</span>
+                <EditableField
+                  label="Zoning Code"
+                  value={property.zoning_code}
+                  onSave={(value) => handleFieldUpdate('zoning_code', value)}
+                />
               </div>
               <div className="flex justify-between py-2 border-b border-border">
                 <span className="text-sm text-muted-foreground">Folio #</span>
-                <span className="text-sm font-medium">{property.folio_int || 'N/A'}</span>
+                <EditableField
+                  label="Folio #"
+                  value={property.folio_int}
+                  onSave={(value) => handleFieldUpdate('folio_int', value)}
+                />
               </div>
               {property.municipal_zoning_url && (
                 <div className="flex justify-between items-center py-2 border-b border-border">
