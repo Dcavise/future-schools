@@ -16,15 +16,15 @@ interface PropertyPanelProps {
   onPropertyUpdate?: (property: Property) => void;
 }
 
-const teamMembers = [
-  'Unassigned',
-  'Jarnail T',
-  'David H', 
-  'Aly A',
-  'Ryan D',
-  'Chris W',
-  'JB',
-  'Stephen B'
+const TEAM_MEMBERS = [
+  { value: 'unassigned', label: 'Unassigned' },
+  { value: 'jarnail', label: 'Jarnail' },
+  { value: 'david-h', label: 'David H' },
+  { value: 'cavise', label: 'Cavise' },
+  { value: 'jb', label: 'JB' },
+  { value: 'stephen', label: 'Stephen' },
+  { value: 'aly', label: 'Aly' },
+  { value: 'ryan-d', label: 'Ryan D' },
 ];
 
 export function PropertyPanel({ 
@@ -36,11 +36,18 @@ export function PropertyPanel({
   onAssignAnalyst,
   onPropertyUpdate 
 }: PropertyPanelProps) {
-  const [selectedAssignee, setSelectedAssignee] = useState<string>(property?.assigned_to || 'Unassigned');
+  const [selectedAssignee, setSelectedAssignee] = useState<string>(property?.assigned_to || 'unassigned');
+
+  // Helper function to get display name
+  const getAssigneeDisplayName = (assigneeValue: string | null) => {
+    if (!assigneeValue) return 'Unassigned';
+    const member = TEAM_MEMBERS.find(m => m.value === assigneeValue);
+    return member ? member.label : assigneeValue;
+  };
 
   // Update selectedAssignee when property changes
   React.useEffect(() => {
-    setSelectedAssignee(property?.assigned_to || 'Unassigned');
+    setSelectedAssignee(property?.assigned_to || 'unassigned');
   }, [property?.assigned_to]);
 
   if (!property) {
@@ -59,7 +66,7 @@ export function PropertyPanel({
     if (onPropertyUpdate) {
       const updatedProperty = {
         ...property,
-        assigned_to: value === 'Unassigned' ? null : value,
+        assigned_to: value === 'unassigned' ? null : value,
         updated_at: new Date().toISOString()
       };
       onPropertyUpdate(updatedProperty);
@@ -245,7 +252,7 @@ export function PropertyPanel({
           </div>
           <div className="flex items-center justify-between">
             <div className="text-sm text-gray-900">
-              {property.assigned_to || 'Unassigned'}
+              {getAssigneeDisplayName(property.assigned_to)}
               {!property.assigned_to && (
                 <Badge className="ml-2 bg-yellow-100 text-yellow-800 text-xs">Needs Assignment</Badge>
               )}
@@ -260,9 +267,9 @@ export function PropertyPanel({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                {teamMembers.map((member) => (
-                  <SelectItem key={member} value={member}>
-                    {member}
+                {TEAM_MEMBERS.map((member) => (
+                  <SelectItem key={member.value} value={member.value}>
+                    {member.label}
                   </SelectItem>
                 ))}
               </SelectContent>
