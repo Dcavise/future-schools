@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
@@ -23,13 +23,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { 
   ArrowUpDown, 
   ArrowUp, 
   ArrowDown, 
   MoreVertical, 
   ChevronLeft, 
-  ChevronRight 
+  ChevronRight,
+  ChevronDown,
+  Download,
+  Archive,
+  CheckCircle
 } from 'lucide-react';
 
 interface Property {
@@ -85,6 +100,29 @@ export function PropertyTable({
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(50);
+  const [showArchiveDialog, setShowArchiveDialog] = useState(false);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onSelectionChange([]);
+      } else if ((event.metaKey || event.ctrlKey) && event.key === 'a') {
+        event.preventDefault();
+        if (selectedProperties.length === properties.length) {
+          onSelectionChange([]);
+        } else {
+          onSelectionChange(properties.map(p => p.id));
+        }
+      } else if (event.key === ' ' && event.target === document.body) {
+        event.preventDefault();
+        // TODO: Toggle selection on focused row
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedProperties, properties, onSelectionChange]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -174,11 +212,74 @@ export function PropertyTable({
   const totalPages = Math.ceil(sortedProperties.length / itemsPerPage);
 
   const handleSelectAll = () => {
-    if (selectedProperties.length === properties.length) {
-      onSelectionChange([]);
+    if (selectedProperties.length === paginatedProperties.length) {
+      onSelectionChange(selectedProperties.filter(id => !paginatedProperties.map(p => p.id).includes(id)));
     } else {
-      onSelectionChange(properties.map(p => p.id));
+      const currentPageIds = paginatedProperties.map(p => p.id);
+      const newSelection = [...selectedProperties];
+      currentPageIds.forEach(id => {
+        if (!newSelection.includes(id)) {
+          newSelection.push(id);
+        }
+      });
+      onSelectionChange(newSelection);
     }
+  };
+
+  const getHeaderCheckboxState = () => {
+    const currentPageIds = paginatedProperties.map(p => p.id);
+    const selectedOnPage = currentPageIds.filter(id => selectedProperties.includes(id));
+    
+    if (selectedOnPage.length === 0) return false;
+    if (selectedOnPage.length === currentPageIds.length) return true;
+    return 'indeterminate';
+  };
+
+  const handleAssignOwner = (owner: string) => {
+    // Mock assignment - in real app would call API
+    console.log(`Assigning ${selectedProperties.length} properties to ${owner}`);
+    // Could show toast notification here
+  };
+
+  const handleExport = () => {
+    const selectedProps = properties.filter(p => selectedProperties.includes(p.id));
+    const csvData = selectedProps.map(p => ({
+      Address: p.address,
+      City: p.city,
+      State: p.state,
+      Type: p.compliance.currentOccupancy,
+      'Square Feet': p.propertyDetails.squareFeet,
+      'Compliance Status': getStatusLabel(p.status),
+      Owner: p.buildingOwner,
+      'Last Modified': p.lastModified
+    }));
+    
+    const csvContent = [
+      Object.keys(csvData[0]).join(','),
+      ...csvData.map(row => Object.values(row).join(','))
+    ].join('\n');
+    
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `properties-export-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleArchive = () => {
+    // Mock archive - in real app would call API
+    console.log(`Archiving ${selectedProperties.length} properties`);
+    onSelectionChange([]);
+    setShowArchiveDialog(false);
+    // Could show toast notification here
+  };
+
+  const getContextualActions = () => {
+    const selectedProps = properties.filter(p => selectedProperties.includes(p.id));
+    const allQualified = selectedProps.every(p => p.status === 'qualified');
+    return allQualified;
   };
 
   const handleSelectProperty = (propertyId: string) => {
@@ -204,38 +305,81 @@ export function PropertyTable({
     <div className="flex flex-col h-full bg-white">
       {/* Bulk Actions Bar */}
       {selectedProperties.length > 0 && (
-        <div className="border-b bg-blue-50 px-6 py-3">
+        <div className="border border-blue-500 bg-blue-50 px-6 py-3 animate-in slide-in-from-top-2 duration-200">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <span className="text-sm font-medium">
-                {selectedProperties.length} properties selected
-              </span>
               <div className="flex items-center gap-2">
-                <Button size="sm" variant="outline">
-                  Assign Owner
-                </Button>
-                <Button size="sm" variant="outline">
+                <CheckCircle className="h-4 w-4 text-blue-600" />
+                <span className="text-sm font-medium text-blue-900">
+                  {selectedProperties.length} properties selected
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button size="sm" variant="outline" className="bg-white">
+                      Assign Owner <ChevronDown className="h-4 w-4 ml-1" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start">
+                    <DropdownMenuItem onClick={() => handleAssignOwner('John Smith')}>
+                      John Smith
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleAssignOwner('Sarah Johnson')}>
+                      Sarah Johnson
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleAssignOwner('Mike Chen')}>
+                      Mike Chen
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleAssignOwner('Unassigned')}>
+                      Unassigned
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                
+                <Button size="sm" variant="outline" onClick={handleExport} className="bg-white">
+                  <Download className="h-4 w-4 mr-1" />
                   Export
                 </Button>
-                <Button size="sm" variant="destructive">
-                  Delete
-                </Button>
+                
+                {getContextualActions() && (
+                  <Button size="sm" variant="outline" className="bg-white">
+                    <CheckCircle className="h-4 w-4 mr-1" />
+                    Schedule Site Visits
+                  </Button>
+                )}
+                
+                <AlertDialog open={showArchiveDialog} onOpenChange={setShowArchiveDialog}>
+                  <AlertDialogTrigger asChild>
+                    <Button size="sm" variant="outline" className="bg-white text-orange-700 border-orange-300 hover:bg-orange-50">
+                      <Archive className="h-4 w-4 mr-1" />
+                      Archive
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Archive Properties</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        Are you sure you want to archive {selectedProperties.length} properties? 
+                        This will remove them from the current view.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleArchive}>Archive</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <button 
-                onClick={handleSelectAll}
-                className="text-sm text-blue-600 hover:text-blue-800 underline"
-              >
-                Select All
-              </button>
-              <button 
-                onClick={() => onSelectionChange([])}
-                className="text-sm text-gray-600 hover:text-gray-800 underline"
-              >
-                Clear Selection
-              </button>
-            </div>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => onSelectionChange([])}
+              className="text-blue-700 hover:text-blue-900 hover:bg-blue-100"
+            >
+              Deselect All
+            </Button>
           </div>
         </div>
       )}
@@ -245,10 +389,11 @@ export function PropertyTable({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-12">
+              <TableHead className="w-12 sticky left-0 bg-white z-10">
                 <Checkbox
-                  checked={selectedProperties.length === properties.length}
+                  checked={getHeaderCheckboxState()}
                   onCheckedChange={handleSelectAll}
+                  className="h-4 w-4"
                 />
               </TableHead>
               <TableHead>
@@ -320,15 +465,16 @@ export function PropertyTable({
                 key={property.id}
                 className={`
                   cursor-pointer hover:bg-gray-50 transition-colors
-                  ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}
-                  ${selectedProperty?.id === property.id ? 'bg-blue-50 border-blue-200' : ''}
+                  ${selectedProperties.includes(property.id) ? 'bg-blue-50' : index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}
+                  ${selectedProperty?.id === property.id ? 'ring-2 ring-blue-200' : ''}
                 `}
                 onClick={(e) => handleRowClick(property, e)}
               >
-                <TableCell>
+                <TableCell className="sticky left-0 bg-inherit z-10 w-12">
                   <Checkbox
                     checked={selectedProperties.includes(property.id)}
                     onCheckedChange={() => handleSelectProperty(property.id)}
+                    className="h-4 w-4"
                   />
                 </TableCell>
                 <TableCell>
@@ -385,6 +531,9 @@ export function PropertyTable({
           <div className="flex items-center gap-4">
             <span className="text-sm text-muted-foreground">
               Showing {((currentPage - 1) * itemsPerPage) + 1}-{Math.min(currentPage * itemsPerPage, sortedProperties.length)} of {sortedProperties.length} results
+              {selectedProperties.length > 0 && (
+                <span className="text-blue-600 font-medium"> • {selectedProperties.length} selected</span>
+              )}
             </span>
             <div className="flex items-center gap-2">
               <span className="text-sm">Items per page:</span>
