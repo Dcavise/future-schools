@@ -135,7 +135,7 @@ const PropertyDetail = () => {
         </div>
 
         {/* Property Panel */}
-        <div className="flex-[4] h-full">
+        <div className="w-[420px] h-full">
           <PropertyPanel
             property={property}
             onPropertyUpdate={handlePropertyUpdate}
