@@ -19,6 +19,7 @@ export function PropertyMap({ properties, selectedProperty, onPropertySelect }: 
     if (!mapContainer.current || !mapboxToken) return;
 
     try {
+      console.log('Initializing map with token:', mapboxToken.substring(0, 20) + '...');
       mapboxgl.accessToken = mapboxToken;
       
       map.current = new mapboxgl.Map({
@@ -35,6 +36,7 @@ export function PropertyMap({ properties, selectedProperty, onPropertySelect }: 
       );
 
       map.current.on('load', () => {
+        console.log('Map loaded, adding property markers');
         addPropertyMarkers();
       });
     } catch (error) {
@@ -46,25 +48,32 @@ export function PropertyMap({ properties, selectedProperty, onPropertySelect }: 
   const addPropertyMarkers = () => {
     if (!map.current) return;
 
+    console.log('Adding markers for', properties.length, 'properties');
+
     // Clear existing markers
     markersRef.current.forEach(marker => marker.remove());
     markersRef.current = [];
 
     // Group properties for clustering (simplified clustering)
     const clusters = createClusters(properties);
+    console.log('Created', clusters.length, 'clusters');
 
-    clusters.forEach(cluster => {
+    clusters.forEach((cluster, index) => {
       if (cluster.properties.length === 1) {
         // Single property marker
         const property = cluster.properties[0];
+        console.log('Creating single marker for property:', property.id, property.address);
         const marker = createPropertyMarker(property);
         markersRef.current.push(marker);
       } else {
         // Cluster marker
+        console.log('Creating cluster marker for', cluster.properties.length, 'properties');
         const marker = createClusterMarker(cluster);
         markersRef.current.push(marker);
       }
     });
+
+    console.log('Total markers created:', markersRef.current.length);
   };
 
   const createPropertyMarker = (property: Property) => {
