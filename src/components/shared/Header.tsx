@@ -1,5 +1,5 @@
-import React from 'react';
-import { ChevronDown, Filter, Upload, Map, List } from 'lucide-react';
+import React, { useState } from 'react';
+import { ChevronDown, Filter, Upload, Map, List, Search, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
@@ -12,6 +12,7 @@ interface HeaderProps {
   currentView?: 'map' | 'table';
   onViewToggle?: (view: 'map' | 'table') => void;
   showViewToggle?: boolean;
+  onCitySearch?: (city: string) => void;
 }
 
 export function Header({ 
@@ -21,9 +22,36 @@ export function Header({
   propertyCount,
   currentView = 'map',
   onViewToggle,
-  showViewToggle = false
+  showViewToggle = false,
+  onCitySearch
 }: HeaderProps) {
   const navigate = useNavigate();
+  const [searchValue, setSearchValue] = useState('');
+  const [showDropdown, setShowDropdown] = useState(false);
+  
+  const cities = [
+    "Boston, MA",
+    "Cambridge, MA", 
+    "Somerville, MA",
+    "Quincy, MA",
+    "Brookline, MA",
+    "Newton, MA",
+    "Waltham, MA",
+    "Medford, MA",
+    "New York, NY"
+  ];
+  
+  const filteredCities = cities.filter(city => 
+    city.toLowerCase().includes(searchValue.toLowerCase())
+  );
+
+  const handleSearch = (value: string) => {
+    if (onCitySearch) {
+      onCitySearch(value);
+      setSearchValue('');
+      setShowDropdown(false);
+    }
+  };
   
   return (
     <header className="fixed top-0 left-0 right-0 z-20 h-14 bg-white border-b border-gray-200 shadow-sm">
@@ -36,15 +64,41 @@ export function Header({
           </h1>
         </div>
         
-        {/* Center Section - City Context Badge */}
-        <div className="flex-1 flex justify-center">
-          {cityContext && propertyCount !== undefined && (
-            <div className="bg-gray-100 rounded-md px-3 py-1.5">
-              <span className="text-sm text-gray-600">
-                {cityContext} • {propertyCount.toLocaleString()} properties
-              </span>
+        {/* Center Section - Search Box */}
+        <div className="flex-1 flex justify-center max-w-md mx-auto relative">
+          <div className="relative w-full max-w-sm">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search city or enter address..."
+                value={searchValue}
+                onChange={(e) => {
+                  setSearchValue(e.target.value);
+                  setShowDropdown(e.target.value.length > 0);
+                }}
+                onFocus={() => setShowDropdown(searchValue.length > 0)}
+                onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+              />
             </div>
-          )}
+            
+            {/* Dropdown */}
+            {showDropdown && filteredCities.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-50 max-h-60 overflow-y-auto">
+                {filteredCities.map((city, index) => (
+                  <div
+                    key={index}
+                    onClick={() => handleSearch(city)}
+                    className="flex items-center gap-2 px-4 py-2 hover:bg-gray-50 cursor-pointer text-sm"
+                  >
+                    <MapPin className="h-4 w-4 text-gray-400" />
+                    <span>{city}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
         
         {/* Right Section - Actions */}
