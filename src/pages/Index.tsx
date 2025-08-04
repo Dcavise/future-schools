@@ -7,9 +7,33 @@ import { PropertyPanel } from '@/components/property/PropertyPanel';
 interface Property {
   id: string;
   address: string;
+  city: string;
+  state: string;
   lat: number;
   lng: number;
+  buildingOwner: string;
+  lastModified: string;
+  compliance: {
+    zoning: string;
+    currentOccupancy: string;
+    byRightStatus: string;
+    fireSprinklerStatus: string;
+  };
+  propertyDetails: {
+    parcelNumber: string;
+    squareFeet: number;
+    owner: string;
+  };
+  reference: {
+    county: string;
+    page: string;
+    block: string;
+    book: string;
+    created: string;
+    updated: string;
+  };
   status: 'qualified' | 'review' | 'disqualified';
+  // Legacy fields for compatibility
   taxValue: number;
   taxYearly: number;
   occupancyRate: number;
@@ -19,15 +43,52 @@ interface Property {
 
 const generateProperties = (city: string, count = 75): Property[] => {
   return Array.from({ length: count }, (_, i) => {
-    const taxValue = Math.floor(800000 + Math.random() * 2000000);
+    const compliance = {
+      zoning: ['P-NP', 'C-1', 'R-2', 'M-1'][Math.floor(Math.random() * 4)],
+      currentOccupancy: Math.random() > 0.3 ? 'Unknown' : ['Retail', 'Office', 'Mixed'][Math.floor(Math.random() * 3)],
+      byRightStatus: Math.random() > 0.7 ? 'Compliant' : 'Unknown',
+      fireSprinklerStatus: Math.random() > 0.6 ? 'Compliant' : 'Unknown'
+    };
+
+    // Calculate status based on compliance
+    const hasUnknownCompliance = compliance.currentOccupancy === 'Unknown' || 
+                                 compliance.byRightStatus === 'Unknown' || 
+                                 compliance.fireSprinklerStatus === 'Unknown';
+    
+    let status: 'qualified' | 'review' | 'disqualified';
+    if (!hasUnknownCompliance) {
+      status = 'qualified';
+    } else {
+      status = Math.random() > 0.8 ? 'disqualified' : 'review';
+    }
+
     return {
       id: `prop_${i + 1}`,
-      address: `${100 + i * 10} ${['Main', 'Oak', 'Elm', 'Park', 'Washington'][i % 5]} St, ${city}`,
+      address: `${2700 + i} ${['Canterbury', 'Oak', 'Elm', 'Park', 'Main'][i % 5]} St`,
+      city: city.split(',')[0],
+      state: city.split(',')[1]?.trim() || 'MA',
       lat: 42.3601 + (Math.random() - 0.5) * 0.05,
       lng: -71.0589 + (Math.random() - 0.5) * 0.05,
-      status: ['qualified', 'review', 'disqualified'][Math.floor(Math.random() * 3)] as 'qualified' | 'review' | 'disqualified',
-      taxValue,
-      taxYearly: Math.floor(taxValue * 0.012),
+      buildingOwner: 'Unassigned',
+      lastModified: '2 days ago',
+      compliance,
+      propertyDetails: {
+        parcelNumber: `${1217346 + i}`,
+        squareFeet: Math.floor(5000 + Math.random() * 50000),
+        owner: ['CITY OF AUSTIN', 'PRIVATE OWNER', '123 MAIN LLC'][Math.floor(Math.random() * 3)]
+      },
+      reference: {
+        county: 'Travis',
+        page: 'Not specified',
+        block: 'G, 6',
+        book: 'Not specified',
+        created: 'Jul 28, 2025, 1:40 PM',
+        updated: 'Jul 28, 2025, 1:40 PM'
+      },
+      status,
+      // Legacy fields for compatibility
+      taxValue: Math.floor(800000 + Math.random() * 2000000),
+      taxYearly: 0,
       occupancyRate: Math.floor(60 + Math.random() * 40),
       sqft: Math.floor(5000 + Math.random() * 20000),
       type: ['Office', 'Retail', 'Industrial', 'Mixed-use'][Math.floor(Math.random() * 4)]

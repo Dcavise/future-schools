@@ -2,19 +2,38 @@ import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Building, MapPin, DollarSign, Users } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { Building, MapPin, DollarSign, Users, ChevronDown, X } from 'lucide-react';
 
 interface Property {
   id: string;
   address: string;
+  city: string;
+  state: string;
   lat: number;
   lng: number;
+  buildingOwner: string;
+  lastModified: string;
+  compliance: {
+    zoning: string;
+    currentOccupancy: string;
+    byRightStatus: string;
+    fireSprinklerStatus: string;
+  };
+  propertyDetails: {
+    parcelNumber: string;
+    squareFeet: number;
+    owner: string;
+  };
+  reference: {
+    county: string;
+    page: string;
+    block: string;
+    book: string;
+    created: string;
+    updated: string;
+  };
   status: 'qualified' | 'review' | 'disqualified';
-  taxValue: number;
-  taxYearly: number;
-  occupancyRate: number;
-  sqft: number;
-  type: string;
 }
 
 interface PropertyPanelProps {
@@ -59,11 +78,21 @@ export function PropertyPanel({ property, onClose }: PropertyPanelProps) {
       case 'review':
         return <Button variant="outline" className="w-full">Complete Review</Button>;
       case 'disqualified':
-        return <Button variant="outline" className="w-full">Appeal Decision</Button>;
+        return <Button variant="secondary" className="w-full">Find Alternative</Button>;
       default:
         return <Button variant="outline" className="w-full">Review Property</Button>;
     }
   };
+
+  const ComplianceField = ({ label, value }: { label: string; value: string }) => (
+    <div className="flex items-center justify-between">
+      <span className="text-sm text-muted-foreground">{label}:</span>
+      <div className="flex items-center gap-1">
+        <span className="text-sm font-medium">{value}</span>
+        {value === 'Unknown' && <ChevronDown className="h-3 w-3 text-muted-foreground" />}
+      </div>
+    </div>
+  );
 
   return (
     <div className="w-[420px] h-full bg-white border-l border-border animate-slide-in-right">
@@ -76,7 +105,7 @@ export function PropertyPanel({ property, onClose }: PropertyPanelProps) {
             </h2>
             {onClose && (
               <Button variant="ghost" size="sm" onClick={onClose}>
-                ×
+                <X className="h-4 w-4" />
               </Button>
             )}
           </div>
@@ -86,51 +115,105 @@ export function PropertyPanel({ property, onClose }: PropertyPanelProps) {
           </Badge>
         </div>
 
+        {/* Building Owner */}
+        <Card className="mb-4">
+          <CardHeader>
+            <CardTitle className="text-base">Building Owner</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Assigned to:</span>
+                <span className="text-sm font-medium">{property.buildingOwner}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Last modified:</span>
+                <span className="text-sm font-medium">{property.lastModified}</span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">
+                Assign an owner to enable Salesforce push
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Compliance */}
+        <Card className="mb-4">
+          <CardHeader>
+            <CardTitle className="text-base">Compliance</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <ComplianceField label="Zoning" value={property.compliance.zoning} />
+            <ComplianceField label="Current Occupancy" value={property.compliance.currentOccupancy} />
+            <ComplianceField label="By-Right Status" value={property.compliance.byRightStatus} />
+            <ComplianceField label="Fire Sprinkler Status" value={property.compliance.fireSprinklerStatus} />
+          </CardContent>
+        </Card>
+
         {/* Property Details */}
-        <Card>
+        <Card className="mb-4">
           <CardHeader>
             <CardTitle className="text-base">Property Details</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center gap-3">
-              <Building className="h-4 w-4 text-muted-foreground" />
-              <div>
-                <span className="text-sm text-muted-foreground">Type:</span>
-                <span className="ml-2 font-medium">{property.type}</span>
-              </div>
+          <CardContent className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Parcel Number:</span>
+              <span className="text-sm font-medium">{property.propertyDetails.parcelNumber}</span>
             </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Square Feet:</span>
+              <span className="text-sm font-medium">{property.propertyDetails.squareFeet.toLocaleString()}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Owner:</span>
+              <span className="text-sm font-medium">{property.propertyDetails.owner}</span>
+            </div>
+          </CardContent>
+        </Card>
 
-            <div className="flex items-center gap-3">
-              <MapPin className="h-4 w-4 text-muted-foreground" />
-              <div>
-                <span className="text-sm text-muted-foreground">Size:</span>
-                <span className="ml-2 font-medium">{property.sqft.toLocaleString()} sq ft</span>
-              </div>
+        {/* Reference */}
+        <Card className="mb-4">
+          <CardHeader>
+            <CardTitle className="text-base">Reference</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">County:</span>
+              <span className="text-sm font-medium">{property.reference.county}</span>
             </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Page:</span>
+              <span className="text-sm font-medium">{property.reference.page}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Block:</span>
+              <span className="text-sm font-medium">{property.reference.block}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Book:</span>
+              <span className="text-sm font-medium">{property.reference.book}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Created:</span>
+              <span className="text-sm font-medium">{property.reference.created}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Updated:</span>
+              <span className="text-sm font-medium">{property.reference.updated}</span>
+            </div>
+          </CardContent>
+        </Card>
 
-            <div className="flex items-center gap-3">
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-              <div>
-                <span className="text-sm text-muted-foreground">Tax Value:</span>
-                <span className="ml-2 font-medium">${property.taxValue.toLocaleString()}</span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-              <div>
-                <span className="text-sm text-muted-foreground">Annual Tax:</span>
-                <span className="ml-2 font-medium">${property.taxYearly.toLocaleString()}</span>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <Users className="h-4 w-4 text-muted-foreground" />
-              <div>
-                <span className="text-sm text-muted-foreground">Occupancy:</span>
-                <span className="ml-2 font-medium">{property.occupancyRate}%</span>
-              </div>
-            </div>
+        {/* Scoping Notes */}
+        <Card className="mb-4">
+          <CardHeader>
+            <CardTitle className="text-base">Scoping Notes</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Textarea 
+              placeholder="Add notes about this property..."
+              className="min-h-[100px] resize-none"
+            />
           </CardContent>
         </Card>
 
