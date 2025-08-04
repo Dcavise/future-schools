@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Copy, Edit } from 'lucide-react';
-import { Building, Check, HelpCircle, X as XIcon, User, ChevronLeft, ChevronRight, UserPlus, Calendar, Clock, AlertCircle, ChevronDown } from 'lucide-react';
+import { Copy, Edit, Check, User, XIcon } from 'lucide-react';
+import { Building, HelpCircle, X, ChevronLeft, ChevronRight, UserPlus, Calendar, Clock, AlertCircle, ChevronDown } from 'lucide-react';
 import { Property } from '@/types/property';
 
 interface PropertyPanelProps {
@@ -39,6 +39,44 @@ export function PropertyPanel({
   onPropertyUpdate 
 }: PropertyPanelProps) {
   const [selectedAssignee, setSelectedAssignee] = useState<string>(property?.assigned_to || 'unassigned');
+  
+  // Edit state management
+  const [editingFields, setEditingFields] = useState<Set<string>>(new Set());
+  const [tempValues, setTempValues] = useState<Partial<Property>>({});
+
+  const startEditing = (field: string) => {
+    setEditingFields(prev => new Set(prev).add(field));
+    setTempValues(prev => ({ ...prev, [field]: property?.[field as keyof Property] }));
+  };
+
+  const saveEdit = (field: string) => {
+    if (onPropertyUpdate && tempValues[field as keyof Property] !== undefined) {
+      onPropertyUpdate({ ...property!, [field]: tempValues[field as keyof Property] });
+    }
+    setEditingFields(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(field);
+      return newSet;
+    });
+    setTempValues(prev => {
+      const newValues = { ...prev };
+      delete newValues[field as keyof Property];
+      return newValues;
+    });
+  };
+
+  const cancelEdit = (field: string) => {
+    setEditingFields(prev => {
+      const newSet = new Set(prev);
+      newSet.delete(field);
+      return newSet;
+    });
+    setTempValues(prev => {
+      const newValues = { ...prev };
+      delete newValues[field as keyof Property];
+      return newValues;
+    });
+  };
 
   // Helper function to get display name
   const getAssigneeDisplayName = (assigneeValue: string | null) => {
@@ -358,29 +396,53 @@ export function PropertyPanel({
               {getComplianceIcon(property.zoning_by_right, 'zoning')}
               <div className="flex-1">
                 <div className="text-sm font-medium text-gray-900 mb-1">Zoning By-Right</div>
-                <Select 
-                  value={property.zoning_by_right === true ? 'yes' : 
-                         property.zoning_by_right === false ? 'no' : 
-                         property.zoning_by_right === 'special-exemption' ? 'special-exemption' : 'unknown'} 
-                  onValueChange={(value) => {
-                    let newValue: boolean | string | null;
-                    if (value === 'yes') newValue = true;
-                    else if (value === 'no') newValue = false;
-                    else if (value === 'special-exemption') newValue = 'special-exemption';
-                    else newValue = null;
-                    onPropertyUpdate?.({ ...property, zoning_by_right: newValue });
-                  }}
-                >
-                  <SelectTrigger className="h-8 w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="yes">Yes</SelectItem>
-                    <SelectItem value="special-exemption">Special Exemption</SelectItem>
-                    <SelectItem value="no">No</SelectItem>
-                    <SelectItem value="unknown">Unknown</SelectItem>
-                  </SelectContent>
-                </Select>
+                {editingFields.has('zoning_by_right') ? (
+                  <div className="flex items-center gap-2">
+                    <Select 
+                      value={tempValues.zoning_by_right === true ? 'yes' : 
+                             tempValues.zoning_by_right === false ? 'no' : 
+                             tempValues.zoning_by_right === 'special-exemption' ? 'special-exemption' : 'unknown'} 
+                      onValueChange={(value) => {
+                        let newValue: boolean | string | null;
+                        if (value === 'yes') newValue = true;
+                        else if (value === 'no') newValue = false;
+                        else if (value === 'special-exemption') newValue = 'special-exemption';
+                        else newValue = null;
+                        setTempValues(prev => ({ ...prev, zoning_by_right: newValue }));
+                      }}
+                    >
+                      <SelectTrigger className="h-8 flex-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="yes">Yes</SelectItem>
+                        <SelectItem value="special-exemption">Special Exemption</SelectItem>
+                        <SelectItem value="no">No</SelectItem>
+                        <SelectItem value="unknown">Unknown</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0 hover:bg-gray-100"
+                      onClick={() => saveEdit('zoning_by_right')}
+                    >
+                      <Check className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">{getComplianceStatus(property.zoning_by_right)}</span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0 hover:bg-gray-100"
+                      onClick={() => startEditing('zoning_by_right')}
+                    >
+                      <Edit className="h-3 w-3" />
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -393,22 +455,46 @@ export function PropertyPanel({
               {getComplianceIcon(property.fire_sprinkler_status, 'sprinkler')}
               <div className="flex-1">
                 <div className="text-sm font-medium text-gray-900 mb-1">Fire Sprinklers</div>
-                <Select 
-                  value={property.fire_sprinkler_status || 'unknown'} 
-                  onValueChange={(value) => {
-                    const newValue = value === 'unknown' ? null : value;
-                    onPropertyUpdate?.({ ...property, fire_sprinkler_status: newValue });
-                  }}
-                >
-                  <SelectTrigger className="h-8 w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="yes">Yes</SelectItem>
-                    <SelectItem value="no">No</SelectItem>
-                    <SelectItem value="unknown">Unknown</SelectItem>
-                  </SelectContent>
-                </Select>
+                {editingFields.has('fire_sprinkler_status') ? (
+                  <div className="flex items-center gap-2">
+                    <Select 
+                      value={tempValues.fire_sprinkler_status || 'unknown'} 
+                      onValueChange={(value) => {
+                        const newValue = value === 'unknown' ? null : value;
+                        setTempValues(prev => ({ ...prev, fire_sprinkler_status: newValue }));
+                      }}
+                    >
+                      <SelectTrigger className="h-8 flex-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="yes">Yes</SelectItem>
+                        <SelectItem value="no">No</SelectItem>
+                        <SelectItem value="unknown">Unknown</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0 hover:bg-gray-100"
+                      onClick={() => saveEdit('fire_sprinkler_status')}
+                    >
+                      <Check className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">{getComplianceStatus(property.fire_sprinkler_status)}</span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0 hover:bg-gray-100"
+                      onClick={() => startEditing('fire_sprinkler_status')}
+                    >
+                      <Edit className="h-3 w-3" />
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -417,31 +503,55 @@ export function PropertyPanel({
               {getComplianceIcon(property.current_occupancy, 'occupancy')}
               <div className="flex-1">
                 <div className="text-sm font-medium text-gray-900 mb-1">Current Occupancy</div>
-                <Select 
-                  value={property.current_occupancy || 'unknown'} 
-                  onValueChange={(value) => {
-                    const newValue = value === 'unknown' ? null : value;
-                    onPropertyUpdate?.({ ...property, current_occupancy: newValue });
-                  }}
-                >
-                  <SelectTrigger className="h-8 w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="assembly">Assembly</SelectItem>
-                    <SelectItem value="business">Business</SelectItem>
-                    <SelectItem value="educational">Educational</SelectItem>
-                    <SelectItem value="factory">Factory</SelectItem>
-                    <SelectItem value="industrial">Industrial</SelectItem>
-                    <SelectItem value="institutional">Institutional</SelectItem>
-                    <SelectItem value="mercantile">Mercantile</SelectItem>
-                    <SelectItem value="residential">Residential</SelectItem>
-                    <SelectItem value="storage">Storage</SelectItem>
-                    <SelectItem value="utility">Utility</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                    <SelectItem value="unknown">Unknown</SelectItem>
-                  </SelectContent>
-                </Select>
+                {editingFields.has('current_occupancy') ? (
+                  <div className="flex items-center gap-2">
+                    <Select 
+                      value={tempValues.current_occupancy || 'unknown'} 
+                      onValueChange={(value) => {
+                        const newValue = value === 'unknown' ? null : value;
+                        setTempValues(prev => ({ ...prev, current_occupancy: newValue }));
+                      }}
+                    >
+                      <SelectTrigger className="h-8 flex-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="assembly">Assembly</SelectItem>
+                        <SelectItem value="business">Business</SelectItem>
+                        <SelectItem value="educational">Educational</SelectItem>
+                        <SelectItem value="factory">Factory</SelectItem>
+                        <SelectItem value="industrial">Industrial</SelectItem>
+                        <SelectItem value="institutional">Institutional</SelectItem>
+                        <SelectItem value="mercantile">Mercantile</SelectItem>
+                        <SelectItem value="residential">Residential</SelectItem>
+                        <SelectItem value="storage">Storage</SelectItem>
+                        <SelectItem value="utility">Utility</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                        <SelectItem value="unknown">Unknown</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0 hover:bg-gray-100"
+                      onClick={() => saveEdit('current_occupancy')}
+                    >
+                      <Check className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">{getOccupancyLabel(property.current_occupancy)}</span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0 hover:bg-gray-100"
+                      onClick={() => startEditing('current_occupancy')}
+                    >
+                      <Edit className="h-3 w-3" />
+                    </Button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -456,94 +566,230 @@ export function PropertyPanel({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <div className="text-xs text-[#6B7280] mb-1">Parcel Sq Ft</div>
-              <Input
-                type="number"
-                value={property.parcel_sq_ft || ''}
-                onChange={(e) => onPropertyUpdate?.({ ...property, parcel_sq_ft: e.target.value ? parseInt(e.target.value) : null })}
-                className="text-sm"
-              />
-            </div>
-            <div>
-              <div className="text-xs text-[#6B7280] mb-1">Building Sq Ft</div>
-              <Input
-                type="number"
-                value={property.square_feet || ''}
-                onChange={(e) => onPropertyUpdate?.({ ...property, square_feet: e.target.value ? parseInt(e.target.value) : null })}
-                className="text-sm"
-              />
-            </div>
-            <div>
-              <div className="text-xs text-[#6B7280] mb-1">Zoning Code</div>
-              <Input
-                type="text"
-                value={property.zoning_code || ''}
-                onChange={(e) => onPropertyUpdate?.({ ...property, zoning_code: e.target.value || null })}
-                className="text-sm"
-                placeholder="Enter zoning code"
-              />
-            </div>
-            
-            <div>
-              <div className="text-xs text-[#6B7280] mb-1">Folio #</div>
-              <div className="flex items-center gap-2">
-                <Input
-                  type="text"
-                  value={property.folio_int || ''}
-                  onChange={(e) => onPropertyUpdate?.({ ...property, folio_int: e.target.value || null })}
-                  className="text-sm flex-1"
-                  placeholder="Enter folio number"
-                />
-                {property.folio_int && (
+              {editingFields.has('parcel_sq_ft') ? (
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    value={tempValues.parcel_sq_ft || ''}
+                    onChange={(e) => setTempValues(prev => ({ ...prev, parcel_sq_ft: e.target.value ? parseInt(e.target.value) : null }))}
+                    className="text-sm flex-1"
+                  />
                   <Button
                     variant="ghost"
                     size="sm"
                     className="h-8 w-8 p-0 hover:bg-gray-100"
-                    onClick={() => navigator.clipboard.writeText(property.folio_int!)}
+                    onClick={() => saveEdit('parcel_sq_ft')}
                   >
-                    <Copy className="h-3 w-3" />
+                    <Check className="h-3 w-3" />
                   </Button>
-                )}
-              </div>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-[#1A1A1A]">{property.parcel_sq_ft?.toLocaleString() || 'N/A'}</span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0 hover:bg-gray-100"
+                    onClick={() => startEditing('parcel_sq_ft')}
+                  >
+                    <Edit className="h-3 w-3" />
+                  </Button>
+                </div>
+              )}
+            </div>
+            <div>
+              <div className="text-xs text-[#6B7280] mb-1">Building Sq Ft</div>
+              {editingFields.has('square_feet') ? (
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="number"
+                    value={tempValues.square_feet || ''}
+                    onChange={(e) => setTempValues(prev => ({ ...prev, square_feet: e.target.value ? parseInt(e.target.value) : null }))}
+                    className="text-sm flex-1"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0 hover:bg-gray-100"
+                    onClick={() => saveEdit('square_feet')}
+                  >
+                    <Check className="h-3 w-3" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-[#1A1A1A]">{property.square_feet?.toLocaleString() || 'N/A'}</span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0 hover:bg-gray-100"
+                    onClick={() => startEditing('square_feet')}
+                  >
+                    <Edit className="h-3 w-3" />
+                  </Button>
+                </div>
+              )}
+            </div>
+            <div>
+              <div className="text-xs text-[#6B7280] mb-1">Zoning Code</div>
+              {editingFields.has('zoning_code') ? (
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="text"
+                    value={tempValues.zoning_code || ''}
+                    onChange={(e) => setTempValues(prev => ({ ...prev, zoning_code: e.target.value || null }))}
+                    className="text-sm flex-1"
+                    placeholder="Enter zoning code"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0 hover:bg-gray-100"
+                    onClick={() => saveEdit('zoning_code')}
+                  >
+                    <Check className="h-3 w-3" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-[#1A1A1A]">{property.zoning_code || 'N/A'}</span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0 hover:bg-gray-100"
+                    onClick={() => startEditing('zoning_code')}
+                  >
+                    <Edit className="h-3 w-3" />
+                  </Button>
+                </div>
+              )}
+            </div>
+            
+            <div>
+              <div className="text-xs text-[#6B7280] mb-1">Folio #</div>
+              {editingFields.has('folio_int') ? (
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="text"
+                    value={tempValues.folio_int || ''}
+                    onChange={(e) => setTempValues(prev => ({ ...prev, folio_int: e.target.value || null }))}
+                    className="text-sm flex-1"
+                    placeholder="Enter folio number"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0 hover:bg-gray-100"
+                    onClick={() => saveEdit('folio_int')}
+                  >
+                    <Check className="h-3 w-3" />
+                  </Button>
+                  {tempValues.folio_int && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0 hover:bg-gray-100"
+                      onClick={() => navigator.clipboard.writeText(tempValues.folio_int!)}
+                    >
+                      <Copy className="h-3 w-3" />
+                    </Button>
+                  )}
+                </div>
+              ) : (
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-[#1A1A1A]">{property.folio_int || 'N/A'}</span>
+                    {property.folio_int && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-5 w-5 p-0 hover:bg-gray-100"
+                        onClick={() => navigator.clipboard.writeText(property.folio_int!)}
+                      >
+                        <Copy className="h-3 w-3" />
+                      </Button>
+                    )}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0 hover:bg-gray-100"
+                    onClick={() => startEditing('folio_int')}
+                  >
+                    <Edit className="h-3 w-3" />
+                  </Button>
+                </div>
+              )}
             </div>
             
             <div className="col-span-2">
               <div className="text-xs text-[#6B7280] mb-1">Ordinance URL</div>
-              <div className="flex items-center gap-2">
-                <Input
-                  type="url"
-                  value={property.municipal_zoning_url || ''}
-                  onChange={(e) => onPropertyUpdate?.({ ...property, municipal_zoning_url: e.target.value || null })}
-                  className="text-sm flex-1"
-                  placeholder="Enter municipal zoning ordinance URL"
-                />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 w-8 p-0 hover:bg-gray-100"
-                >
-                  <Edit className="h-3 w-3" />
-                </Button>
-              </div>
+              {editingFields.has('municipal_zoning_url') ? (
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="url"
+                    value={tempValues.municipal_zoning_url || ''}
+                    onChange={(e) => setTempValues(prev => ({ ...prev, municipal_zoning_url: e.target.value || null }))}
+                    className="text-sm flex-1"
+                    placeholder="Enter municipal zoning ordinance URL"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0 hover:bg-gray-100"
+                    onClick={() => saveEdit('municipal_zoning_url')}
+                  >
+                    <Check className="h-3 w-3" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-[#1A1A1A] truncate">{property.municipal_zoning_url || 'N/A'}</span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0 hover:bg-gray-100"
+                    onClick={() => startEditing('municipal_zoning_url')}
+                  >
+                    <Edit className="h-3 w-3" />
+                  </Button>
+                </div>
+              )}
             </div>
             
             <div className="col-span-2">
               <div className="text-xs text-[#6B7280] mb-1">City Portal URL</div>
-              <div className="flex items-center gap-2">
-                <Input
-                  type="url"
-                  value={property.city_portal_url || ''}
-                  onChange={(e) => onPropertyUpdate?.({ ...property, city_portal_url: e.target.value || null })}
-                  className="text-sm flex-1"
-                  placeholder="Enter city portal URL"
-                />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 w-8 p-0 hover:bg-gray-100"
-                >
-                  <Edit className="h-3 w-3" />
-                </Button>
-              </div>
+              {editingFields.has('city_portal_url') ? (
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="url"
+                    value={tempValues.city_portal_url || ''}
+                    onChange={(e) => setTempValues(prev => ({ ...prev, city_portal_url: e.target.value || null }))}
+                    className="text-sm flex-1"
+                    placeholder="Enter city portal URL"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0 hover:bg-gray-100"
+                    onClick={() => saveEdit('city_portal_url')}
+                  >
+                    <Check className="h-3 w-3" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-[#1A1A1A] truncate">{property.city_portal_url || 'N/A'}</span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0 hover:bg-gray-100"
+                    onClick={() => startEditing('city_portal_url')}
+                  >
+                    <Edit className="h-3 w-3" />
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -554,12 +800,40 @@ export function PropertyPanel({
         {/* Notes Section */}
         <div className="mb-6">
           <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-wide mb-3">Notes</h3>
-          <Textarea 
-            placeholder="Add notes about this property..."
-            value={property.notes || ''}
-            className="min-h-[100px] resize-none border-gray-200"
-            readOnly
-          />
+          {editingFields.has('notes') ? (
+            <div className="space-y-2">
+              <Textarea 
+                placeholder="Add notes about this property..."
+                value={tempValues.notes || ''}
+                onChange={(e) => setTempValues(prev => ({ ...prev, notes: e.target.value || null }))}
+                className="min-h-[100px] resize-none border-gray-200"
+              />
+              <div className="flex justify-end">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0 hover:bg-gray-100"
+                  onClick={() => saveEdit('notes')}
+                >
+                  <Check className="h-3 w-3" />
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="relative">
+              <div className="min-h-[100px] p-3 border border-gray-200 rounded-md bg-gray-50 text-sm text-gray-600">
+                {property.notes || 'No notes added'}
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="absolute top-2 right-2 h-8 w-8 p-0 hover:bg-gray-100"
+                onClick={() => startEditing('notes')}
+              >
+                <Edit className="h-3 w-3" />
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Divider */}
