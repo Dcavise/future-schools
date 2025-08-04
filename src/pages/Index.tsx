@@ -410,22 +410,22 @@ const Index = () => {
         }}
       >
         {/* Map or Table View */}
-        {(currentView === 'map' || isOverloadMode) ? (
-          <MapView 
-            className="z-0"
-            style={{
-              filter: (isEmptyState && !isLoading) ? 'grayscale(100%) brightness(1.2)' : 'none',
-              opacity: (isEmptyState && !isLoading) ? 0.3 : 1
-            }}
-            properties={showPropertiesView ? displayProperties : []}
-            selectedProperty={selectedProperty}
-            onPropertySelect={handlePropertySelect}
-            showPanel={showPropertiesView && !isOverloadMode}
-            isHeatmapMode={isOverloadMode}
-            showPerformanceMessage={isOverloadMode}
-          />
-        ) : (
-          <div className="flex-1">
+        <div className={`${showPropertiesView && currentView === 'map' && !isOverloadMode && selectedProperty ? 'flex-1 pr-6' : 'flex-1'}`}>
+          {(currentView === 'map' || isOverloadMode) ? (
+            <MapView 
+              className="z-0 h-full rounded-lg overflow-hidden"
+              style={{
+                filter: (isEmptyState && !isLoading) ? 'grayscale(100%) brightness(1.2)' : 'none',
+                opacity: (isEmptyState && !isLoading) ? 0.3 : 1
+              }}
+              properties={showPropertiesView ? displayProperties : []}
+              selectedProperty={selectedProperty}
+              onPropertySelect={handlePropertySelect}
+              showPanel={showPropertiesView && !isOverloadMode}
+              isHeatmapMode={isOverloadMode}
+              showPerformanceMessage={isOverloadMode}
+            />
+          ) : (
             <PropertyTable
               properties={displayProperties}
               selectedProperty={selectedProperty}
@@ -433,12 +433,14 @@ const Index = () => {
               selectedProperties={selectedPropertyIds}
               onSelectionChange={handleSelectionChange}
             />
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Property Panel - Only show when we have properties, in map view, and not in overload mode */}
-        {showPropertiesView && currentView === 'map' && !isOverloadMode && (
-          <PropertyPanel property={selectedProperty} />
+        {showPropertiesView && currentView === 'map' && !isOverloadMode && selectedProperty && (
+          <div className="w-[420px] flex-shrink-0">
+            <PropertyPanel property={selectedProperty} />
+          </div>
         )}
       </div>
       
