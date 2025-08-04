@@ -469,7 +469,7 @@ export function MapView({
         width: showPanel && !isHeatmapMode ? 'calc(100% - 420px)' : '100%'
       }}
     >
-      <div ref={mapContainer} className="w-full h-full" />
+      <div ref={mapContainer} className="w-full h-full bg-gray-200" style={{ minHeight: '400px' }} />
       
       {/* Performance/Heatmap Message */}
       {(isHeatmapMode || showPerformanceMessage) && (
