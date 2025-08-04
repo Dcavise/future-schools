@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { mockProperties, generateMockProperties } from '@/data/mockProperties';
 import { Property } from '@/types/property';
@@ -87,6 +87,14 @@ const PropertyDetail = () => {
     }
   };
 
+  const handlePropertySelect = useCallback((newProperty: Property) => {
+    console.log('PropertyDetail - navigating to:', newProperty.id);
+    // Navigate to the new property while maintaining the properties list
+    navigate(`/property/${newProperty.id}`, { 
+      state: { properties: allProperties }
+    });
+  }, [navigate, allProperties]);
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
@@ -98,13 +106,7 @@ const PropertyDetail = () => {
           properties={allProperties}
           className="w-full h-full"
           showPanel={true}
-          onPropertySelect={(newProperty) => {
-            console.log('PropertyDetail - navigating to:', newProperty.id);
-            // Navigate to the new property while maintaining the properties list
-            navigate(`/property/${newProperty.id}`, { 
-              state: { properties: allProperties }
-            });
-          }}
+          onPropertySelect={handlePropertySelect}
         />
 
         {/* Property Panel - Fixed overlay on right side */}
