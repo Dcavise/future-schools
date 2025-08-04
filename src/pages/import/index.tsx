@@ -23,8 +23,10 @@ const ImportIndex = () => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    // TODO: Handle file upload
-    navigate('/import/preview');
+    // Store file info and navigate to mapping
+    // TODO: Process actual file upload
+    sessionStorage.setItem('uploadedFile', 'sample.csv');
+    navigate('/import/mapping');
   };
 
   return (
@@ -64,7 +66,11 @@ const ImportIndex = () => {
                 <Upload className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <p className="text-foreground font-medium mb-2">Drop your CSV file here</p>
                 <p className="text-sm text-muted-foreground mb-4">or click to browse</p>
-                <Button onClick={() => navigate('/import/preview')}>
+                <Button onClick={() => {
+                  // TODO: Handle file selection
+                  sessionStorage.setItem('uploadedFile', 'sample.csv');
+                  navigate('/import/mapping');
+                }}>
                   Choose File
                 </Button>
               </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '@/components/shared/Header';
 import { Button } from '@/components/ui/button';
@@ -10,38 +10,75 @@ import { AlertTriangle, CheckCircle, XCircle, ArrowLeft } from 'lucide-react';
 const ImportPreview = () => {
   const navigate = useNavigate();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [mappedData, setMappedData] = useState([]);
 
-  const previewData = [
-    {
-      row: 1,
-      address: '123 Main St, Austin, TX',
-      status: 'valid',
-      errors: [],
-      warnings: ['Coordinates estimated']
-    },
-    {
-      row: 2,
-      address: '456 Oak Ave, Austin, TX',
-      status: 'error',
-      errors: ['Invalid ZIP code'],
-      warnings: []
-    },
-    {
-      row: 3,
-      address: '789 Pine St, Austin, TX',
-      status: 'valid',
-      errors: [],
-      warnings: []
+  // Load mapped data on component mount
+  useEffect(() => {
+    const mappings = sessionStorage.getItem('columnMappings');
+    if (!mappings) {
+      navigate('/import');
+      return;
     }
-  ];
+    
+    // Simulate processing mapped data
+    const processedData = [
+      {
+        row: 1,
+        address: '123 Main St, Austin, TX',
+        city: 'Austin',
+        state: 'TX',
+        buildingType: 'Retail',
+        squareFeet: '2500',
+        status: 'valid',
+        errors: [],
+        warnings: ['Coordinates estimated from address']
+      },
+      {
+        row: 2,
+        address: '456 Oak Ave, Austin, TX',
+        city: 'Austin',
+        state: 'TX',
+        buildingType: 'Office',
+        squareFeet: '4200',
+        status: 'warning',
+        errors: [],
+        warnings: ['Building type requires verification']
+      },
+      {
+        row: 3,
+        address: '789 Pine St, Austin, TX',
+        city: 'Austin',
+        state: 'TX',
+        buildingType: 'Mixed',
+        squareFeet: '1800',
+        status: 'valid',
+        errors: [],
+        warnings: []
+      },
+      {
+        row: 4,
+        address: 'Invalid Address Format',
+        city: '',
+        state: '',
+        buildingType: 'Office',
+        squareFeet: '',
+        status: 'error',
+        errors: ['Invalid address format', 'Missing required city field'],
+        warnings: []
+      }
+    ];
+    
+    setMappedData(processedData);
+  }, [navigate]);
 
-  const validCount = previewData.filter(p => p.status === 'valid').length;
-  const errorCount = previewData.filter(p => p.status === 'error').length;
-  const warningCount = previewData.reduce((acc, p) => acc + p.warnings.length, 0);
+  const validCount = mappedData.filter(p => p.status === 'valid').length;
+  const errorCount = mappedData.filter(p => p.status === 'error').length;
+  const warningCount = mappedData.filter(p => p.status === 'warning').length + 
+                      mappedData.reduce((acc, p) => acc + p.warnings.length, 0);
 
   const handleImport = async () => {
     setIsProcessing(true);
-    // TODO: Process import
+    // TODO: Process import with mapped data
     setTimeout(() => {
       navigate('/import/results');
     }, 2000);
@@ -53,13 +90,13 @@ const ImportPreview = () => {
       
       <div className="flex-1 p-6 max-w-6xl mx-auto">
         <div className="mb-6">
-          <Button variant="ghost" onClick={() => navigate('/import')} className="mb-4">
+          <Button variant="ghost" onClick={() => navigate('/import/mapping')} className="mb-4">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Import
+            Back to Column Mapping
           </Button>
           <h1 className="text-2xl font-semibold text-foreground mb-2">Import Preview</h1>
           <p className="text-muted-foreground">
-            Review your data before importing 247 properties
+            Review your mapped data before importing {mappedData.length} properties
           </p>
         </div>
 
@@ -87,7 +124,7 @@ const ImportPreview = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-foreground">{warningCount}</div>
-              <p className="text-sm text-muted-foreground">Will be imported with notes</p>
+              <p className="text-sm text-muted-foreground">Issues noted but will import</p>
             </CardContent>
           </Card>
 
@@ -108,7 +145,7 @@ const ImportPreview = () => {
         {/* Data Preview Table */}
         <Card>
           <CardHeader>
-            <CardTitle>Data Preview</CardTitle>
+            <CardTitle>Mapped Data Preview</CardTitle>
           </CardHeader>
           <CardContent>
             <Table>
@@ -116,29 +153,35 @@ const ImportPreview = () => {
                 <TableRow>
                   <TableHead>Row</TableHead>
                   <TableHead>Address</TableHead>
+                  <TableHead>City</TableHead>
+                  <TableHead>State</TableHead>
+                  <TableHead>Type</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Issues</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {previewData.map((row) => (
+                {mappedData.map((row) => (
                   <TableRow key={row.row}>
                     <TableCell>{row.row}</TableCell>
                     <TableCell>{row.address}</TableCell>
+                    <TableCell>{row.city}</TableCell>
+                    <TableCell>{row.state}</TableCell>
+                    <TableCell>{row.buildingType}</TableCell>
                     <TableCell>
-                      <Badge variant={row.status === 'valid' ? 'default' : 'destructive'}>
+                      <Badge variant={row.status === 'valid' ? 'default' : row.status === 'warning' ? 'secondary' : 'destructive'}>
                         {row.status}
                       </Badge>
                     </TableCell>
                     <TableCell>
                       <div className="space-y-1">
                         {row.errors.map((error, i) => (
-                          <Badge key={i} variant="destructive" className="mr-1">
+                          <Badge key={i} variant="destructive" className="mr-1 text-xs">
                             {error}
                           </Badge>
                         ))}
                         {row.warnings.map((warning, i) => (
-                          <Badge key={i} variant="secondary" className="mr-1">
+                          <Badge key={i} variant="secondary" className="mr-1 text-xs">
                             {warning}
                           </Badge>
                         ))}
@@ -153,8 +196,8 @@ const ImportPreview = () => {
 
         {/* Action Buttons */}
         <div className="flex justify-end gap-4 mt-6">
-          <Button variant="outline" onClick={() => navigate('/import')}>
-            Cancel
+          <Button variant="outline" onClick={() => navigate('/import/mapping')}>
+            Back to Mapping
           </Button>
           <Button 
             onClick={handleImport} 

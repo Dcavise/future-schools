@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import PropertyDetail from "./pages/property/[id]";
 import ImportIndex from "./pages/import/index";
+import ImportMapping from "./pages/import/mapping";
 import ImportPreview from "./pages/import/preview";
 import ImportResults from "./pages/import/results";
 import TeamIndex from "./pages/team/index";
@@ -27,6 +28,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/property/:id" element={<PropertyDetail />} />
           <Route path="/import" element={<ImportIndex />} />
+          <Route path="/import/mapping" element={<ImportMapping />} />
           <Route path="/import/preview" element={<ImportPreview />} />
           <Route path="/import/results" element={<ImportResults />} />
           <Route path="/team" element={<TeamIndex />} />

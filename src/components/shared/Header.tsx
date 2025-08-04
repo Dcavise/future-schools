@@ -1,7 +1,8 @@
 import React from 'react';
-import { ChevronDown, Filter } from 'lucide-react';
+import { ChevronDown, Filter, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useNavigate } from 'react-router-dom';
 
 interface HeaderProps {
   onFiltersClick?: () => void;
@@ -9,6 +10,7 @@ interface HeaderProps {
 }
 
 export function Header({ onFiltersClick, activeFilterCount = 0 }: HeaderProps) {
+  const navigate = useNavigate();
   return (
     <header 
       className="fixed top-0 left-0 right-0 z-[100] h-14 bg-white flex items-center justify-between px-6"
@@ -47,6 +49,17 @@ export function Header({ onFiltersClick, activeFilterCount = 0 }: HeaderProps) {
             </Button>
           </div>
         )}
+        
+        {/* Import Button */}
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => navigate('/import')}
+          className="flex items-center gap-2"
+        >
+          <Upload className="h-4 w-4" />
+          Import
+        </Button>
       </div>
       
       {/* Right side - User Menu */}
