@@ -102,7 +102,6 @@ export function PropertyTable({
       case 'reviewing': return 'bg-blue-500 text-white';
       case 'new': return 'bg-gray-500 text-white';
       case 'not_qualified': return 'bg-red-500 text-white';
-      case 'on_hold': return 'bg-gray-500 text-white';
       default: return 'bg-gray-500 text-white';
     }
   };
@@ -113,7 +112,6 @@ export function PropertyTable({
       case 'reviewing': return 'Reviewing';
       case 'new': return 'New';
       case 'not_qualified': return 'Not Qualified';
-      case 'on_hold': return 'On Hold';
       default: return 'Unknown';
     }
   };

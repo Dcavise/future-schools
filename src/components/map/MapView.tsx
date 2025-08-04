@@ -297,7 +297,6 @@ export function MapView({
           case 'reviewing': return '#3B82F6';     // Blue
           case 'new': return '#6B7280';           // Gray
           case 'not_qualified': return '#EF4444'; // Red
-          case 'on_hold': return '#8B5CF6';       // Purple
           default: return '#6B7280';              // Default gray
         }
       };
@@ -305,21 +304,21 @@ export function MapView({
       const statusColor = getStatusColor(property.status);
       el.style.backgroundColor = statusColor;
 
-      // Enhanced hover effects
+      // Enhanced hover effects - Fix the flying marker issue
       el.addEventListener('mouseenter', () => {
         if (!isSelected) {
-          const hoverSize = baseSize * selectedMultiplier * 1.25;
-          el.style.width = `${hoverSize}px`;
-          el.style.height = `${hoverSize}px`;
-          el.style.transform = 'translateZ(0)'; // Force GPU acceleration
+          // Instead of changing size, just add a subtle glow effect
+          el.style.boxShadow = '0 0 12px rgba(0,0,0,0.4), 0 0 8px rgba(59,130,246,0.3)';
+          el.style.transform = 'scale(1.1)';
+          el.style.zIndex = '1000';
         }
       });
 
       el.addEventListener('mouseleave', () => {
         if (!isSelected) {
-          el.style.width = `${baseSize * selectedMultiplier}px`;
-          el.style.height = `${baseSize * selectedMultiplier}px`;
-          el.style.transform = 'none';
+          el.style.boxShadow = isSelected ? '0 4px 8px rgba(0,0,0,0.3)' : '0 2px 4px rgba(0,0,0,0.2)';
+          el.style.transform = 'scale(1)';
+          el.style.zIndex = 'auto';
         }
       });
 

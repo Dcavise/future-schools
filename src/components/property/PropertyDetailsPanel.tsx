@@ -98,8 +98,6 @@ export function PropertyDetailsPanel({ property, onPropertyUpdate, onClose }: Pr
         return <X className="h-5 w-5 text-red-600" />;
       case 'new':
         return <HelpCircle className="h-5 w-5 text-gray-600" />;
-      case 'on_hold':
-        return <AlertTriangle className="h-5 w-5 text-purple-600" />;
       default:
         return <HelpCircle className="h-5 w-5 text-gray-600" />;
     }
@@ -115,8 +113,6 @@ export function PropertyDetailsPanel({ property, onPropertyUpdate, onClose }: Pr
         return 'bg-red-100 text-red-800 border-red-200';
       case 'new':
         return 'bg-gray-100 text-gray-800 border-gray-200';
-      case 'on_hold':
-        return 'bg-purple-100 text-purple-800 border-purple-200';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-200';
     }

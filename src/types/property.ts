@@ -13,7 +13,7 @@ export interface Property {
   current_occupancy: string | null; // VARCHAR(50) - E, A, Other
   fire_sprinkler_status: string | null; // VARCHAR(20) - Yes, No
   assigned_to: string | null; // UUID (FK)
-  status: 'new' | 'reviewing' | 'synced' | 'not_qualified' | 'on_hold'; // Workflow status
+  status: 'new' | 'reviewing' | 'synced' | 'not_qualified'; // Workflow status
   created_at: string; // TIMESTAMP
   updated_at: string; // TIMESTAMP
   notes: string | null; // TEXTAREA

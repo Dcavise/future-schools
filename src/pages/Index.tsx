@@ -62,8 +62,6 @@ const generateProperties = (city: string, count?: number): Property[] => {
       status = 'synced';
     } else if (zoning_by_right === false || fire_sprinkler_status === 'No') {
       status = 'not_qualified';
-    } else if (Math.random() > 0.8) {
-      status = 'on_hold';
     } else if (Math.random() > 0.6) {
       status = 'reviewing';
     } else {
