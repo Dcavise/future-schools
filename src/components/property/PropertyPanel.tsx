@@ -150,37 +150,49 @@ export function PropertyPanel({ property, onClose }: PropertyPanelProps) {
         </div>
 
         {/* Compliance Section */}
-        <div className="bg-white border border-gray-200 rounded-lg p-4 mb-4">
+        <div className="mb-6">
           <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-wide mb-4">Compliance</h3>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                {getComplianceIcon(property.zoningByRight)}
-                <span className="text-sm text-[#1A1A1A]">Zoning By-Right</span>
+          <div className="grid grid-cols-2 gap-3 p-4 bg-[#F9FAFB] rounded-lg">
+            <div className={`flex items-center gap-2 p-2 bg-white rounded border ${
+              property.zoningByRight === true ? 'border-green-500 bg-green-50' :
+              property.zoningByRight === false ? 'border-red-500 bg-red-50' : 
+              'border-yellow-500 bg-yellow-50'
+            }`}>
+              {getComplianceIcon(property.zoningByRight)}
+              <div className="min-w-0 flex-1">
+                <div className="text-xs font-medium text-gray-900">Zoning</div>
+                <div className="text-xs text-gray-600">{getComplianceStatus(property.zoningByRight)}</div>
               </div>
-              <span className="text-sm font-medium text-[#1A1A1A]">
-                {getComplianceStatus(property.zoningByRight)}
-              </span>
             </div>
             
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                {getComplianceIcon(property.fireSprinklers)}
-                <span className="text-sm text-[#1A1A1A]">Fire Sprinklers</span>
+            <div className={`flex items-center gap-2 p-2 bg-white rounded border ${
+              property.fireSprinklers === true ? 'border-green-500 bg-green-50' :
+              property.fireSprinklers === false ? 'border-red-500 bg-red-50' : 
+              'border-yellow-500 bg-yellow-50'
+            }`}>
+              {getComplianceIcon(property.fireSprinklers)}
+              <div className="min-w-0 flex-1">
+                <div className="text-xs font-medium text-gray-900">Sprinklers</div>
+                <div className="text-xs text-gray-600">{getComplianceStatus(property.fireSprinklers)}</div>
               </div>
-              <span className="text-sm font-medium text-[#1A1A1A]">
-                {getComplianceStatus(property.fireSprinklers)}
-              </span>
             </div>
             
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                {getComplianceIcon(property.currentOccupancy !== null)}
-                <span className="text-sm text-[#1A1A1A]">Current Occupancy</span>
+            <div className={`flex items-center gap-2 p-2 bg-white rounded border ${
+              property.currentOccupancy !== null ? 'border-green-500 bg-green-50' : 'border-yellow-500 bg-yellow-50'
+            }`}>
+              {getComplianceIcon(property.currentOccupancy !== null)}
+              <div className="min-w-0 flex-1">
+                <div className="text-xs font-medium text-gray-900">Occupancy</div>
+                <div className="text-xs text-gray-600">{getOccupancyLabel(property.currentOccupancy)}</div>
               </div>
-              <span className="text-sm font-medium text-[#1A1A1A]">
-                {getOccupancyLabel(property.currentOccupancy)}
-              </span>
+            </div>
+            
+            <div className="flex items-center gap-2 p-2 bg-white rounded border border-gray-200">
+              <HelpCircle className="h-4 w-4 text-gray-400" />
+              <div className="min-w-0 flex-1">
+                <div className="text-xs font-medium text-gray-900">Access</div>
+                <div className="text-xs text-gray-600">Pending</div>
+              </div>
             </div>
           </div>
         </div>
