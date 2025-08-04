@@ -466,7 +466,8 @@ export function MapView({
       className={`relative ${className}`} 
       style={{ 
         ...style,
-        width: showPanel && !isHeatmapMode ? 'calc(100% - 420px)' : '100%'
+        width: showPanel && !isHeatmapMode ? 'calc(100% - 420px)' : '100%',
+        height: '100%'
       }}
     >
       <div ref={mapContainer} className="w-full h-full bg-gray-200" style={{ minHeight: '400px' }} />
