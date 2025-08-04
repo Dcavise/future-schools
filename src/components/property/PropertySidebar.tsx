@@ -130,18 +130,24 @@ export const PropertySidebar: React.FC<PropertySidebarProps> = ({
             <Button 
               variant="ghost" 
               size="icon" 
-              onClick={onPreviousProperty}
+              onClick={() => {
+                console.log('Previous button clicked', { onPreviousProperty, hasHandler: !!onPreviousProperty });
+                onPreviousProperty?.();
+              }}
               disabled={!onPreviousProperty}
-              className="h-8 w-8"
+              className="h-8 w-8 cursor-pointer"
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
             <Button 
               variant="ghost" 
               size="icon" 
-              onClick={onNextProperty}
+              onClick={() => {
+                console.log('Next button clicked', { onNextProperty, hasHandler: !!onNextProperty });
+                onNextProperty?.();
+              }}
               disabled={!onNextProperty}
-              className="h-8 w-8"
+              className="h-8 w-8 cursor-pointer"
             >
               <ChevronRight className="h-4 w-4" />
             </Button>

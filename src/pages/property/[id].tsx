@@ -80,8 +80,14 @@ const PropertyDetail = () => {
           property={property}
           onPropertyUpdate={handlePropertyUpdate}
           onClose={() => navigate('/')}
-          onPreviousProperty={currentIndex > 0 ? handlePreviousProperty : undefined}
-          onNextProperty={currentIndex < properties.length - 1 ? handleNextProperty : undefined}
+          onPreviousProperty={currentIndex > 0 ? (() => {
+            console.log('Creating previous handler', { currentIndex, canGoPrevious: currentIndex > 0 });
+            return handlePreviousProperty;
+          })() : undefined}
+          onNextProperty={currentIndex < properties.length - 1 ? (() => {
+            console.log('Creating next handler', { currentIndex, propertiesLength: properties.length, canGoNext: currentIndex < properties.length - 1 });
+            return handleNextProperty;
+          })() : undefined}
         />
       </div>
     </div>
