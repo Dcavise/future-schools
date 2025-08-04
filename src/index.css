@@ -157,12 +157,14 @@ html, body, #root {
   position: relative;
   display: flex;
   flex-direction: column;
+  padding-top: 56px; /* Add explicit padding instead of calc */
+  box-sizing: border-box;
 }
 
 /* Content wrapper - proper height calculation */
 .property-detail-content {
   display: flex;
-  height: calc(100vh - 56px); /* Subtract header height */
+  height: 100%; /* Use full height of padded container */
   width: 100%;
   position: relative;
   overflow: hidden;
