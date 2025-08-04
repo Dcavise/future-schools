@@ -157,6 +157,89 @@ const EditableField = ({ label, value, onSave, type = "text" }: {
   );
 };
 
+// Editable URL button component
+const EditableUrlButton = ({ label, url, onSave }: {
+  label: string;
+  url: string | null;
+  onSave: (url: string) => void;
+}) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [tempUrl, setTempUrl] = useState(url || '');
+
+  const handleContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setTempUrl(url || '');
+    setIsEditing(true);
+  };
+
+  const handleSave = () => {
+    onSave(tempUrl);
+    setIsEditing(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSave();
+    } else if (e.key === 'Escape') {
+      setTempUrl(url || '');
+      setIsEditing(false);
+    }
+  };
+
+  if (isEditing) {
+    return (
+      <div className="flex items-center gap-2 flex-1">
+        <Input
+          value={tempUrl}
+          onChange={(e) => setTempUrl(e.target.value)}
+          onBlur={handleSave}
+          onKeyDown={handleKeyDown}
+          className="text-xs h-7"
+          placeholder="Enter URL..."
+          autoFocus
+        />
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleSave}
+          className="h-6 w-6 p-0"
+        >
+          <Check className="h-3 w-3" />
+        </Button>
+      </div>
+    );
+  }
+
+  if (!url) {
+    return (
+      <Button
+        variant="outline"
+        size="sm"
+        className="h-7 px-2 text-xs opacity-50"
+        onContextMenu={handleContextMenu}
+        onClick={handleContextMenu}
+      >
+        <Plus className="h-3 w-3 mr-1" />
+        Add URL
+      </Button>
+    );
+  }
+
+  return (
+    <Button 
+      variant="outline"
+      size="sm"
+      className="h-7 px-2 text-xs"
+      onClick={() => window.open(url, '_blank')}
+      onContextMenu={handleContextMenu}
+      title="Right-click to edit"
+    >
+      <span className="mr-1">{label}</span>
+      <ExternalLink className="h-3 w-3" />
+    </Button>
+  );
+};
+
 // Compliance status badge component
 const ComplianceStatusBadge = ({ status }: { status: string }) => {
   const getStatusConfig = (status: string) => {
@@ -564,35 +647,24 @@ export function PropertyPanel({
                 />
               </div>
               
-              {property.municipal_zoning_url && (
-                <div className="flex justify-between items-center group">
-                  <span className="text-sm text-muted-foreground">Ordinance URL</span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => window.open(property.municipal_zoning_url!, '_blank')}
-                    className="h-7 px-2 text-xs"
-                  >
-                    <ExternalLink className="h-3 w-3 mr-1" />
-                    View
-                  </Button>
-                </div>
-              )}
               
-              {property.city_portal_url && (
-                <div className="flex justify-between items-center group">
-                  <span className="text-sm text-muted-foreground">City Portal URL</span>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => window.open(property.city_portal_url!, '_blank')}
-                    className="h-7 px-2 text-xs"
-                  >
-                    <ExternalLink className="h-3 w-3 mr-1" />
-                    View
-                  </Button>
-                </div>
-              )}
+              <div className="flex justify-between items-center group">
+                <span className="text-sm text-muted-foreground">Ordinance URL</span>
+                <EditableUrlButton
+                  label="View"
+                  url={property.municipal_zoning_url}
+                  onSave={(url) => handleFieldUpdate('municipal_zoning_url', url)}
+                />
+              </div>
+              
+              <div className="flex justify-between items-center group">
+                <span className="text-sm text-muted-foreground">City Portal URL</span>
+                <EditableUrlButton
+                  label="View"
+                  url={property.city_portal_url}
+                  onSave={(url) => handleFieldUpdate('city_portal_url', url)}
+                />
+              </div>
             </div>
           </div>
 
