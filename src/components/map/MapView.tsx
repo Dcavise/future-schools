@@ -383,8 +383,21 @@ export function MapView({
       // Use individual markers for smaller datasets
       addMarkers();
       
-      // Fly to city bounds to show all properties
-      if (properties.length > 0) {
+      // Fly to selected property if specified, otherwise show all properties
+      if (selectedProperty && selectedProperty.latitude && selectedProperty.longitude) {
+        // Center on specific selected property
+        setTimeout(() => {
+          if (map.current) {
+            map.current.flyTo({
+              center: [selectedProperty.longitude, selectedProperty.latitude],
+              zoom: 16,
+              duration: 1000,
+              essential: true
+            });
+          }
+        }, 300);
+      } else if (properties.length > 0) {
+        // Fly to city bounds to show all properties
         const bounds = new mapboxgl.LngLatBounds();
         properties.forEach(property => {
           bounds.extend([property.longitude!, property.latitude!]);

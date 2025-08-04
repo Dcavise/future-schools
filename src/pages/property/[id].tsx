@@ -12,6 +12,10 @@ import { Button } from '@/components/ui/button';
 const PropertyDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [properties] = useState<Property[]>(mockProperties);
+  const [currentIndex, setCurrentIndex] = useState<number>(() => {
+    return mockProperties.findIndex(p => p.id === id) || 0;
+  });
   const [property, setProperty] = useState<Property | null>(() => {
     return mockProperties.find(p => p.id === id) || null;
   });
@@ -38,6 +42,26 @@ const PropertyDetail = () => {
     setProperty(updatedProperty);
   };
 
+  const handlePreviousProperty = () => {
+    if (currentIndex > 0) {
+      const newIndex = currentIndex - 1;
+      const newProperty = properties[newIndex];
+      setCurrentIndex(newIndex);
+      setProperty(newProperty);
+      navigate(`/property/${newProperty.id}`, { replace: true });
+    }
+  };
+
+  const handleNextProperty = () => {
+    if (currentIndex < properties.length - 1) {
+      const newIndex = currentIndex + 1;
+      const newProperty = properties[newIndex];
+      setCurrentIndex(newIndex);
+      setProperty(newProperty);
+      navigate(`/property/${newProperty.id}`, { replace: true });
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
@@ -45,7 +69,10 @@ const PropertyDetail = () => {
       <div className="flex-1 flex gap-6 p-6 pt-4">
         {/* Map Section - 60% */}
         <div className="flex-[6] h-[calc(100vh-5rem)] relative rounded-lg overflow-hidden border">
-          <MapView />
+          <MapView 
+            selectedProperty={property}
+            properties={properties}
+          />
         </div>
 
         {/* Property Sidebar - Overlays on right side */}
@@ -53,6 +80,8 @@ const PropertyDetail = () => {
           property={property}
           onPropertyUpdate={handlePropertyUpdate}
           onClose={() => navigate('/')}
+          onPreviousProperty={currentIndex > 0 ? handlePreviousProperty : undefined}
+          onNextProperty={currentIndex < properties.length - 1 ? handleNextProperty : undefined}
         />
       </div>
     </div>

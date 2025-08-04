@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Property } from '@/types/property';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,8 @@ interface PropertySidebarProps {
   property: Property;
   onPropertyUpdate: (property: Property) => void;
   onClose: () => void;
+  onPreviousProperty?: () => void;
+  onNextProperty?: () => void;
 }
 
 const TEAM_MEMBERS = [
@@ -57,7 +59,9 @@ const OCCUPANCY_OPTIONS = [
 export const PropertySidebar: React.FC<PropertySidebarProps> = ({
   property,
   onPropertyUpdate,
-  onClose
+  onClose,
+  onPreviousProperty,
+  onNextProperty
 }) => {
   const [notes, setNotes] = useState(property.notes || '');
 
@@ -120,10 +124,33 @@ export const PropertySidebar: React.FC<PropertySidebarProps> = ({
     <div className="fixed right-0 top-0 h-full w-96 bg-background border-l shadow-lg z-50 flex flex-col">
       {/* Header */}
       <div className="p-4 border-b bg-muted/30">
+        {/* Navigation and Close Buttons */}
         <div className="flex items-center justify-between mb-3">
+          <div className="flex gap-1">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={onPreviousProperty}
+              disabled={!onPreviousProperty}
+              className="h-8 w-8"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={onNextProperty}
+              disabled={!onNextProperty}
+              className="h-8 w-8"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+          
           <Badge className={getStatusColor(property.status)}>
             {getStatusLabel(property.status)}
           </Badge>
+          
           <Button variant="ghost" size="icon" onClick={onClose}>
             <X className="h-4 w-4" />
           </Button>
