@@ -101,6 +101,8 @@ export function PropertyTable({
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(50);
   const [showArchiveDialog, setShowArchiveDialog] = useState(false);
+  const [selectedAction, setSelectedAction] = useState<string | null>(null);
+  const [selectedOwner, setSelectedOwner] = useState<string | null>(null);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -236,9 +238,36 @@ export function PropertyTable({
   };
 
   const handleAssignOwner = (owner: string) => {
-    // Mock assignment - in real app would call API
-    console.log(`Assigning ${selectedProperties.length} properties to ${owner}`);
-    // Could show toast notification here
+    setSelectedAction('assign');
+    setSelectedOwner(owner);
+  };
+
+  const handleSelectAction = (action: string) => {
+    setSelectedAction(action);
+    if (action !== 'assign') {
+      setSelectedOwner(null);
+    }
+  };
+
+  const handleExecuteAction = () => {
+    if (selectedAction === 'assign' && selectedOwner) {
+      // Mock assignment - in real app would call API
+      console.log(`Assigning ${selectedProperties.length} properties to ${selectedOwner}`);
+    } else if (selectedAction === 'export') {
+      handleExport();
+    } else if (selectedAction === 'archive') {
+      setShowArchiveDialog(true);
+      return; // Don't clear state yet, wait for dialog
+    } else if (selectedAction === 'schedule') {
+      console.log(`Scheduling site visits for ${selectedProperties.length} properties`);
+    }
+    
+    // Clear action and selections after execution (except archive which handles it in dialog)
+    if (selectedAction !== 'archive') {
+      setSelectedAction(null);
+      setSelectedOwner(null);
+      onSelectionChange([]);
+    }
   };
 
   const handleExport = () => {
@@ -271,8 +300,10 @@ export function PropertyTable({
   const handleArchive = () => {
     // Mock archive - in real app would call API
     console.log(`Archiving ${selectedProperties.length} properties`);
-    onSelectionChange([]);
     setShowArchiveDialog(false);
+    setSelectedAction(null);
+    setSelectedOwner(null);
+    onSelectionChange([]);
     // Could show toast notification here
   };
 
@@ -323,7 +354,11 @@ export function PropertyTable({
               <div className="flex items-center gap-3">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button size="sm" variant="outline" className="bg-white border-gray-300 hover:bg-gray-50">
+                    <Button 
+                      size="sm" 
+                      variant={selectedAction === 'assign' ? 'default' : 'outline'} 
+                      className={selectedAction === 'assign' ? 'bg-blue-600 text-white' : 'bg-white border-gray-300 hover:bg-gray-50'}
+                    >
                       Assign Owner <ChevronDown className="h-4 w-4 ml-1" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -346,22 +381,51 @@ export function PropertyTable({
                   </DropdownMenuContent>
                 </DropdownMenu>
                 
-                <Button size="sm" variant="outline" onClick={handleExport} className="bg-white border-gray-300 hover:bg-gray-50">
+                <Button 
+                  size="sm" 
+                  variant={selectedAction === 'export' ? 'default' : 'outline'} 
+                  onClick={() => handleSelectAction('export')}
+                  className={selectedAction === 'export' ? 'bg-blue-600 text-white' : 'bg-white border-gray-300 hover:bg-gray-50'}
+                >
                   Export CSV
                 </Button>
                 
                 {getContextualActions() && (
-                  <Button size="sm" variant="outline" className="bg-white border-gray-300 hover:bg-gray-50">
+                  <Button 
+                    size="sm" 
+                    variant={selectedAction === 'schedule' ? 'default' : 'outline'} 
+                    onClick={() => handleSelectAction('schedule')}
+                    className={selectedAction === 'schedule' ? 'bg-blue-600 text-white' : 'bg-white border-gray-300 hover:bg-gray-50'}
+                  >
                     Schedule Site Visits
                   </Button>
                 )}
                 
+                <Button 
+                  size="sm" 
+                  variant={selectedAction === 'archive' ? 'default' : 'outline'} 
+                  onClick={() => handleSelectAction('archive')}
+                  className={selectedAction === 'archive' ? 'bg-blue-600 text-white' : 'bg-white border-gray-300 hover:bg-gray-50'}
+                >
+                  Archive
+                </Button>
+
+                {/* Execute Button */}
+                {selectedAction && (
+                  <Button 
+                    size="sm" 
+                    variant="default"
+                    onClick={handleExecuteAction}
+                    className="bg-green-600 hover:bg-green-700 text-white ml-2"
+                  >
+                    {selectedAction === 'assign' && selectedOwner ? `Apply (${selectedOwner})` : 
+                     selectedAction === 'export' ? 'Download CSV' :
+                     selectedAction === 'schedule' ? 'Schedule Visits' :
+                     selectedAction === 'archive' ? 'Confirm Archive' : 'Apply'}
+                  </Button>
+                )}
+
                 <AlertDialog open={showArchiveDialog} onOpenChange={setShowArchiveDialog}>
-                  <AlertDialogTrigger asChild>
-                    <Button size="sm" variant="outline" className="bg-white border-gray-300 hover:bg-gray-50">
-                      Archive
-                    </Button>
-                  </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
                       <AlertDialogTitle>Archive Properties</AlertDialogTitle>
@@ -370,7 +434,10 @@ export function PropertyTable({
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogCancel onClick={() => {
+                        setShowArchiveDialog(false);
+                        setSelectedAction(null);
+                      }}>Cancel</AlertDialogCancel>
                       <AlertDialogAction onClick={handleArchive}>Archive</AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
@@ -378,7 +445,11 @@ export function PropertyTable({
               </div>
             </div>
             <button 
-              onClick={() => onSelectionChange([])}
+              onClick={() => {
+                onSelectionChange([]);
+                setSelectedAction(null);
+                setSelectedOwner(null);
+              }}
               className="text-sm text-blue-700 hover:text-blue-900 underline font-medium"
             >
               Deselect All
