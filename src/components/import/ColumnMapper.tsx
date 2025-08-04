@@ -148,9 +148,18 @@ export function ColumnMapper({ csvColumns, onMappingComplete, onBack }: ColumnMa
   };
 
   const handleMappingChange = (primerField: string, csvColumn: string | null, useDefault: boolean = false) => {
+    // Handle special values
+    let actualCsvColumn = csvColumn;
+    let actualUseDefault = useDefault;
+    
+    if (csvColumn === 'skip' || csvColumn === 'default') {
+      actualCsvColumn = null;
+      actualUseDefault = true;
+    }
+    
     setMappings(prev => prev.map(mapping => 
       mapping.primerField === primerField 
-        ? { ...mapping, csvColumn, useDefault }
+        ? { ...mapping, csvColumn: actualCsvColumn, useDefault: actualUseDefault }
         : mapping
     ));
   };
@@ -294,8 +303,8 @@ export function ColumnMapper({ csvColumns, onMappingComplete, onBack }: ColumnMa
                         )}
                       </div>
                       <Select
-                        value={mapping?.csvColumn || ''}
-                        onValueChange={(value) => handleMappingChange(field.key, value || null)}
+                        value={mapping?.csvColumn || (mapping?.useDefault ? 'default' : '')}
+                        onValueChange={(value) => handleMappingChange(field.key, value === 'default' ? null : value)}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Select CSV column" />
@@ -325,14 +334,14 @@ export function ColumnMapper({ csvColumns, onMappingComplete, onBack }: ColumnMa
                     <div key={field.key} className="border rounded-lg p-4 space-y-2">
                       <label className="font-medium text-foreground">{field.label}</label>
                       <Select
-                        value={mapping?.csvColumn || ''}
-                        onValueChange={(value) => handleMappingChange(field.key, value || null)}
+                        value={mapping?.csvColumn || (mapping?.useDefault ? (field.skipOption ? 'skip' : 'default') : '')}
+                        onValueChange={(value) => handleMappingChange(field.key, value === 'skip' || value === 'default' ? null : value)}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Select CSV column" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">
+                          <SelectItem value={field.skipOption ? 'skip' : 'default'}>
                             {field.skipOption ? 'Skip this field' : `Use default: ${field.defaultValue}`}
                           </SelectItem>
                           {csvColumns.map(column => (
