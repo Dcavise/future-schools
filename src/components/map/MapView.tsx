@@ -13,10 +13,12 @@ export function MapView({ className = '', style = {} }: MapViewProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
 
+  // Initialize map
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
 
     try {
+      console.log('Initializing Mapbox map...');
       mapboxgl.accessToken = MAPBOX_TOKEN;
       
       map.current = new mapboxgl.Map({
@@ -33,6 +35,14 @@ export function MapView({ className = '', style = {} }: MapViewProps) {
         'top-right'
       );
 
+      map.current.on('load', () => {
+        console.log('Mapbox map loaded successfully');
+      });
+
+      map.current.on('error', (e) => {
+        console.error('Mapbox error:', e);
+      });
+
     } catch (error) {
       console.error('Failed to initialize map:', error);
     }
@@ -40,11 +50,22 @@ export function MapView({ className = '', style = {} }: MapViewProps) {
     // Cleanup function
     return () => {
       if (map.current) {
+        console.log('Cleaning up map...');
         map.current.remove();
         map.current = null;
       }
     };
   }, []);
+
+  // Trigger resize when style changes (especially when filters are removed)
+  useEffect(() => {
+    if (map.current) {
+      console.log('Triggering map resize due to style change');
+      setTimeout(() => {
+        map.current?.resize();
+      }, 100);
+    }
+  }, [style]);
 
   return (
     <div 
