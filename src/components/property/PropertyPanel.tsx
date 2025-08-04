@@ -240,6 +240,67 @@ const EditableUrlButton = ({ label, url, onSave }: {
   );
 };
 
+// Editable notes component
+const EditableNotes = ({ notes, onSave }: {
+  notes: string | null;
+  onSave: (notes: string) => void;
+}) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [tempNotes, setTempNotes] = useState(notes || '');
+
+  const handleSave = () => {
+    onSave(tempNotes);
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    setTempNotes(notes || '');
+    setIsEditing(false);
+  };
+
+  if (isEditing) {
+    return (
+      <div className="space-y-2">
+        <Textarea
+          value={tempNotes}
+          onChange={(e) => setTempNotes(e.target.value)}
+          className="min-h-[100px] text-sm"
+          placeholder="Add notes about this property..."
+          autoFocus
+        />
+        <div className="flex gap-2 justify-end">
+          <Button 
+            size="sm" 
+            variant="ghost"
+            onClick={handleCancel}
+          >
+            Cancel
+          </Button>
+          <Button 
+            size="sm"
+            onClick={handleSave}
+          >
+            <Check className="h-3 w-3 mr-1" />
+            Save
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div 
+      className="p-3 bg-muted/30 rounded-lg border border-dashed cursor-pointer hover:bg-muted/50 transition-colors min-h-[60px] group"
+      onClick={() => setIsEditing(true)}
+    >
+      <p className="text-sm text-muted-foreground">
+        {notes || "Click to add notes..."}
+      </p>
+      <Edit className="h-3 w-3 opacity-0 group-hover:opacity-50 float-right -mt-4" />
+    </div>
+  );
+};
+
 // Compliance status badge component
 const ComplianceStatusBadge = ({ status }: { status: string }) => {
   const getStatusConfig = (status: string) => {
@@ -343,8 +404,6 @@ export function PropertyPanel({
   onAssignAnalyst,
   onPropertyUpdate 
 }: PropertyPanelProps) {
-  const [editingNotes, setEditingNotes] = useState(false);
-  const [notesValue, setNotesValue] = useState(property?.notes || '');
 
   if (!property) {
     return (
@@ -419,16 +478,6 @@ export function PropertyPanel({
     }
   };
 
-  const handleNotesUpdate = () => {
-    if (onPropertyUpdate && notesValue !== property.notes) {
-      onPropertyUpdate({
-        ...property,
-        notes: notesValue,
-        updated_at: new Date().toISOString()
-      });
-    }
-    setEditingNotes(false);
-  };
 
   const handleComplianceChange = (field: keyof Property, value: string) => {
     if (onPropertyUpdate) {
@@ -670,48 +719,19 @@ export function PropertyPanel({
 
           {/* Notes */}
           <div>
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-medium text-foreground uppercase tracking-wide">NOTES</h3>
-              {!editingNotes && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setEditingNotes(true)}
-                >
-                  <Edit className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
-            {editingNotes ? (
-              <div className="space-y-2">
-                <Textarea
-                  value={notesValue}
-                  onChange={(e) => setNotesValue(e.target.value)}
-                  placeholder="Add notes about this property..."
-                  className="min-h-[100px]"
-                />
-                <div className="flex gap-2">
-                  <Button size="sm" onClick={handleNotesUpdate}>
-                    <Check className="h-3 w-3 mr-1" />
-                    Save
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => {
-                      setEditingNotes(false);
-                      setNotesValue(property.notes || '');
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <div className="text-sm text-muted-foreground p-3 bg-muted/30 rounded-lg border border-dashed">
-                {property.notes || 'No notes added'}
-              </div>
-            )}
+            <h3 className="text-sm font-medium text-foreground mb-3 uppercase tracking-wide">NOTES</h3>
+            <EditableNotes
+              notes={property.notes}
+              onSave={(notes) => {
+                if (onPropertyUpdate) {
+                  onPropertyUpdate({
+                    ...property,
+                    notes: notes,
+                    updated_at: new Date().toISOString()
+                  });
+                }
+              }}
+            />
           </div>
         </div>
       </div>
