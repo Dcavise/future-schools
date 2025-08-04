@@ -209,17 +209,39 @@ export function PropertyDetailsPanel({ property, onPropertyUpdate, onClose }: Pr
         <div className="p-4 space-y-6">
           
           {/* Assignment Info */}
-          {currentProperty.assigned_to && (
-            <div className="space-y-2">
-              <h3 className="text-sm font-medium flex items-center gap-2">
-                <User className="h-4 w-4" />
-                Assigned Analyst
-              </h3>
+          <div className="space-y-2">
+            <h3 className="text-sm font-medium flex items-center gap-2">
+              <User className="h-4 w-4" />
+              Assigned Analyst
+            </h3>
+            {isEditing ? (
+              <Select
+                value={editedProperty?.assigned_to || "unassigned"}
+                onValueChange={(value) => setEditedProperty(prev => prev ? {
+                  ...prev,
+                  assigned_to: value === "unassigned" ? null : value
+                } : null)}
+              >
+                <SelectTrigger className="w-full bg-white border border-gray-300 z-50">
+                  <SelectValue placeholder="Select analyst" />
+                </SelectTrigger>
+                <SelectContent className="bg-white border border-gray-300 shadow-lg z-50">
+                  <SelectItem value="unassigned">Unassigned</SelectItem>
+                  <SelectItem value="Jarnail T">Jarnail T</SelectItem>
+                  <SelectItem value="David H">David H</SelectItem>
+                  <SelectItem value="Aly A">Aly A</SelectItem>
+                  <SelectItem value="Ryan D">Ryan D</SelectItem>
+                  <SelectItem value="Chris W">Chris W</SelectItem>
+                  <SelectItem value="JB">JB</SelectItem>
+                  <SelectItem value="Stephen B">Stephen B</SelectItem>
+                </SelectContent>
+              </Select>
+            ) : (
               <div className="text-sm text-muted-foreground">
-                {currentProperty.assigned_to}
+                {currentProperty.assigned_to || 'Unassigned'}
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Sync Status Section - Only show for synced properties or those with sync info */}
           {(currentProperty.status === 'synced' || currentProperty.sync_status || currentProperty.external_system_id) && (
