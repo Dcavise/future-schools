@@ -418,15 +418,17 @@ export function MapView({
     }
   }, [properties, selectedProperty, onPropertySelect, showPanel, isHeatmapMode]);
 
-  // Trigger resize when style changes or panel visibility changes
+  // Trigger resize when panel visibility changes (debounced)
   useEffect(() => {
     if (map.current) {
-      console.log('Triggering map resize due to style/panel change');
-      setTimeout(() => {
+      console.log('Triggering map resize due to panel change');
+      const timeoutId = setTimeout(() => {
         map.current?.resize();
-      }, 100);
+      }, 200);
+      
+      return () => clearTimeout(timeoutId);
     }
-  }, [style, showPanel]);
+  }, [showPanel]);
 
   return (
     <div 
