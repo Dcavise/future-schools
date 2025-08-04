@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Copy } from 'lucide-react';
+import { Copy, Edit } from 'lucide-react';
 import { Building, Check, HelpCircle, X as XIcon, User, ChevronLeft, ChevronRight, UserPlus, Calendar, Clock, AlertCircle, ChevronDown } from 'lucide-react';
 import { Property } from '@/types/property';
 
@@ -503,6 +503,46 @@ export function PropertyPanel({
                     <Copy className="h-3 w-3" />
                   </Button>
                 )}
+              </div>
+            </div>
+            
+            <div className="col-span-2">
+              <div className="text-xs text-[#6B7280] mb-1">Ordinance URL</div>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="url"
+                  value={property.municipal_zoning_url || ''}
+                  onChange={(e) => onPropertyUpdate?.({ ...property, municipal_zoning_url: e.target.value || null })}
+                  className="text-sm flex-1"
+                  placeholder="Enter municipal zoning ordinance URL"
+                />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0 hover:bg-gray-100"
+                >
+                  <Edit className="h-3 w-3" />
+                </Button>
+              </div>
+            </div>
+            
+            <div className="col-span-2">
+              <div className="text-xs text-[#6B7280] mb-1">City Portal URL</div>
+              <div className="flex items-center gap-2">
+                <Input
+                  type="url"
+                  value={property.city_portal_url || ''}
+                  onChange={(e) => onPropertyUpdate?.({ ...property, city_portal_url: e.target.value || null })}
+                  className="text-sm flex-1"
+                  placeholder="Enter city portal URL"
+                />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0 hover:bg-gray-100"
+                >
+                  <Edit className="h-3 w-3" />
+                </Button>
               </div>
             </div>
           </div>
