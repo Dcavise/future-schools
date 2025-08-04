@@ -100,7 +100,7 @@ const PropertyDetail = () => {
       <Header />
       
       {/* Main content with map taking full width, sidebar will overlay */}
-      <div className="flex-1 h-[calc(100vh-3.5rem)]">
+      <div className="flex-1 relative" style={{ height: 'calc(100vh - 3.5rem)' }}>
         <MapView 
           selectedProperty={property}
           properties={allProperties}
