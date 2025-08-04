@@ -633,6 +633,40 @@ export function PropertyPanel({
               )}
             </div>
             <div>
+              <div className="text-xs text-[#6B7280] mb-1">County</div>
+              {editingFields.has('county') ? (
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="text"
+                    value={tempValues.county || ''}
+                    onChange={(e) => setTempValues(prev => ({ ...prev, county: e.target.value || null }))}
+                    className="text-sm flex-1"
+                    placeholder="Enter county"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0 hover:bg-gray-100"
+                    onClick={() => saveEdit('county')}
+                  >
+                    <Check className="h-3 w-3" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-[#1A1A1A]">{property.county || 'N/A'}</span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0 hover:bg-gray-100"
+                    onClick={() => startEditing('county')}
+                  >
+                    <Edit className="h-3 w-3" />
+                  </Button>
+                </div>
+              )}
+            </div>
+            <div>
               <div className="text-xs text-[#6B7280] mb-1">Zoning Code</div>
               {editingFields.has('zoning_code') ? (
                 <div className="flex items-center gap-2">
