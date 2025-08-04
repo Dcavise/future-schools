@@ -281,31 +281,23 @@ export function PropertyPanel({
             <User className="h-4 w-4 text-gray-700" />
             <span className="text-xs font-medium text-gray-700 uppercase tracking-wide">Assigned To</span>
           </div>
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-gray-900">
-              {getAssigneeDisplayName(property.assigned_to)}
-              {!property.assigned_to && (
-                <Badge className="ml-2 bg-yellow-100 text-yellow-800 text-xs">Needs Assignment</Badge>
-              )}
-            </div>
-            
-            {/* Assignment Dropdown */}
-            <Select 
-              value={selectedAssignee} 
-              onValueChange={handleAssignmentChange}
-            >
-              <SelectTrigger className="w-[140px] h-8">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {TEAM_MEMBERS.map((member) => (
-                  <SelectItem key={member.value} value={member.value}>
-                    {member.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          
+          {/* Assignment Dropdown */}
+          <Select 
+            value={selectedAssignee} 
+            onValueChange={handleAssignmentChange}
+          >
+            <SelectTrigger className="w-full h-8 bg-white">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-white z-50">
+              {TEAM_MEMBERS.map((member) => (
+                <SelectItem key={member.value} value={member.value}>
+                  {member.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         
         {/* Status Badge - Editable */}
