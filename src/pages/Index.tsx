@@ -195,24 +195,35 @@ const Index = () => {
   const handleCitySelected = (city: string) => {
     console.log('City selected:', city);
     
+    // Start loading state
+    setIsLoading(true);
+    
     // Generate properties for the selected city
     const newProperties = generateProperties(city);
-    setProperties(newProperties);
-    setFilteredProperties(newProperties);
     
-    // Check for overload scenario (500+ properties)
-    if (newProperties.length >= 500) {
-      setIsOverloadMode(true);
-      setShowQuickFilter(true);
-      setCurrentView('map'); // Force map view for overload
-    } else {
-      setIsOverloadMode(false);
-    }
-    
-    // Select the first property by default (if not in overload mode)
-    if (newProperties.length < 500) {
-      setSelectedProperty(newProperties[0]);
-    }
+    // Set properties after a brief delay to ensure smooth loading
+    setTimeout(() => {
+      setProperties(newProperties);
+      setFilteredProperties(newProperties);
+      
+      // Check for overload scenario (500+ properties)
+      if (newProperties.length >= 500) {
+        setIsOverloadMode(true);
+        setShowQuickFilter(true);
+        setCurrentView('map'); // Force map view for overload
+      } else {
+        setIsOverloadMode(false);
+      }
+      
+      // Select the first property by default (if not in overload mode)
+      if (newProperties.length < 500) {
+        setSelectedProperty(newProperties[0]);
+      }
+      
+      // Exit loading state
+      setIsLoading(false);
+      setIsEmptyState(false);
+    }, 500); // Half second delay for smooth transition
   };
 
   const handleAddressSearch = () => {

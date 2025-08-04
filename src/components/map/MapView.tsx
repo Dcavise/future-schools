@@ -226,9 +226,12 @@ export function MapView({
       properties.forEach(property => {
         bounds.extend(property.coordinates);
       });
+      // Fit bounds for heatmap with better padding
       map.current.fitBounds(bounds, { 
-        padding: 50,
-        maxZoom: 12
+        padding: { top: 70, bottom: 50, left: 50, right: 50 },
+        maxZoom: 12,
+        duration: 1000,
+        essential: true
       });
     }
   };
@@ -328,12 +331,17 @@ export function MapView({
           bounds.extend(property.coordinates);
         });
         
-        // Fly to bounds with smooth animation
-        map.current.fitBounds(bounds, { 
-          padding: showPanel ? { right: 440, top: 50, bottom: 50, left: 50 } : 50,
-          maxZoom: 15,
-          duration: 1000  // 1 second smooth transition
-        });
+        // Wait a brief moment to ensure map is ready, then fly to bounds
+        setTimeout(() => {
+          if (map.current) {
+            map.current.fitBounds(bounds, { 
+              padding: showPanel ? { right: 440, top: 70, bottom: 50, left: 50 } : { top: 70, bottom: 50, left: 50, right: 50 },
+              maxZoom: 14,
+              duration: 1200,  // Smooth 1.2 second transition
+              essential: true  // Ensure animation completes
+            });
+          }
+        }, 300);  // Small delay to ensure properties are rendered
       }
     }
   }, [properties, selectedProperty, onPropertySelect, showPanel, isHeatmapMode]);
