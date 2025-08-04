@@ -403,46 +403,42 @@ const Index = () => {
 
       {/* Main Content Area */}
       <div 
-        className="flex gap-4 p-4" 
+        className="flex" 
         style={{ 
           height: 'calc(100vh - 56px)',
           marginTop: isFilterPanelOpen ? '280px' : hasActiveFilters ? '36px' : '0'
         }}
       >
         {/* Map or Table View */}
-        <div className={`${showPropertiesView && currentView === 'map' && !isOverloadMode && selectedProperty ? 'flex-[7]' : 'flex-1'} h-full`}>
-          {(currentView === 'map' || isOverloadMode) ? (
-            <MapView 
-              className="z-0 h-full w-full rounded-lg overflow-hidden border"
-              style={{
-                filter: (isEmptyState && !isLoading) ? 'grayscale(100%) brightness(1.2)' : 'none',
-                opacity: (isEmptyState && !isLoading) ? 0.3 : 1
-              }}
-              properties={showPropertiesView ? displayProperties : []}
+        {(currentView === 'map' || isOverloadMode) ? (
+          <MapView 
+            className="z-0"
+            style={{
+              filter: (isEmptyState && !isLoading) ? 'grayscale(100%) brightness(1.2)' : 'none',
+              opacity: (isEmptyState && !isLoading) ? 0.3 : 1
+            }}
+            properties={showPropertiesView ? displayProperties : []}
+            selectedProperty={selectedProperty}
+            onPropertySelect={handlePropertySelect}
+            showPanel={showPropertiesView && !isOverloadMode}
+            isHeatmapMode={isOverloadMode}
+            showPerformanceMessage={isOverloadMode}
+          />
+        ) : (
+          <div className="flex-1">
+            <PropertyTable
+              properties={displayProperties}
               selectedProperty={selectedProperty}
               onPropertySelect={handlePropertySelect}
-              showPanel={showPropertiesView && !isOverloadMode}
-              isHeatmapMode={isOverloadMode}
-              showPerformanceMessage={isOverloadMode}
+              selectedProperties={selectedPropertyIds}
+              onSelectionChange={handleSelectionChange}
             />
-          ) : (
-            <div className="h-full">
-              <PropertyTable
-                properties={displayProperties}
-                selectedProperty={selectedProperty}
-                onPropertySelect={handlePropertySelect}
-                selectedProperties={selectedPropertyIds}
-                onSelectionChange={handleSelectionChange}
-              />
-            </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {/* Property Panel - Only show when we have properties, in map view, and not in overload mode */}
-        {showPropertiesView && currentView === 'map' && !isOverloadMode && selectedProperty && (
-          <div className="flex-[3] h-full">
-            <PropertyPanel property={selectedProperty} />
-          </div>
+        {showPropertiesView && currentView === 'map' && !isOverloadMode && (
+          <PropertyPanel property={selectedProperty} />
         )}
       </div>
       
