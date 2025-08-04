@@ -1,13 +1,15 @@
 import { useState, useMemo } from 'react';
 import { Property, FilterCriteria } from '@/types/property';
 import { mockProperties } from '@/data/mockProperties';
-import { FilterBar } from '@/components/property/FilterBar';
+import { TopNavigation } from '@/components/layout/TopNavigation';
 import { PropertyMap } from '@/components/property/PropertyMap';
 import { PropertyDetailsPanel } from '@/components/property/PropertyDetailsPanel';
+import { FilterMenu } from '@/components/property/FilterMenu';
 
 const Index = () => {
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
   const [properties, setProperties] = useState<Property[]>(mockProperties);
+  const [selectedCity, setSelectedCity] = useState<string>('boston');
   const [filters, setFilters] = useState<FilterCriteria>({
     zoningByRight: null,
     fireSprinklers: null,
@@ -55,24 +57,26 @@ const Index = () => {
 
   return (
     <div className="h-screen flex flex-col bg-background">
-      {/* Filter Bar */}
-      <div className="p-4 border-b bg-background">
-        <FilterBar
-          filters={filters}
-          onFiltersChange={setFilters}
-          qualifiedCount={qualifiedCount}
-          totalCount={filteredProperties.length}
-        />
-      </div>
+      {/* Top Navigation */}
+      <TopNavigation
+        selectedCity={selectedCity}
+        onCityChange={setSelectedCity}
+      />
 
       {/* Main Content */}
       <div className="flex-1 flex gap-4 p-4 min-h-0">
         {/* Map Section - 70% */}
-        <div className="flex-[7] min-h-0">
+        <div className="flex-[7] min-h-0 relative">
           <PropertyMap
             properties={filteredProperties}
             selectedProperty={selectedProperty}
             onPropertySelect={setSelectedProperty}
+          />
+          <FilterMenu
+            filters={filters}
+            onFiltersChange={setFilters}
+            qualifiedCount={qualifiedCount}
+            totalCount={filteredProperties.length}
           />
         </div>
 
