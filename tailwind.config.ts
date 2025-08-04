@@ -18,6 +18,17 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				sans: ['Inter', 'sans-serif'],
+			},
+			spacing: {
+				'grid': '8px',
+			},
+			boxShadow: {
+				'subtle': 'var(--shadow-subtle)',
+				'medium': 'var(--shadow-medium)',
+				'large': 'var(--shadow-large)',
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -51,6 +62,22 @@ export default {
 				card: {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
+				},
+				qualified: {
+					DEFAULT: 'hsl(var(--qualified))',
+					foreground: 'hsl(var(--qualified-foreground))'
+				},
+				review: {
+					DEFAULT: 'hsl(var(--review))',
+					foreground: 'hsl(var(--review-foreground))'
+				},
+				disqualified: {
+					DEFAULT: 'hsl(var(--disqualified))',
+					foreground: 'hsl(var(--disqualified-foreground))'
+				},
+				unknown: {
+					DEFAULT: 'hsl(var(--unknown))',
+					foreground: 'hsl(var(--unknown-foreground))'
 				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
