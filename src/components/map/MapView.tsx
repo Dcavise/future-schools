@@ -33,7 +33,10 @@ export function MapView({
 
   // Initialize map
   useEffect(() => {
-    if (!mapContainer.current || map.current) return;
+    if (!mapContainer.current || map.current) {
+      console.log('MapView - Init skipped: container or map exists');
+      return;
+    }
 
     try {
       console.log('Initializing Mapbox map...');
