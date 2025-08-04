@@ -116,7 +116,7 @@ const Index = () => {
     let filtered = [...properties];
     
     // Status filters
-    if (tempFilters.status.length > 0) {
+    if (tempFilters.status?.length > 0) {
       filtered = filtered.filter(p => tempFilters.status.includes(p.status));
     }
     
@@ -131,7 +131,7 @@ const Index = () => {
     }
     
     // Current occupancy filters
-    if (tempFilters.current_occupancy.length > 0) {
+    if (tempFilters.current_occupancy?.length > 0) {
       filtered = filtered.filter(p => 
         p.current_occupancy && tempFilters.current_occupancy.includes(p.current_occupancy)
       );
@@ -158,10 +158,10 @@ const Index = () => {
     setFilteredProperties(filtered);
     
     // Check if we have active filters
-    const isActive = filters.status.length > 0 || 
+    const isActive = (filters.status?.length || 0) > 0 || 
                     filters.zoning_by_right !== null || 
                     filters.fire_sprinkler_status !== null ||
-                    filters.current_occupancy.length > 0 ||
+                    (filters.current_occupancy?.length || 0) > 0 ||
                     filters.min_square_feet > 0 ||
                     filters.max_square_feet < 100000 ||
                     filters.assigned_to !== null;
@@ -174,10 +174,12 @@ const Index = () => {
   };
 
   const getActiveFilterCount = () => {
-    return filters.status.length + 
+    if (!filters) return 0;
+    
+    return (filters.status?.length || 0) + 
            (filters.zoning_by_right !== null ? 1 : 0) + 
            (filters.fire_sprinkler_status !== null ? 1 : 0) + 
-           filters.current_occupancy.length +
+           (filters.current_occupancy?.length || 0) +
            (filters.min_square_feet > 0 ? 1 : 0) + 
            (filters.max_square_feet < 100000 ? 1 : 0) +
            (filters.assigned_to !== null ? 1 : 0);
