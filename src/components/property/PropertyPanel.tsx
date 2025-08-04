@@ -2,7 +2,7 @@ import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Building, Check, HelpCircle, X as XIcon, User, ChevronLeft, ChevronRight, UserPlus } from 'lucide-react';
+import { Building, Check, HelpCircle, X as XIcon, User, ChevronLeft, ChevronRight, UserPlus, Calendar, Clock, AlertCircle } from 'lucide-react';
 import { Property } from '@/types/property';
 
 interface PropertyPanelProps {
@@ -35,12 +35,48 @@ export function PropertyPanel({
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'qualified': return 'bg-green-100 text-green-800 border border-green-200';
+      case 'qualified': return 'bg-[#10B981] text-white';
       case 'reviewing': 
-      case 'unreviewed': return 'bg-yellow-100 text-yellow-800 border border-yellow-200';
-      case 'disqualified': return 'bg-red-100 text-red-800 border border-red-200';
-      case 'on_hold': return 'bg-gray-100 text-gray-800 border border-gray-200';
-      default: return 'bg-gray-100 text-gray-800 border border-gray-200';
+      case 'unreviewed': return 'bg-[#F59E0B] text-white';
+      case 'disqualified': return 'bg-[#EF4444] text-white';
+      case 'on_hold': return 'bg-gray-500 text-white';
+      default: return 'bg-gray-500 text-white';
+    }
+  };
+
+  const getHeaderClass = (status: string) => {
+    switch (status) {
+      case 'qualified': return 'bg-[#F0FDF4] border-b-2 border-[#10B981]';
+      case 'reviewing':
+      case 'unreviewed': return 'bg-[#FFFBEB] border-b-2 border-[#F59E0B]';
+      case 'disqualified': return 'bg-[#FEF2F2] border-b-2 border-[#EF4444]';
+      default: return 'bg-[#F9FAFB] border-b border-gray-200';
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'qualified': return <Check className="h-4 w-4" />;
+      case 'reviewing':
+      case 'unreviewed': return <Clock className="h-4 w-4" />;
+      case 'disqualified': return <XIcon className="h-4 w-4" />;
+      default: return <HelpCircle className="h-4 w-4" />;
+    }
+  };
+
+  const getStatusMessage = (status: string, property: Property) => {
+    const unknownCount = [
+      property.zoningByRight === null,
+      property.fireSprinklers === null,
+      property.currentOccupancy === null
+    ].filter(Boolean).length;
+
+    switch (status) {
+      case 'qualified': return 'All requirements met';
+      case 'reviewing':
+      case 'unreviewed': return `${unknownCount} item${unknownCount !== 1 ? 's' : ''} need verification`;
+      case 'disqualified': return 'Does not meet requirements';
+      default: return 'Status unknown';
     }
   };
 
@@ -96,14 +132,56 @@ export function PropertyPanel({
            property?.currentOccupancy !== null;
   };
 
-  const canMarkQualified = () => {
-    return property && isFullyCompliant() && property.status !== 'qualified';
+  const getPrimaryAction = (status: string) => {
+    switch (status) {
+      case 'qualified':
+        return (
+          <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3">
+            <Calendar className="h-4 w-4 mr-2" />
+            Schedule Site Visit
+          </Button>
+        );
+      case 'reviewing':
+      case 'unreviewed':
+        return (
+          <div className="space-y-2">
+            <Button variant="outline" className="w-full border-blue-200 text-blue-700 hover:bg-blue-50 py-3">
+              Complete Review
+            </Button>
+            {!property?.assignedAnalyst && (
+              <Button 
+                onClick={() => onAssignAnalyst?.(property!)}
+                variant="secondary" 
+                className="w-full py-3"
+              >
+                <UserPlus className="h-4 w-4 mr-2" />
+                Assign Analyst
+              </Button>
+            )}
+          </div>
+        );
+      case 'disqualified':
+        return (
+          <div>
+            <Button variant="secondary" className="w-full bg-gray-100 text-gray-700 hover:bg-gray-200 py-3">
+              Find Alternative
+            </Button>
+            <p className="text-xs text-gray-500 mt-2 text-center">View similar properties</p>
+          </div>
+        );
+      default:
+        return (
+          <Button variant="outline" className="w-full py-3">
+            Review Property
+          </Button>
+        );
+    }
   };
 
   return (
     <div className="fixed top-[56px] right-0 w-[420px] bottom-0 bg-white border-l border-[#E5E7EB] shadow-[-2px_0_8px_rgba(0,0,0,0.05)] z-40 overflow-y-auto">
       {/* Panel Header */}
-      <div className="h-[180px] p-6 bg-[#F9FAFB] relative">
+      <div className={`h-[200px] p-6 relative ${getHeaderClass(property.status)}`}>
         {/* Navigation Arrows */}
         <div className="absolute top-4 left-4 flex gap-1">
           <Button 
@@ -139,51 +217,26 @@ export function PropertyPanel({
         )}
         
         {/* Address Block */}
-        <div className="mt-8 mb-4">
+        <div className="mt-8 mb-3">
           <h2 className="text-xl font-semibold text-[#1A1A1A] leading-tight">
             {property.address}
           </h2>
-          <p className="text-sm text-[#6B7280] mt-2">
+          <p className="text-sm text-[#6B7280] mt-1">
             {property.city}, {property.state}
           </p>
         </div>
         
         {/* Status Badge */}
-        <Badge className={`${getStatusColor(property.status)} absolute top-16 right-4 px-3 py-1 text-xs font-medium rounded`}>
+        <div className={`${getStatusColor(property.status)} absolute top-4 right-16 px-3 py-1.5 text-xs font-medium rounded-full flex items-center gap-1.5`}>
+          {getStatusIcon(property.status)}
           {getStatusLabel(property.status)}
-        </Badge>
+        </div>
 
-        {/* Quick Action Buttons */}
-        <div className="absolute bottom-4 left-6 right-6 flex gap-2">
-          {canMarkQualified() && (
-            <Button 
-              onClick={() => onMarkQualified?.(property)}
-              className="flex-1 bg-green-600 hover:bg-green-700 text-white text-sm py-2"
-            >
-              <Check className="h-4 w-4 mr-2" />
-              Mark Qualified
-            </Button>
-          )}
-          
-          {!property.assignedAnalyst && (
-            <Button 
-              onClick={() => onAssignAnalyst?.(property)}
-              variant="outline"
-              className="flex-1 border-blue-200 text-blue-700 hover:bg-blue-50 text-sm py-2"
-            >
-              <UserPlus className="h-4 w-4 mr-2" />
-              Assign Analyst
-            </Button>
-          )}
-          
-          {property.assignedAnalyst && !canMarkQualified() && (
-            <Button 
-              variant="outline"
-              className="flex-1 border-gray-200 text-gray-700 hover:bg-gray-50 text-sm py-2"
-            >
-              Update Status
-            </Button>
-          )}
+        {/* Status Message */}
+        <div className="mb-4">
+          <p className="text-sm font-medium text-gray-700">
+            {getStatusMessage(property.status, property)}
+          </p>
         </div>
       </div>
 
@@ -227,47 +280,67 @@ export function PropertyPanel({
 
         {/* Compliance Section */}
         <div className="mb-6">
-          <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-wide mb-4">Compliance</h3>
+          <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-wide mb-4">Compliance Requirements</h3>
           <div className="grid grid-cols-2 gap-3 p-4 bg-[#F9FAFB] rounded-lg">
-            <div className={`flex items-center gap-2 p-2 bg-white rounded border ${
-              property.zoningByRight === true ? 'border-green-500 bg-green-50' :
-              property.zoningByRight === false ? 'border-red-500 bg-red-50' : 
-              'border-yellow-500 bg-yellow-50'
+            {/* Zoning By-Right */}
+            <div className={`flex items-center gap-2 p-3 bg-white rounded border-l-3 ${
+              property.zoningByRight === true ? 'border-l-[#10B981] bg-[#F0FDF4]' :
+              property.zoningByRight === false ? 'border-l-[#EF4444] bg-[#FEF2F2]' : 
+              'border-l-[#F59E0B] bg-[#FFFBEB] cursor-pointer hover:border-l-[#D97706] hover:shadow-sm'
             }`}>
               {getComplianceIcon(property.zoningByRight)}
               <div className="min-w-0 flex-1">
-                <div className="text-xs font-medium text-gray-900">Zoning</div>
+                <div className="text-xs font-medium text-gray-900">Zoning By-Right</div>
                 <div className="text-xs text-gray-600">{getComplianceStatus(property.zoningByRight)}</div>
+                {property.zoningByRight === false && (
+                  <div className="text-xs text-[#DC2626] mt-1">Non-conforming use</div>
+                )}
+                {property.zoningByRight === null && property.status === 'unreviewed' && (
+                  <div className="text-xs text-[#D97706] mt-1">Click to update</div>
+                )}
               </div>
             </div>
             
-            <div className={`flex items-center gap-2 p-2 bg-white rounded border ${
-              property.fireSprinklers === true ? 'border-green-500 bg-green-50' :
-              property.fireSprinklers === false ? 'border-red-500 bg-red-50' : 
-              'border-yellow-500 bg-yellow-50'
+            {/* Fire Sprinklers */}
+            <div className={`flex items-center gap-2 p-3 bg-white rounded border-l-3 ${
+              property.fireSprinklers === true ? 'border-l-[#10B981] bg-[#F0FDF4]' :
+              property.fireSprinklers === false ? 'border-l-[#EF4444] bg-[#FEF2F2]' : 
+              'border-l-[#F59E0B] bg-[#FFFBEB] cursor-pointer hover:border-l-[#D97706] hover:shadow-sm'
             }`}>
               {getComplianceIcon(property.fireSprinklers)}
               <div className="min-w-0 flex-1">
-                <div className="text-xs font-medium text-gray-900">Sprinklers</div>
+                <div className="text-xs font-medium text-gray-900">Fire Sprinklers</div>
                 <div className="text-xs text-gray-600">{getComplianceStatus(property.fireSprinklers)}</div>
+                {property.fireSprinklers === false && (
+                  <div className="text-xs text-[#DC2626] mt-1">System not present</div>
+                )}
+                {property.fireSprinklers === null && property.status === 'unreviewed' && (
+                  <div className="text-xs text-[#D97706] mt-1">Click to update</div>
+                )}
               </div>
             </div>
             
-            <div className={`flex items-center gap-2 p-2 bg-white rounded border ${
-              property.currentOccupancy !== null ? 'border-green-500 bg-green-50' : 'border-yellow-500 bg-yellow-50'
+            {/* Current Occupancy */}
+            <div className={`flex items-center gap-2 p-3 bg-white rounded border-l-3 ${
+              property.currentOccupancy !== null ? 'border-l-[#10B981] bg-[#F0FDF4]' : 
+              'border-l-[#F59E0B] bg-[#FFFBEB] cursor-pointer hover:border-l-[#D97706] hover:shadow-sm'
             }`}>
               {getComplianceIcon(property.currentOccupancy !== null)}
               <div className="min-w-0 flex-1">
-                <div className="text-xs font-medium text-gray-900">Occupancy</div>
+                <div className="text-xs font-medium text-gray-900">Current Occupancy</div>
                 <div className="text-xs text-gray-600">{getOccupancyLabel(property.currentOccupancy)}</div>
+                {property.currentOccupancy === null && property.status === 'unreviewed' && (
+                  <div className="text-xs text-[#D97706] mt-1">Click to update</div>
+                )}
               </div>
             </div>
             
-            <div className="flex items-center gap-2 p-2 bg-white rounded border border-gray-200">
+            {/* Building Access */}
+            <div className="flex items-center gap-2 p-3 bg-white rounded border-l-3 border-l-gray-200">
               <HelpCircle className="h-4 w-4 text-gray-400" />
               <div className="min-w-0 flex-1">
-                <div className="text-xs font-medium text-gray-900">Access</div>
-                <div className="text-xs text-gray-600">Pending</div>
+                <div className="text-xs font-medium text-gray-900">Building Access</div>
+                <div className="text-xs text-gray-600">Pending Review</div>
               </div>
             </div>
           </div>
@@ -322,9 +395,18 @@ export function PropertyPanel({
           />
         </div>
 
-        {/* Action Button */}
-        <div className="pt-4 border-t border-gray-200">
-          {getActionButton(property.status)}
+        {/* Action Section */}
+        <div className="pt-6 border-t border-gray-200 mb-6">
+          {getPrimaryAction(property.status)}
+        </div>
+
+        {/* Scoping Notes */}
+        <div className="mb-6">
+          <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-wide mb-3">Scoping Notes</h3>
+          <Textarea 
+            placeholder="Add notes about this property..."
+            className="min-h-[100px] resize-none border-gray-200"
+          />
         </div>
       </div>
     </div>
