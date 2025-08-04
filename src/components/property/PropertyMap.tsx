@@ -100,7 +100,8 @@ export function PropertyMap({ properties, selectedProperty, onPropertySelect }: 
       el.style.zIndex = '1000';
     }
 
-    el.addEventListener('click', () => {
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
       console.log('Marker clicked for property:', property.id, property.address);
       onPropertySelect(property);
     });
@@ -108,6 +109,13 @@ export function PropertyMap({ properties, selectedProperty, onPropertySelect }: 
     const marker = new mapboxgl.Marker(el)
       .setLngLat(property.coordinates)
       .addTo(map.current!);
+
+    // Also add click handler using Mapbox's API
+    marker.getElement().addEventListener('click', (e) => {
+      e.stopPropagation();
+      console.log('Mapbox marker clicked for property:', property.id, property.address);
+      onPropertySelect(property);
+    });
 
     return marker;
   };
