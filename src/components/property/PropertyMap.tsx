@@ -85,6 +85,8 @@ export function PropertyMap({ properties, selectedProperty, onPropertySelect }: 
     el.style.cursor = 'pointer';
     el.style.border = '2px solid white';
     el.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
+    el.style.pointerEvents = 'auto';
+    el.style.zIndex = '100';
     
     const colors = {
       qualified: '#10b981',
@@ -100,22 +102,27 @@ export function PropertyMap({ properties, selectedProperty, onPropertySelect }: 
       el.style.zIndex = '1000';
     }
 
-    el.addEventListener('click', (e) => {
-      e.stopPropagation();
-      console.log('Marker clicked for property:', property.id, property.address);
-      onPropertySelect(property);
-    });
-
-    const marker = new mapboxgl.Marker(el)
+    // Create the marker first
+    const marker = new mapboxgl.Marker({
+      element: el,
+      anchor: 'center'
+    })
       .setLngLat(property.coordinates)
       .addTo(map.current!);
 
-    // Also add click handler using Mapbox's API
-    marker.getElement().addEventListener('click', (e) => {
+    // Add click handler with multiple approaches
+    const handleClick = (e: Event) => {
+      e.preventDefault();
       e.stopPropagation();
-      console.log('Mapbox marker clicked for property:', property.id, property.address);
+      console.log('Marker clicked for property:', property.id, property.address);
+      console.log('Property selected in Index:', property.id, property.address);
       onPropertySelect(property);
-    });
+    };
+
+    // Try multiple event types
+    el.addEventListener('click', handleClick, true);
+    el.addEventListener('mousedown', handleClick, true);
+    el.addEventListener('touchstart', handleClick, true);
 
     return marker;
   };
