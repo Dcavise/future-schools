@@ -304,30 +304,33 @@ export function MapView({
       const statusColor = getStatusColor(property.status);
       el.style.backgroundColor = statusColor;
 
-      // Enhanced hover effects - Fix the flying marker issue
+      // Safe hover effects - no transforms that affect positioning
       el.addEventListener('mouseenter', () => {
         if (!isSelected) {
-          // Instead of changing size, just add a subtle glow effect
-          el.style.boxShadow = '0 0 12px rgba(0,0,0,0.4), 0 0 8px rgba(59,130,246,0.3)';
-          el.style.transform = 'scale(1.1)';
+          // Only use visual effects that don't change positioning
+          el.style.boxShadow = '0 0 16px rgba(59,130,246,0.6), 0 4px 12px rgba(0,0,0,0.3)';
+          el.style.borderWidth = '3px';
+          el.style.borderColor = '#ffffff';
           el.style.zIndex = '1000';
         }
       });
 
       el.addEventListener('mouseleave', () => {
         if (!isSelected) {
-          el.style.boxShadow = isSelected ? '0 4px 8px rgba(0,0,0,0.3)' : '0 2px 4px rgba(0,0,0,0.2)';
-          el.style.transform = 'scale(1)';
+          el.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
+          el.style.borderWidth = '2px';
+          el.style.borderColor = '#ffffff';
           el.style.zIndex = 'auto';
         }
       });
 
-      // Add click handler with status-based feedback
+      // Click handler with safe feedback
       el.addEventListener('click', () => {
-        // Add subtle click feedback
-        el.style.transform = 'scale(0.9)';
+        // Brief visual feedback without affecting position
+        const originalOpacity = el.style.opacity;
+        el.style.opacity = '0.7';
         setTimeout(() => {
-          el.style.transform = isSelected ? 'none' : 'none';
+          el.style.opacity = originalOpacity;
         }, 100);
         
         onPropertySelect?.(property);
