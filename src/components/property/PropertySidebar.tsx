@@ -152,7 +152,7 @@ export const PropertySidebar: React.FC<PropertySidebarProps> = ({
 
         {/* Assigned Dropdown */}
         <div className="space-y-1">
-          <label className="text-xs font-medium text-muted-foreground">Assigned</label>
+          <label className="text-xs font-medium text-muted-foreground">Assigned To</label>
           <Select 
             value={property.assigned_to || ''} 
             onValueChange={(value) => handleFieldUpdate('assigned_to', value || null)}
