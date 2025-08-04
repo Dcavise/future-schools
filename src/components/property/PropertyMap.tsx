@@ -2,14 +2,16 @@ import React, { useEffect, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Property, PropertyCluster } from '@/types/property';
+import { cities } from '@/components/layout/TopNavigation';
 
 interface PropertyMapProps {
   properties: Property[];
   selectedProperty: Property | null;
   onPropertySelect: (property: Property | null) => void;
+  selectedCity: string;
 }
 
-export function PropertyMap({ properties, selectedProperty, onPropertySelect }: PropertyMapProps) {
+export function PropertyMap({ properties, selectedProperty, onPropertySelect, selectedCity }: PropertyMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const mapboxToken = 'pk.eyJ1IjoiZ3J1YmNsdWIxMjMiLCJhIjoiY203bmszdnFsMDF5czJxbjFuampiNXUwOSJ9.YixeEGA2iZd5yFhbyKv9Vg';
@@ -22,10 +24,13 @@ export function PropertyMap({ properties, selectedProperty, onPropertySelect }: 
       console.log('Initializing map with token:', mapboxToken.substring(0, 20) + '...');
       mapboxgl.accessToken = mapboxToken;
       
+      // Find the selected city or default to Boston
+      const city = cities.find(c => c.value === selectedCity) || cities[0];
+      
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/light-v11',
-        center: [-71.0589, 42.3601], // Boston
+        center: city.coordinates,
         zoom: 11,
         pitch: 0,
       });
@@ -224,6 +229,20 @@ export function PropertyMap({ properties, selectedProperty, onPropertySelect }: 
       });
     }
   }, [selectedProperty]);
+
+  useEffect(() => {
+    if (map.current && selectedCity) {
+      const city = cities.find(c => c.value === selectedCity);
+      if (city) {
+        console.log('Moving map to city:', city.label, city.coordinates);
+        map.current.easeTo({
+          center: city.coordinates,
+          zoom: 11,
+          duration: 1000
+        });
+      }
+    }
+  }, [selectedCity]);
 
   return (
     <div className="relative h-full">

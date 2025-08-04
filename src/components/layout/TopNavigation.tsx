@@ -8,12 +8,14 @@ interface TopNavigationProps {
 }
 
 const cities = [
-  { value: 'boston', label: 'Boston, MA' },
-  { value: 'chicago', label: 'Chicago, IL' },
-  { value: 'denver', label: 'Denver, CO' },
-  { value: 'austin', label: 'Austin, TX' },
-  { value: 'seattle', label: 'Seattle, WA' },
+  { value: 'boston', label: 'Boston, MA', coordinates: [-71.0589, 42.3601] as [number, number] },
+  { value: 'chicago', label: 'Chicago, IL', coordinates: [-87.6298, 41.8781] as [number, number] },
+  { value: 'denver', label: 'Denver, CO', coordinates: [-104.9903, 39.7392] as [number, number] },
+  { value: 'austin', label: 'Austin, TX', coordinates: [-97.7431, 30.2672] as [number, number] },
+  { value: 'seattle', label: 'Seattle, WA', coordinates: [-122.3321, 47.6062] as [number, number] },
 ];
+
+export { cities };
 
 export function TopNavigation({ selectedCity, onCityChange }: TopNavigationProps) {
   return (

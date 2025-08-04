@@ -70,6 +70,7 @@ const Index = () => {
           <PropertyMap
             properties={filteredProperties}
             selectedProperty={selectedProperty}
+            selectedCity={selectedCity}
             onPropertySelect={(property) => {
               console.log('Property selected in Index:', property?.id, property?.address);
               setSelectedProperty(property);
