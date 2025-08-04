@@ -118,19 +118,19 @@ const Index = () => {
   const [showQuickFilter, setShowQuickFilter] = useState<boolean>(false);
   const [quickFilterEstimate, setQuickFilterEstimate] = useState<number>(0);
 
-  // Filter logic
-  const applyFilters = () => {
+  // Filter logic with live preview
+  const applyFilters = (tempFilters: FilterCriteria = filters) => {
     let filtered = [...properties];
     
     // Status filters
-    if (filters.status.length > 0) {
-      filtered = filtered.filter(p => filters.status.includes(p.status));
+    if (tempFilters.status.length > 0) {
+      filtered = filtered.filter(p => tempFilters.status.includes(p.status));
     }
     
     // Compliance filters
-    if (filters.compliance.length > 0) {
+    if (tempFilters.compliance.length > 0) {
       filtered = filtered.filter(p => {
-        return filters.compliance.every(filterType => {
+        return tempFilters.compliance.every(filterType => {
           switch (filterType) {
             case 'zoning': return p.zoningByRight === true;
             case 'occupancy': return p.currentOccupancy !== null;
@@ -143,23 +143,43 @@ const Index = () => {
     }
     
     // Property type filters
-    if (filters.propertyType.length > 0) {
+    if (tempFilters.propertyType.length > 0) {
       filtered = filtered.filter(p => {
         const occupancyLabel = p.currentOccupancy === 'E' ? 'Educational' : 
                               p.currentOccupancy === 'A' ? 'Assembly' : 
                               p.currentOccupancy === 'Other' ? 'Other' : 'Unknown';
-        return filters.propertyType.includes(occupancyLabel);
+        return tempFilters.propertyType.includes(occupancyLabel);
       });
     }
     
     // Size filters
-    if (filters.minSquareFeet) {
-      filtered = filtered.filter(p => p.squareFootage >= parseInt(filters.minSquareFeet));
+    if (tempFilters.minSquareFeet) {
+      filtered = filtered.filter(p => p.squareFootage >= parseInt(tempFilters.minSquareFeet));
     }
-    if (filters.maxSquareFeet) {
-      filtered = filtered.filter(p => p.squareFootage <= parseInt(filters.maxSquareFeet));
+    if (tempFilters.maxSquareFeet) {
+      filtered = filtered.filter(p => p.squareFootage <= parseInt(tempFilters.maxSquareFeet));
     }
     
+    // Size range filters
+    if (tempFilters.sizeRange && tempFilters.sizeRange.length > 0) {
+      filtered = filtered.filter(p => {
+        return tempFilters.sizeRange!.some(range => {
+          switch (range) {
+            case 'under10k': return p.squareFootage < 10000;
+            case '10k-25k': return p.squareFootage >= 10000 && p.squareFootage < 25000;
+            case '25k-50k': return p.squareFootage >= 25000 && p.squareFootage < 50000;
+            case '50k+': return p.squareFootage >= 50000;
+            default: return false;
+          }
+        });
+      });
+    }
+    
+    return filtered;
+  };
+
+  const updateFilteredProperties = () => {
+    const filtered = applyFilters();
     setFilteredProperties(filtered);
     
     // Check if we have active filters
@@ -170,6 +190,11 @@ const Index = () => {
                     filters.minSquareFeet !== '' ||
                     filters.maxSquareFeet !== '';
     setHasActiveFilters(isActive);
+  };
+
+  // Calculate preview count for live feedback
+  const getPreviewCount = (tempFilters: FilterCriteria) => {
+    return applyFilters(tempFilters).length;
   };
 
   const getActiveFilterCount = () => {
@@ -244,7 +269,7 @@ const Index = () => {
   };
 
   const handleApplyFilters = () => {
-    applyFilters();
+    updateFilteredProperties();
     setIsFilterPanelOpen(false);
   };
 
@@ -339,6 +364,8 @@ const Index = () => {
         onClose={() => setIsFilterPanelOpen(false)}
         onApply={handleApplyFilters}
         onClear={handleClearFilters}
+        totalProperties={properties.length}
+        previewCount={getPreviewCount(filters)}
       />
 
       {/* Active Filters Bar */}
