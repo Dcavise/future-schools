@@ -99,6 +99,7 @@ const PropertyDetail = () => {
           className="w-full h-full"
           showPanel={true}
           onPropertySelect={(newProperty) => {
+            console.log('PropertyDetail - navigating to:', newProperty.id);
             // Navigate to the new property while maintaining the properties list
             navigate(`/property/${newProperty.id}`, { 
               state: { properties: allProperties }
