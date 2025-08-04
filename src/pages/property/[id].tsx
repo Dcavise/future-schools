@@ -38,17 +38,17 @@ const PropertyDetail = () => {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background">
       <Header />
       
-      <div className="flex-1 flex gap-4 p-4 min-h-0">
-        {/* Map Section - 70% */}
-        <div className="flex-[7] min-h-0 relative">
+      <div className="flex-1 flex gap-6 p-6 pt-4">
+        {/* Map Section - 60% */}
+        <div className="flex-[6] h-[calc(100vh-5rem)] relative rounded-lg overflow-hidden border">
           <MapView />
         </div>
 
-        {/* Property Details Panel - 30% */}
-        <div className="flex-[3] min-h-0">
+        {/* Property Details Panel - 40% */}
+        <div className="flex-[4] h-[calc(100vh-5rem)]">
           <PropertyDetailsPanel
             property={property}
             onPropertyUpdate={handlePropertyUpdate}
