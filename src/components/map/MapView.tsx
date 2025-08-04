@@ -349,6 +349,22 @@ export function MapView({
     });
   };
 
+  // Update marker selection without recreating all markers
+  const updateMarkerSelection = () => {
+    Object.entries(markersRef.current).forEach(([propertyId, marker]) => {
+      const el = marker.getElement();
+      const isSelected = selectedProperty?.id === propertyId;
+      
+      // Update visual styling based on selection
+      const baseSize = isSelected ? 20 : 16;
+      el.style.width = `${baseSize}px`;
+      el.style.height = `${baseSize}px`;
+      el.style.border = isSelected ? '3px solid #fff' : '2px solid #fff';
+      el.style.boxShadow = isSelected ? '0 4px 8px rgba(0,0,0,0.3)' : '0 2px 4px rgba(0,0,0,0.2)';
+      el.style.zIndex = isSelected ? '1000' : 'auto';
+    });
+  };
+
   // Update heatmap colors to reflect status distribution  
   const updateHeatmapColors = () => {
     if (!map.current || !map.current.getLayer('properties-heatmap')) return;
@@ -367,7 +383,7 @@ export function MapView({
     ]);
   };
 
-  // Update property visualization when properties change
+  // Update property visualization when properties change (but not selection)
   useEffect(() => {
     if (!map.current) {
       console.log('MapView - useEffect: No map instance');
@@ -376,8 +392,6 @@ export function MapView({
 
     console.log('MapView - useEffect: Starting properties processing', {
       propertiesCount: properties.length,
-      selectedProperty: selectedProperty?.address || 'none',
-      selectedPropertyId: selectedProperty?.id || 'none',
       isHeatmapMode,
       showPanel,
       firstPropertyId: properties.length > 0 ? properties[0].id : 'none',
@@ -415,21 +429,8 @@ export function MapView({
       console.log('MapView - Adding individual markers');
       addMarkers();
       
-      // Fly to selected property if specified, otherwise show all properties
-      if (selectedProperty && selectedProperty.latitude && selectedProperty.longitude) {
-        // Center on specific selected property
-        setTimeout(() => {
-          if (map.current) {
-            map.current.flyTo({
-              center: [selectedProperty.longitude, selectedProperty.latitude],
-              zoom: 16,
-              duration: 1000,
-              essential: true
-            });
-          }
-        }, 300);
-      } else if (properties.length > 0) {
-        // Fly to city bounds to show all properties
+      // Fly to bounds to show all properties
+      if (properties.length > 0) {
         const bounds = new mapboxgl.LngLatBounds();
         properties.forEach(property => {
           bounds.extend([property.longitude!, property.latitude!]);
@@ -448,7 +449,28 @@ export function MapView({
         }, 300);  // Small delay to ensure properties are rendered
       }
     }
-  }, [properties, selectedProperty, onPropertySelect, showPanel, isHeatmapMode]);
+  }, [properties, onPropertySelect, showPanel, isHeatmapMode]);
+
+  // Separate effect for handling selection changes
+  useEffect(() => {
+    if (!isHeatmapMode && Object.keys(markersRef.current).length > 0) {
+      updateMarkerSelection();
+      
+      // Fly to selected property if specified
+      if (selectedProperty && selectedProperty.latitude && selectedProperty.longitude) {
+        setTimeout(() => {
+          if (map.current) {
+            map.current.flyTo({
+              center: [selectedProperty.longitude, selectedProperty.latitude],
+              zoom: 16,
+              duration: 1000,
+              essential: true
+            });
+          }
+        }, 100);
+      }
+    }
+  }, [selectedProperty, isHeatmapMode]);
 
   // Trigger resize when panel visibility changes (debounced)
   useEffect(() => {
