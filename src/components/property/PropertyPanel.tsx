@@ -507,8 +507,8 @@ export function PropertyPanel({
           {/* Property Details */}
           <div>
             <h3 className="text-sm font-medium text-foreground mb-3 uppercase tracking-wide">PROPERTY DETAILS</h3>
-            <div className="grid grid-cols-1 gap-3">
-              <div className="flex justify-between py-2 border-b border-border">
+            <div className="space-y-3">
+              <div className="flex justify-between items-center group">
                 <span className="text-sm text-muted-foreground">Parcel Sq Ft</span>
                 <EditableField
                   label="Parcel Sq Ft"
@@ -517,7 +517,8 @@ export function PropertyPanel({
                   type="number"
                 />
               </div>
-              <div className="flex justify-between py-2 border-b border-border">
+              
+              <div className="flex justify-between items-center group">
                 <span className="text-sm text-muted-foreground">Building Sq Ft</span>
                 <EditableField
                   label="Building Sq Ft"
@@ -526,7 +527,8 @@ export function PropertyPanel({
                   type="number"
                 />
               </div>
-              <div className="flex justify-between py-2 border-b border-border">
+              
+              <div className="flex justify-between items-center group">
                 <span className="text-sm text-muted-foreground">County</span>
                 <EditableField
                   label="County"
@@ -534,7 +536,8 @@ export function PropertyPanel({
                   onSave={(value) => handleFieldUpdate('county', value)}
                 />
               </div>
-              <div className="flex justify-between py-2 border-b border-border">
+              
+              <div className="flex justify-between items-center group">
                 <span className="text-sm text-muted-foreground">Zoning Code</span>
                 <EditableField
                   label="Zoning Code"
@@ -542,7 +545,17 @@ export function PropertyPanel({
                   onSave={(value) => handleFieldUpdate('zoning_code', value)}
                 />
               </div>
-              <div className="flex justify-between py-2 border-b border-border">
+              
+              <div className="flex justify-between items-center group">
+                <span className="text-sm text-muted-foreground">Listed Owner</span>
+                <EditableField
+                  label="Listed Owner"
+                  value={property.listed_owner}
+                  onSave={(value) => handleFieldUpdate('listed_owner', value)}
+                />
+              </div>
+              
+              <div className="flex justify-between items-center group">
                 <span className="text-sm text-muted-foreground">Folio #</span>
                 <EditableField
                   label="Folio #"
@@ -550,26 +563,30 @@ export function PropertyPanel({
                   onSave={(value) => handleFieldUpdate('folio_int', value)}
                 />
               </div>
+              
               {property.municipal_zoning_url && (
-                <div className="flex justify-between items-center py-2 border-b border-border">
+                <div className="flex justify-between items-center group">
                   <span className="text-sm text-muted-foreground">Ordinance URL</span>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => window.open(property.municipal_zoning_url!, '_blank')}
+                    className="h-7 px-2 text-xs"
                   >
                     <ExternalLink className="h-3 w-3 mr-1" />
                     View
                   </Button>
                 </div>
               )}
+              
               {property.city_portal_url && (
-                <div className="flex justify-between items-center py-2">
+                <div className="flex justify-between items-center group">
                   <span className="text-sm text-muted-foreground">City Portal URL</span>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => window.open(property.city_portal_url!, '_blank')}
+                    className="h-7 px-2 text-xs"
                   >
                     <ExternalLink className="h-3 w-3 mr-1" />
                     View
