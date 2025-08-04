@@ -2,15 +2,26 @@ import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Building, Check, HelpCircle, X as XIcon, User } from 'lucide-react';
+import { Building, Check, HelpCircle, X as XIcon, User, ChevronLeft, ChevronRight, UserPlus } from 'lucide-react';
 import { Property } from '@/types/property';
 
 interface PropertyPanelProps {
   property: Property | null;
   onClose?: () => void;
+  onNextProperty?: () => void;
+  onPreviousProperty?: () => void;
+  onMarkQualified?: (property: Property) => void;
+  onAssignAnalyst?: (property: Property) => void;
 }
 
-export function PropertyPanel({ property, onClose }: PropertyPanelProps) {
+export function PropertyPanel({ 
+  property, 
+  onClose, 
+  onNextProperty, 
+  onPreviousProperty, 
+  onMarkQualified, 
+  onAssignAnalyst 
+}: PropertyPanelProps) {
   if (!property) {
     return (
       <div className="fixed top-[56px] right-0 w-[420px] bottom-0 bg-white border-l border-[#E5E7EB] shadow-[-2px_0_8px_rgba(0,0,0,0.05)] flex items-center justify-center z-40">
@@ -79,24 +90,56 @@ export function PropertyPanel({ property, onClose }: PropertyPanelProps) {
     }
   };
 
+  const isFullyCompliant = () => {
+    return property?.zoningByRight === true && 
+           property?.fireSprinklers === true && 
+           property?.currentOccupancy !== null;
+  };
+
+  const canMarkQualified = () => {
+    return property && isFullyCompliant() && property.status !== 'qualified';
+  };
+
   return (
     <div className="fixed top-[56px] right-0 w-[420px] bottom-0 bg-white border-l border-[#E5E7EB] shadow-[-2px_0_8px_rgba(0,0,0,0.05)] z-40 overflow-y-auto">
       {/* Panel Header */}
       <div className="h-[180px] p-6 bg-[#F9FAFB] relative">
+        {/* Navigation Arrows */}
+        <div className="absolute top-4 left-4 flex gap-1">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={onPreviousProperty}
+            className="h-8 w-8 p-0 bg-white shadow-sm hover:bg-gray-50"
+            disabled={!onPreviousProperty}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={onNextProperty}
+            className="h-8 w-8 p-0 bg-white shadow-sm hover:bg-gray-50"
+            disabled={!onNextProperty}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+
         {/* Close Button */}
         {onClose && (
           <Button 
             variant="ghost" 
             size="sm" 
             onClick={onClose}
-            className="absolute top-6 right-6 h-6 w-6 p-0"
+            className="absolute top-4 right-4 h-8 w-8 p-0 bg-white shadow-sm hover:bg-gray-50"
           >
             <XIcon className="h-4 w-4" />
           </Button>
         )}
         
         {/* Address Block */}
-        <div className="mb-2">
+        <div className="mt-8 mb-4">
           <h2 className="text-xl font-semibold text-[#1A1A1A] leading-tight">
             {property.address}
           </h2>
@@ -106,9 +149,42 @@ export function PropertyPanel({ property, onClose }: PropertyPanelProps) {
         </div>
         
         {/* Status Badge */}
-        <Badge className={`${getStatusColor(property.status)} absolute top-6 right-12 px-3 py-1 text-xs font-medium rounded`}>
+        <Badge className={`${getStatusColor(property.status)} absolute top-16 right-4 px-3 py-1 text-xs font-medium rounded`}>
           {getStatusLabel(property.status)}
         </Badge>
+
+        {/* Quick Action Buttons */}
+        <div className="absolute bottom-4 left-6 right-6 flex gap-2">
+          {canMarkQualified() && (
+            <Button 
+              onClick={() => onMarkQualified?.(property)}
+              className="flex-1 bg-green-600 hover:bg-green-700 text-white text-sm py-2"
+            >
+              <Check className="h-4 w-4 mr-2" />
+              Mark Qualified
+            </Button>
+          )}
+          
+          {!property.assignedAnalyst && (
+            <Button 
+              onClick={() => onAssignAnalyst?.(property)}
+              variant="outline"
+              className="flex-1 border-blue-200 text-blue-700 hover:bg-blue-50 text-sm py-2"
+            >
+              <UserPlus className="h-4 w-4 mr-2" />
+              Assign Analyst
+            </Button>
+          )}
+          
+          {property.assignedAnalyst && !canMarkQualified() && (
+            <Button 
+              variant="outline"
+              className="flex-1 border-gray-200 text-gray-700 hover:bg-gray-50 text-sm py-2"
+            >
+              Update Status
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="p-6">
