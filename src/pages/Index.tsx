@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Header } from '@/components/shared/Header';
 import { MapView } from '@/components/map/MapView';
 import { SearchOverlay } from '@/components/search/SearchOverlay';
@@ -108,6 +109,7 @@ const generateProperties = (city: string, count?: number): Property[] => {
 };
 
 const Index = () => {
+  const navigate = useNavigate();
   const [isEmptyState, setIsEmptyState] = useState<boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [properties, setProperties] = useState<Property[]>([]);
@@ -247,7 +249,8 @@ const Index = () => {
   };
 
   const handlePropertySelect = (property: Property) => {
-    setSelectedProperty(property);
+    // Navigate to the individual property page instead of just setting state
+    navigate(`/property/${property.id}`);
   };
 
   const handleFiltersToggle = () => {
