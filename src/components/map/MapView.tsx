@@ -166,3 +166,5 @@ export function MapView({ properties, selectedProperty, onPropertySelect, select
     </div>
   );
 }
+
+export default MapView;
