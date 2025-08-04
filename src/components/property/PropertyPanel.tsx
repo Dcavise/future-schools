@@ -25,9 +25,11 @@ import {
   Building,
   MapPin,
   FileText,
-  Plus
+  Plus,
+  ChevronDown
 } from 'lucide-react';
 import { Property } from '@/types/property';
+import { cn } from '@/lib/utils';
 
 interface PropertyPanelProps {
   property: Property | null;
@@ -40,15 +42,65 @@ interface PropertyPanelProps {
 }
 
 const TEAM_MEMBERS = [
-  { value: 'unassigned', label: 'Unassigned' },
-  { value: 'jarnail', label: 'Jarnail' },
-  { value: 'david-h', label: 'David H' },
-  { value: 'cavise', label: 'Cavise' },
-  { value: 'jb', label: 'JB' },
-  { value: 'stephen', label: 'Stephen' },
-  { value: 'aly', label: 'Aly' },
-  { value: 'ryan-d', label: 'Ryan D' },
+  { id: 'unassigned', name: 'Unassigned' },
+  { id: 'jarnail', name: 'Jarnail' },
+  { id: 'david-h', name: 'David H' },
+  { id: 'cavise', name: 'Cavise' },
+  { id: 'jb', name: 'JB' },
+  { id: 'stephen', name: 'Stephen' },
+  { id: 'aly', name: 'Aly' },
+  { id: 'ryan-d', name: 'Ryan D' },
 ];
+
+// Editable assignment component
+const EditableAssignment = ({ value, users, onAssign }: {
+  value: string | null;
+  users: typeof TEAM_MEMBERS;
+  onAssign: (userId: string) => void;
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  const currentUser = users.find(user => user.id === value);
+  const displayName = currentUser?.name || "Unassigned";
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex items-center justify-between p-3 hover:bg-muted/50 rounded-lg border transition-colors"
+      >
+        <div className="flex items-center gap-2">
+          <User className="h-4 w-4 text-muted-foreground" />
+          <span className="text-sm font-medium">{displayName}</span>
+        </div>
+        <ChevronDown className={cn(
+          "h-4 w-4 transition-transform text-muted-foreground",
+          isOpen && "rotate-180"
+        )} />
+      </button>
+      
+      {isOpen && (
+        <div className="absolute top-full left-0 right-0 mt-1 bg-background border rounded-lg shadow-lg z-20 py-1">
+          {users.map(user => (
+            <button
+              key={user.id}
+              onClick={() => {
+                onAssign(user.id === 'unassigned' ? '' : user.id);
+                setIsOpen(false);
+              }}
+              className={cn(
+                "w-full p-2 text-left hover:bg-muted/50 text-sm transition-colors",
+                user.id === value && "bg-muted"
+              )}
+            >
+              {user.name}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
 
 // Editable field component
 const EditableField = ({ label, value, onSave, type = "text" }: {
@@ -256,11 +308,11 @@ export function PropertyPanel({
     return occupancyMap[occupancy || 'unknown'] || 'Unknown';
   };
 
-  const handleAssignmentChange = (value: string) => {
+  const handleAssignmentChange = (userId: string) => {
     if (onPropertyUpdate) {
       const updatedProperty = {
         ...property,
-        assigned_to: value === 'unassigned' ? null : value,
+        assigned_to: userId || null,
         updated_at: new Date().toISOString()
       };
       onPropertyUpdate(updatedProperty);
@@ -445,35 +497,11 @@ export function PropertyPanel({
           {/* Assigned To */}
           <div>
             <h3 className="text-sm font-medium text-foreground mb-3 uppercase tracking-wide">ASSIGNED TO</h3>
-            <div className="flex items-center gap-3">
-              <Select 
-                value={property.assigned_to || 'unassigned'} 
-                onValueChange={handleAssignmentChange}
-              >
-                <SelectTrigger className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <User className="h-4 w-4" />
-                    <SelectValue />
-                  </div>
-                </SelectTrigger>
-                <SelectContent>
-                  {TEAM_MEMBERS.map((member) => (
-                    <SelectItem key={member.value} value={member.value}>
-                      {member.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {!property.assigned_to && (
-                <Button 
-                  onClick={() => onAssignAnalyst?.(property)}
-                  variant="outline"
-                  size="sm"
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
+            <EditableAssignment
+              value={property.assigned_to}
+              users={TEAM_MEMBERS}
+              onAssign={handleAssignmentChange}
+            />
           </div>
 
           {/* Property Details */}
