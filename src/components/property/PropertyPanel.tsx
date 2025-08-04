@@ -19,6 +19,8 @@ import {
   Clock, 
   AlertCircle, 
   CheckCircle,
+  XCircle,
+  HelpCircle,
   ExternalLink,
   Building,
   MapPin,
@@ -99,6 +101,100 @@ const EditableField = ({ label, value, onSave, type = "text" }: {
     >
       <span className="text-sm font-medium">{value || 'N/A'}</span>
       <Edit className="h-3 w-3 ml-1 opacity-0 group-hover:opacity-50 inline" />
+    </div>
+  );
+};
+
+// Compliance status badge component
+const ComplianceStatusBadge = ({ status }: { status: string }) => {
+  const getStatusConfig = (status: string) => {
+    switch (status) {
+      case 'yes': 
+      case 'true':
+        return { label: 'Yes', icon: CheckCircle, className: 'bg-green-100 text-green-800 border-green-200' };
+      case 'no': 
+      case 'false':
+        return { label: 'No', icon: XCircle, className: 'bg-red-100 text-red-800 border-red-200' };
+      case 'special-exemption':
+        return { label: 'Special Exemption', icon: AlertCircle, className: 'bg-blue-100 text-blue-800 border-blue-200' };
+      default:
+        return { label: 'Unknown', icon: HelpCircle, className: 'bg-amber-100 text-amber-800 border-amber-200' };
+    }
+  };
+
+  const config = getStatusConfig(status);
+  const Icon = config.icon;
+
+  return (
+    <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${config.className}`}>
+      <Icon className="h-3 w-3" />
+      {config.label}
+    </div>
+  );
+};
+
+// Editable compliance item
+const EditableComplianceItem = ({ name, status, onStatusChange }: {
+  name: string;
+  status: string;
+  onStatusChange: (value: string) => void;
+}) => {
+  const [isEditing, setIsEditing] = useState(false);
+
+  if (isEditing) {
+    return (
+      <div className="flex items-center justify-between p-3 bg-background rounded-lg border">
+        <span className="font-medium">{name}</span>
+        <Select 
+          value={status} 
+          onValueChange={(value) => {
+            onStatusChange(value);
+            setIsEditing(false);
+          }}
+        >
+          <SelectTrigger className="w-40 h-8">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="yes">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-3 w-3 text-green-600" />
+                Yes
+              </div>
+            </SelectItem>
+            <SelectItem value="special-exemption">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="h-3 w-3 text-blue-600" />
+                Special Exemption
+              </div>
+            </SelectItem>
+            <SelectItem value="no">
+              <div className="flex items-center gap-2">
+                <XCircle className="h-3 w-3 text-red-600" />
+                No
+              </div>
+            </SelectItem>
+            <SelectItem value="unknown">
+              <div className="flex items-center gap-2">
+                <HelpCircle className="h-3 w-3 text-amber-600" />
+                Unknown
+              </div>
+            </SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center justify-between p-3 bg-background rounded-lg border group">
+      <span className="font-medium">{name}</span>
+      <button
+        onClick={() => setIsEditing(true)}
+        className="hover:ring-2 hover:ring-offset-1 hover:ring-primary/20 rounded-full transition-all"
+      >
+        <ComplianceStatusBadge status={status} />
+      </button>
     </div>
   );
 };
@@ -199,9 +295,46 @@ export function PropertyPanel({
     setEditingNotes(false);
   };
 
-  const zoningByRight = getComplianceStatus(property.zoning_by_right);
-  const fireSprinkler = getComplianceStatus(property.fire_sprinkler_status === 'Yes' ? true : property.fire_sprinkler_status === 'No' ? false : null);
-  const currentOccupancy = getComplianceStatus(property.current_occupancy ? true : null);
+  const handleComplianceChange = (field: keyof Property, value: string) => {
+    if (onPropertyUpdate) {
+      let processedValue: any = value;
+      
+      // Convert string values to appropriate types
+      if (field === 'zoning_by_right') {
+        if (value === 'yes') processedValue = true;
+        else if (value === 'no') processedValue = false;
+        else if (value === 'special-exemption') processedValue = 'special-exemption';
+        else processedValue = null;
+      } else if (field === 'fire_sprinkler_status') {
+        processedValue = value === 'unknown' ? null : value === 'yes' ? 'Yes' : 'No';
+      } else if (field === 'current_occupancy') {
+        processedValue = value === 'unknown' ? null : value;
+      }
+      
+      onPropertyUpdate({
+        ...property,
+        [field]: processedValue,
+        updated_at: new Date().toISOString()
+      });
+    }
+  };
+
+  const getComplianceValue = (field: keyof Property) => {
+    const value = property[field];
+    if (field === 'zoning_by_right') {
+      if (value === true) return 'yes';
+      if (value === false) return 'no';
+      if (value === 'special-exemption') return 'special-exemption';
+      return 'unknown';
+    } else if (field === 'fire_sprinkler_status') {
+      if (value === 'Yes') return 'yes';
+      if (value === 'No') return 'no';
+      return 'unknown';
+    } else if (field === 'current_occupancy') {
+      return value ? 'yes' : 'unknown';
+    }
+    return 'unknown';
+  };
 
   return (
     <div className="h-full bg-background border-l border-border shadow-lg flex flex-col">
@@ -289,43 +422,23 @@ export function PropertyPanel({
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="flex items-center justify-between p-3 bg-background rounded-lg border">
-                <div className="flex items-center gap-3">
-                  <zoningByRight.icon className={`h-4 w-4 ${
-                    zoningByRight.variant === 'default' ? 'text-green-600' :
-                    zoningByRight.variant === 'destructive' ? 'text-red-600' :
-                    'text-yellow-600'
-                  }`} />
-                  <span className="font-medium">Zoning By-Right</span>
-                </div>
-                <Badge variant={zoningByRight.variant}>{zoningByRight.label}</Badge>
-              </div>
+              <EditableComplianceItem
+                name="Zoning By-Right"
+                status={getComplianceValue('zoning_by_right')}
+                onStatusChange={(value) => handleComplianceChange('zoning_by_right', value)}
+              />
               
-              <div className="flex items-center justify-between p-3 bg-background rounded-lg border">
-                <div className="flex items-center gap-3">
-                  <fireSprinkler.icon className={`h-4 w-4 ${
-                    fireSprinkler.variant === 'default' ? 'text-green-600' :
-                    fireSprinkler.variant === 'destructive' ? 'text-red-600' :
-                    'text-yellow-600'
-                  }`} />
-                  <span className="font-medium">Fire Sprinklers</span>
-                </div>
-                <Badge variant={fireSprinkler.variant}>{fireSprinkler.label}</Badge>
-              </div>
+              <EditableComplianceItem
+                name="Fire Sprinklers"
+                status={getComplianceValue('fire_sprinkler_status')}
+                onStatusChange={(value) => handleComplianceChange('fire_sprinkler_status', value)}
+              />
               
-              <div className="flex items-center justify-between p-3 bg-background rounded-lg border">
-                <div className="flex items-center gap-3">
-                  <currentOccupancy.icon className={`h-4 w-4 ${
-                    currentOccupancy.variant === 'default' ? 'text-green-600' :
-                    currentOccupancy.variant === 'destructive' ? 'text-red-600' :
-                    'text-yellow-600'
-                  }`} />
-                  <span className="font-medium">Current Occupancy</span>
-                </div>
-                <Badge variant={currentOccupancy.variant}>
-                  {property.current_occupancy ? getOccupancyLabel(property.current_occupancy) : 'Unknown'}
-                </Badge>
-              </div>
+              <EditableComplianceItem
+                name="Current Occupancy"
+                status={getComplianceValue('current_occupancy')}
+                onStatusChange={(value) => handleComplianceChange('current_occupancy', value)}
+              />
             </CardContent>
           </Card>
 
