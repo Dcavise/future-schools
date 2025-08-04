@@ -4,6 +4,9 @@ import { MapView } from '@/components/map/MapView';
 import { SearchOverlay } from '@/components/search/SearchOverlay';
 import { PropertyPanel } from '@/components/property/PropertyPanel';
 import { FilterPanel } from '@/components/filters/FilterPanel';
+import { PropertyTable } from '@/components/table/PropertyTable';
+import { Button } from '@/components/ui/button';
+import { Map, List } from 'lucide-react';
 
 interface Property {
   id: string;
@@ -122,6 +125,8 @@ const Index = () => {
   const [filters, setFilters] = useState<FilterCriteria>(defaultFilters);
   const [filteredProperties, setFilteredProperties] = useState<Property[]>([]);
   const [hasActiveFilters, setHasActiveFilters] = useState<boolean>(false);
+  const [currentView, setCurrentView] = useState<'map' | 'table'>('map');
+  const [selectedPropertyIds, setSelectedPropertyIds] = useState<string[]>([]);
 
   // Filter logic
   const applyFilters = () => {
@@ -233,6 +238,14 @@ const Index = () => {
     setHasActiveFilters(false);
   };
 
+  const handleViewToggle = (view: 'map' | 'table') => {
+    setCurrentView(view);
+  };
+
+  const handleSelectionChange = (selectedIds: string[]) => {
+    setSelectedPropertyIds(selectedIds);
+  };
+
   const showPropertiesView = !isEmptyState && !isLoading && properties.length > 0;
   const displayProperties = hasActiveFilters ? filteredProperties : properties;
 
@@ -243,6 +256,30 @@ const Index = () => {
         onFiltersClick={showPropertiesView ? handleFiltersToggle : undefined}
         activeFilterCount={getActiveFilterCount()}
       />
+
+      {/* View Toggle */}
+      {showPropertiesView && (
+        <div className="fixed top-14 right-6 z-50 flex bg-white border rounded-md shadow-sm">
+          <Button
+            variant={currentView === 'map' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => handleViewToggle('map')}
+            className="rounded-r-none"
+          >
+            <Map className="h-4 w-4 mr-1" />
+            Map
+          </Button>
+          <Button
+            variant={currentView === 'table' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => handleViewToggle('table')}
+            className="rounded-l-none border-l-0"
+          >
+            <List className="h-4 w-4 mr-1" />
+            Table
+          </Button>
+        </div>
+      )}
 
       {/* Filter Panel */}
       <FilterPanel
@@ -279,21 +316,33 @@ const Index = () => {
           marginTop: isFilterPanelOpen ? '280px' : hasActiveFilters ? '36px' : '0'
         }}
       >
-        {/* Map View */}
-        <MapView 
-          className="z-0"
-          style={{
-            filter: (isEmptyState && !isLoading) ? 'grayscale(100%) brightness(1.2)' : 'none',
-            opacity: (isEmptyState && !isLoading) ? 0.3 : 1
-          }}
-          properties={showPropertiesView ? displayProperties : []}
-          selectedProperty={selectedProperty}
-          onPropertySelect={handlePropertySelect}
-          showPanel={showPropertiesView}
-        />
+        {/* Map or Table View */}
+        {currentView === 'map' ? (
+          <MapView 
+            className="z-0"
+            style={{
+              filter: (isEmptyState && !isLoading) ? 'grayscale(100%) brightness(1.2)' : 'none',
+              opacity: (isEmptyState && !isLoading) ? 0.3 : 1
+            }}
+            properties={showPropertiesView ? displayProperties : []}
+            selectedProperty={selectedProperty}
+            onPropertySelect={handlePropertySelect}
+            showPanel={showPropertiesView}
+          />
+        ) : (
+          <div className="flex-1">
+            <PropertyTable
+              properties={displayProperties}
+              selectedProperty={selectedProperty}
+              onPropertySelect={handlePropertySelect}
+              selectedProperties={selectedPropertyIds}
+              onSelectionChange={handleSelectionChange}
+            />
+          </div>
+        )}
 
-        {/* Property Panel - Only show when we have properties */}
-        {showPropertiesView && (
+        {/* Property Panel - Only show when we have properties and in map view */}
+        {showPropertiesView && currentView === 'map' && (
           <PropertyPanel property={selectedProperty} />
         )}
       </div>
