@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { Property, PropertyCluster } from '@/types/property';
+import { Property } from '@/types/property';
 import { cities } from '@/components/layout/TopNavigation';
 
 interface PropertyMapProps {
@@ -59,23 +59,11 @@ export function PropertyMap({ properties, selectedProperty, onPropertySelect, se
     markersRef.current.forEach(marker => marker.remove());
     markersRef.current = [];
 
-    // Group properties for clustering (simplified clustering)
-    const clusters = createClusters(properties);
-    console.log('Created', clusters.length, 'clusters');
-
-    clusters.forEach((cluster, index) => {
-      if (cluster.properties.length === 1) {
-        // Single property marker
-        const property = cluster.properties[0];
-        console.log('Creating single marker for property:', property.id, property.address);
-        const marker = createPropertyMarker(property);
-        markersRef.current.push(marker);
-      } else {
-        // Cluster marker
-        console.log('Creating cluster marker for', cluster.properties.length, 'properties');
-        const marker = createClusterMarker(cluster);
-        markersRef.current.push(marker);
-      }
+    // Create individual markers for each property
+    properties.forEach((property) => {
+      console.log('Creating single marker for property:', property.id, property.address);
+      const marker = createPropertyMarker(property);
+      markersRef.current.push(marker);
     });
 
     console.log('Total markers created:', markersRef.current.length);
@@ -132,84 +120,6 @@ export function PropertyMap({ properties, selectedProperty, onPropertySelect, se
     return marker;
   };
 
-  const createClusterMarker = (cluster: PropertyCluster) => {
-    const el = document.createElement('div');
-    el.className = 'cluster-marker';
-    el.style.width = '40px';
-    el.style.height = '40px';
-    el.style.borderRadius = '50%';
-    el.style.cursor = 'pointer';
-    el.style.border = '3px solid white';
-    el.style.boxShadow = '0 4px 8px rgba(0,0,0,0.3)';
-    el.style.backgroundColor = '#374151';
-    el.style.display = 'flex';
-    el.style.alignItems = 'center';
-    el.style.justifyContent = 'center';
-    el.style.fontSize = '10px';
-    el.style.fontWeight = 'bold';
-    el.style.color = 'white';
-    
-    el.innerHTML = `${cluster.qualifiedCount}✓/${cluster.totalCount}`;
-
-    el.addEventListener('click', () => {
-      if (map.current) {
-        map.current.easeTo({
-          center: cluster.coordinates,
-          zoom: map.current.getZoom() + 2
-        });
-      }
-    });
-
-    const marker = new mapboxgl.Marker(el)
-      .setLngLat(cluster.coordinates)
-      .addTo(map.current!);
-
-    return marker;
-  };
-
-  const createClusters = (properties: Property[]): PropertyCluster[] => {
-    // Simple distance-based clustering
-    const clusters: PropertyCluster[] = [];
-    const processed = new Set<string>();
-
-    properties.forEach(property => {
-      if (processed.has(property.id)) return;
-
-      const cluster: PropertyCluster = {
-        id: `cluster-${property.id}`,
-        coordinates: property.coordinates,
-        qualifiedCount: property.qualificationStatus === 'qualified' ? 1 : 0,
-        totalCount: 1,
-        properties: [property]
-      };
-
-      // Find nearby properties (within ~500m at this zoom level)
-      properties.forEach(otherProperty => {
-        if (otherProperty.id !== property.id && !processed.has(otherProperty.id)) {
-          const distance = getDistance(property.coordinates, otherProperty.coordinates);
-          if (distance < 0.01) { // roughly 1km
-            cluster.properties.push(otherProperty);
-            cluster.totalCount++;
-            if (otherProperty.qualificationStatus === 'qualified') {
-              cluster.qualifiedCount++;
-            }
-            processed.add(otherProperty.id);
-          }
-        }
-      });
-
-      processed.add(property.id);
-      clusters.push(cluster);
-    });
-
-    return clusters;
-  };
-
-  const getDistance = (coord1: [number, number], coord2: [number, number]) => {
-    const dx = coord1[0] - coord2[0];
-    const dy = coord1[1] - coord2[1];
-    return Math.sqrt(dx * dx + dy * dy);
-  };
 
   useEffect(() => {
     initializeMap();
@@ -250,9 +160,6 @@ export function PropertyMap({ properties, selectedProperty, onPropertySelect, se
       <style>{`
         .property-marker:hover {
           transform: scale(1.1) !important;
-        }
-        .cluster-marker:hover {
-          transform: scale(1.1);
         }
       `}</style>
     </div>
