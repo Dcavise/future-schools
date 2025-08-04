@@ -442,20 +442,6 @@ export function PropertyPanel({
         {/* Divider */}
         <div className="border-t border-gray-200 mb-6"></div>
 
-        {/* Notes Section */}
-        <div className="mb-6">
-          <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-wide mb-3">Notes</h3>
-          <Textarea 
-            placeholder="Add notes about this property..."
-            value={property.notes || ''}
-            className="min-h-[100px] resize-none border-gray-200"
-            readOnly
-          />
-        </div>
-
-        {/* Divider */}
-        <div className="border-t border-gray-200 mb-6"></div>
-
         {/* Property Details Section */}
         <div className="mb-6">
           <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-wide mb-3">Property Details</h3>
@@ -485,6 +471,20 @@ export function PropertyPanel({
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Divider */}
+        <div className="border-t border-gray-200 mb-6"></div>
+
+        {/* Notes Section */}
+        <div className="mb-6">
+          <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-wide mb-3">Notes</h3>
+          <Textarea 
+            placeholder="Add notes about this property..."
+            value={property.notes || ''}
+            className="min-h-[100px] resize-none border-gray-200"
+            readOnly
+          />
         </div>
 
         {/* Divider */}
