@@ -15,8 +15,7 @@ interface PropertyMapProps {
 export function PropertyMap({ properties, selectedProperty, onPropertySelect }: PropertyMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
-  const [mapboxToken, setMapboxToken] = useState<string>('');
-  const [showTokenInput, setShowTokenInput] = useState(true);
+  const mapboxToken = 'pk.eyJ1IjoiZ3J1YmNsdWIxMjMiLCJhIjoiY203bmszdnFsMDF5czJxbjFuampiNXUwOSJ9.YixeEGA2iZd5yFhbyKv9Vg';
   const markersRef = useRef<mapboxgl.Marker[]>([]);
 
   const initializeMap = () => {
@@ -41,8 +40,6 @@ export function PropertyMap({ properties, selectedProperty, onPropertySelect }: 
       map.current.on('load', () => {
         addPropertyMarkers();
       });
-
-      setShowTokenInput(false);
     } catch (error) {
       console.error('Failed to initialize map:', error);
       alert('Invalid Mapbox token. Please check your token and try again.');
@@ -188,6 +185,10 @@ export function PropertyMap({ properties, selectedProperty, onPropertySelect }: 
   };
 
   useEffect(() => {
+    initializeMap();
+  }, []);
+
+  useEffect(() => {
     if (mapboxToken && map.current) {
       addPropertyMarkers();
     }
@@ -201,36 +202,6 @@ export function PropertyMap({ properties, selectedProperty, onPropertySelect }: 
       });
     }
   }, [selectedProperty]);
-
-  if (showTokenInput) {
-    return (
-      <Card className="h-full flex items-center justify-center p-8">
-        <div className="max-w-md w-full space-y-4 text-center">
-          <MapPin className="h-12 w-12 mx-auto text-muted-foreground" />
-          <h3 className="text-lg font-semibold">Connect Mapbox</h3>
-          <p className="text-sm text-muted-foreground">
-            Enter your Mapbox public token to display the property map. 
-            Get your token from <a href="https://mapbox.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">mapbox.com</a>
-          </p>
-          <div className="space-y-3">
-            <Input
-              type="password"
-              placeholder="pk.ey..."
-              value={mapboxToken}
-              onChange={(e) => setMapboxToken(e.target.value)}
-            />
-            <button
-              onClick={initializeMap}
-              disabled={!mapboxToken.startsWith('pk.')}
-              className="w-full bg-primary text-primary-foreground px-4 py-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90"
-            >
-              Initialize Map
-            </button>
-          </div>
-        </div>
-      </Card>
-    );
-  }
 
   return (
     <div className="relative h-full">
