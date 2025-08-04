@@ -249,8 +249,10 @@ const Index = () => {
   };
 
   const handlePropertySelect = (property: Property) => {
-    // Navigate to the individual property page instead of just setting state
-    navigate(`/property/${property.id}`);
+    // Navigate to the individual property page and pass current properties
+    navigate(`/property/${property.id}`, { 
+      state: { properties: displayProperties }
+    });
   };
 
   const handleFiltersToggle = () => {

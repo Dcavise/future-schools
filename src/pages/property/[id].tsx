@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { mockProperties } from '@/data/mockProperties';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { mockProperties, generateMockProperties } from '@/data/mockProperties';
 import { Property } from '@/types/property';
 import { PropertyDetailsPanel } from '@/components/property/PropertyDetailsPanel';
 import { PropertySidebar } from '@/components/property/PropertySidebar';
@@ -12,12 +12,24 @@ import { Button } from '@/components/ui/button';
 const PropertyDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [properties] = useState<Property[]>(mockProperties);
+  const location = useLocation();
+  
+  // Get properties from state (passed from search page) or generate them
+  const allProperties = useState<Property[]>(() => {
+    const state = location.state as { properties?: Property[] } | null;
+    if (state?.properties) {
+      return state.properties;
+    }
+    // If no properties in state, generate a default set
+    return [...mockProperties, ...generateMockProperties(75)];
+  })[0];
+  
   const [currentIndex, setCurrentIndex] = useState<number>(() => {
-    return mockProperties.findIndex(p => p.id === id) || 0;
+    return allProperties.findIndex(p => p.id === id) || 0;
   });
+  
   const [property, setProperty] = useState<Property | null>(() => {
-    return mockProperties.find(p => p.id === id) || null;
+    return allProperties.find(p => p.id === id) || null;
   });
 
   if (!property) {
@@ -45,7 +57,7 @@ const PropertyDetail = () => {
   const handlePreviousProperty = () => {
     if (currentIndex > 0) {
       const newIndex = currentIndex - 1;
-      const newProperty = properties[newIndex];
+      const newProperty = allProperties[newIndex];
       setCurrentIndex(newIndex);
       setProperty(newProperty);
       navigate(`/property/${newProperty.id}`, { replace: true });
@@ -53,9 +65,9 @@ const PropertyDetail = () => {
   };
 
   const handleNextProperty = () => {
-    if (currentIndex < properties.length - 1) {
+    if (currentIndex < allProperties.length - 1) {
       const newIndex = currentIndex + 1;
-      const newProperty = properties[newIndex];
+      const newProperty = allProperties[newIndex];
       setCurrentIndex(newIndex);
       setProperty(newProperty);
       navigate(`/property/${newProperty.id}`, { replace: true });
@@ -71,7 +83,7 @@ const PropertyDetail = () => {
         <div className="flex-[6] h-[calc(100vh-5rem)] relative rounded-lg overflow-hidden border">
           <MapView 
             selectedProperty={property}
-            properties={properties}
+            properties={allProperties}
           />
         </div>
 
@@ -84,8 +96,8 @@ const PropertyDetail = () => {
             console.log('Creating previous handler', { currentIndex, canGoPrevious: currentIndex > 0 });
             return handlePreviousProperty;
           })() : undefined}
-          onNextProperty={currentIndex < properties.length - 1 ? (() => {
-            console.log('Creating next handler', { currentIndex, propertiesLength: properties.length, canGoNext: currentIndex < properties.length - 1 });
+          onNextProperty={currentIndex < allProperties.length - 1 ? (() => {
+            console.log('Creating next handler', { currentIndex, propertiesLength: allProperties.length, canGoNext: currentIndex < allProperties.length - 1 });
             return handleNextProperty;
           })() : undefined}
         />
