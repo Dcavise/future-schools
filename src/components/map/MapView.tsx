@@ -389,6 +389,16 @@ export function MapView({
       return;
     }
 
+    console.log('MapView - processing properties:', {
+      propertiesCount: properties.length,
+      sampleProperty: properties[0] ? {
+        id: properties[0].id,
+        address: properties[0].address,
+        lat: properties[0].latitude,
+        lng: properties[0].longitude
+      } : 'none'
+    });
+
     if (isHeatmapMode) {
       // Use heatmap for large datasets
       addHeatmapLayer();
