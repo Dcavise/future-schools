@@ -19,7 +19,8 @@ const cities = [
   "Brookline, MA",
   "Newton, MA",
   "Waltham, MA",
-  "Medford, MA"
+  "Medford, MA",
+  "New York, NY"
 ];
 
 export function SearchOverlay({ onCitySearchClick, onAddressSearchClick, onCitySelected }: SearchOverlayProps) {

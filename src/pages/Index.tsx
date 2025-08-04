@@ -4,6 +4,7 @@ import { MapView } from '@/components/map/MapView';
 import { SearchOverlay } from '@/components/search/SearchOverlay';
 import { PropertyPanel } from '@/components/property/PropertyPanel';
 import { FilterPanel } from '@/components/filters/FilterPanel';
+import { QuickFilterOverlay } from '@/components/filters/QuickFilterOverlay';
 import { PropertyTable } from '@/components/table/PropertyTable';
 import { Button } from '@/components/ui/button';
 import { Map, List } from 'lucide-react';
@@ -61,8 +62,11 @@ const defaultFilters: FilterCriteria = {
   maxSquareFeet: ''
 };
 
-const generateProperties = (city: string, count = 75): Property[] => {
-  return Array.from({ length: count }, (_, i) => {
+const generateProperties = (city: string, count?: number): Property[] => {
+  // New York gets 500+ properties, others get ~75
+  const propertyCount = city === 'New York, NY' ? 523 : (count || 75);
+  
+  return Array.from({ length: propertyCount }, (_, i) => {
     const compliance = {
       zoning: ['P-NP', 'C-1', 'R-2', 'M-1'][Math.floor(Math.random() * 4)],
       currentOccupancy: Math.random() > 0.3 ? 'Unknown' : ['Retail', 'Office', 'Mixed'][Math.floor(Math.random() * 3)],
@@ -82,13 +86,36 @@ const generateProperties = (city: string, count = 75): Property[] => {
       status = Math.random() > 0.8 ? 'disqualified' : 'review';
     }
 
+    // Coordinate adjustments for different cities
+    let baseLat = 42.3601;
+    let baseLng = -71.0589;
+    let spread = 0.05;
+
+    if (city === 'New York, NY') {
+      baseLat = 40.7128;
+      baseLng = -74.0060;
+      spread = 0.1; // Larger spread for NYC
+    } else if (city === 'Chicago, IL') {
+      baseLat = 41.8781;
+      baseLng = -87.6298;
+    } else if (city === 'Denver, CO') {
+      baseLat = 39.7392;
+      baseLng = -104.9903;
+    } else if (city === 'Austin, TX') {
+      baseLat = 30.2672;
+      baseLng = -97.7431;
+    } else if (city === 'Seattle, WA') {
+      baseLat = 47.6062;
+      baseLng = -122.3321;
+    }
+
     return {
       id: `prop_${i + 1}`,
       address: `${2700 + i} ${['Canterbury', 'Oak', 'Elm', 'Park', 'Main'][i % 5]} St`,
       city: city.split(',')[0],
       state: city.split(',')[1]?.trim() || 'MA',
-      lat: 42.3601 + (Math.random() - 0.5) * 0.05,
-      lng: -71.0589 + (Math.random() - 0.5) * 0.05,
+      lat: baseLat + (Math.random() - 0.5) * spread,
+      lng: baseLng + (Math.random() - 0.5) * spread,
       buildingOwner: 'Unassigned',
       lastModified: '2 days ago',
       compliance,
@@ -127,6 +154,9 @@ const Index = () => {
   const [hasActiveFilters, setHasActiveFilters] = useState<boolean>(false);
   const [currentView, setCurrentView] = useState<'map' | 'table'>('map');
   const [selectedPropertyIds, setSelectedPropertyIds] = useState<string[]>([]);
+  const [isOverloadMode, setIsOverloadMode] = useState<boolean>(false);
+  const [showQuickFilter, setShowQuickFilter] = useState<boolean>(false);
+  const [quickFilterEstimate, setQuickFilterEstimate] = useState<number>(0);
 
   // Filter logic
   const applyFilters = () => {
@@ -206,8 +236,19 @@ const Index = () => {
     setProperties(newProperties);
     setFilteredProperties(newProperties);
     
-    // Select the first property by default
-    setSelectedProperty(newProperties[0]);
+    // Check for overload scenario (500+ properties)
+    if (newProperties.length >= 500) {
+      setIsOverloadMode(true);
+      setShowQuickFilter(true);
+      setCurrentView('map'); // Force map view for overload
+    } else {
+      setIsOverloadMode(false);
+    }
+    
+    // Select the first property by default (if not in overload mode)
+    if (newProperties.length < 500) {
+      setSelectedProperty(newProperties[0]);
+    }
   };
 
   const handleAddressSearch = () => {
@@ -246,6 +287,47 @@ const Index = () => {
     setSelectedPropertyIds(selectedIds);
   };
 
+  // Quick filter functions
+  const calculateQuickFilterEstimate = (quickFilters: any) => {
+    let estimate = properties.length;
+    
+    // Apply rough estimation logic
+    if (quickFilters.status.length > 0) {
+      estimate = Math.floor(estimate * (quickFilters.status.length / 3));
+    }
+    if (quickFilters.propertyType.length > 0) {
+      estimate = Math.floor(estimate * (quickFilters.propertyType.length / 3));
+    }
+    if (quickFilters.sizeRange.length > 0) {
+      estimate = Math.floor(estimate * (quickFilters.sizeRange.length / 3));
+    }
+    
+    return Math.max(1, estimate);
+  };
+
+  const handleQuickFiltersChange = (quickFilters: any) => {
+    const estimate = calculateQuickFilterEstimate(quickFilters);
+    setQuickFilterEstimate(estimate);
+  };
+
+  const handleApplyQuickFilters = () => {
+    // Convert quick filters to regular filters and apply
+    setShowQuickFilter(false);
+    setIsOverloadMode(false);
+    
+    // You would implement the actual filtering logic here
+    // For now, just show a subset of properties
+    const subset = properties.slice(0, Math.min(200, quickFilterEstimate));
+    setFilteredProperties(subset);
+    setHasActiveFilters(true);
+    setSelectedProperty(subset[0]);
+  };
+
+  const handleShowHeatmap = () => {
+    setShowQuickFilter(false);
+    // Keep overload mode active to show heatmap
+  };
+
   const showPropertiesView = !isEmptyState && !isLoading && properties.length > 0;
   const displayProperties = hasActiveFilters ? filteredProperties : properties;
 
@@ -257,8 +339,8 @@ const Index = () => {
         activeFilterCount={getActiveFilterCount()}
       />
 
-      {/* View Toggle */}
-      {showPropertiesView && (
+      {/* View Toggle - Hide in overload mode */}
+      {showPropertiesView && !isOverloadMode && (
         <div className="fixed top-14 right-6 z-50 flex bg-white border rounded-md shadow-sm">
           <Button
             variant={currentView === 'map' ? 'default' : 'ghost'}
@@ -280,6 +362,17 @@ const Index = () => {
           </Button>
         </div>
       )}
+
+      {/* Quick Filter Overlay */}
+      <QuickFilterOverlay
+        isOpen={showQuickFilter}
+        totalProperties={properties.length}
+        onFiltersChange={handleQuickFiltersChange}
+        onApplyFilters={handleApplyQuickFilters}
+        onShowHeatmap={handleShowHeatmap}
+        onClose={() => setShowQuickFilter(false)}
+        estimatedCount={quickFilterEstimate}
+      />
 
       {/* Filter Panel */}
       <FilterPanel
@@ -317,7 +410,7 @@ const Index = () => {
         }}
       >
         {/* Map or Table View */}
-        {currentView === 'map' ? (
+        {(currentView === 'map' || isOverloadMode) ? (
           <MapView 
             className="z-0"
             style={{
@@ -327,7 +420,9 @@ const Index = () => {
             properties={showPropertiesView ? displayProperties : []}
             selectedProperty={selectedProperty}
             onPropertySelect={handlePropertySelect}
-            showPanel={showPropertiesView}
+            showPanel={showPropertiesView && !isOverloadMode}
+            isHeatmapMode={isOverloadMode}
+            showPerformanceMessage={isOverloadMode}
           />
         ) : (
           <div className="flex-1">
@@ -341,8 +436,8 @@ const Index = () => {
           </div>
         )}
 
-        {/* Property Panel - Only show when we have properties and in map view */}
-        {showPropertiesView && currentView === 'map' && (
+        {/* Property Panel - Only show when we have properties, in map view, and not in overload mode */}
+        {showPropertiesView && currentView === 'map' && !isOverloadMode && (
           <PropertyPanel property={selectedProperty} />
         )}
       </div>
