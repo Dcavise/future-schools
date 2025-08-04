@@ -337,36 +337,13 @@ const Index = () => {
       <Header 
         onFiltersClick={showPropertiesView ? handleFiltersToggle : undefined}
         activeFilterCount={getActiveFilterCount()}
+        cityContext={showPropertiesView ? `${properties[0]?.city}, ${properties[0]?.state}` : undefined}
+        propertyCount={showPropertiesView ? displayProperties.length : undefined}
+        currentView={currentView}
+        onViewToggle={handleViewToggle}
+        showViewToggle={showPropertiesView && !isOverloadMode}
       />
 
-      {/* View Toggle - Hide in overload mode */}
-      {showPropertiesView && !isOverloadMode && (
-        <div 
-          className="fixed top-14 z-40 flex bg-white border rounded-md shadow-lg p-1 transition-all duration-300"
-          style={{
-            right: (showPropertiesView && currentView === 'map' && !isOverloadMode) ? '540px' : '120px'
-          }}
-        >
-          <Button
-            variant={currentView === 'map' ? 'default' : 'ghost'}
-            size="sm"
-            onClick={() => handleViewToggle('map')}
-            className="rounded-r-none"
-          >
-            <Map className="h-4 w-4 mr-1" />
-            Map
-          </Button>
-          <Button
-            variant={currentView === 'table' ? 'default' : 'ghost'}
-            size="sm"
-            onClick={() => handleViewToggle('table')}
-            className="rounded-l-none border-l-0"
-          >
-            <List className="h-4 w-4 mr-1" />
-            Table
-          </Button>
-        </div>
-      )}
 
       {/* Quick Filter Overlay */}
       <QuickFilterOverlay
