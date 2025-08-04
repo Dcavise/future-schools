@@ -236,24 +236,15 @@ export function PropertyPanel({
             {property.city}, {property.state}
           </p>
         </div>
-        
-        {/* Status Badge */}
-        <div className={`${getStatusColor(property.status)} absolute top-4 right-16 px-3 py-1.5 text-xs font-medium rounded-full flex items-center gap-1.5`}>
-          {getStatusIcon(property.status)}
-          {getStatusLabel(property.status)}
-        </div>
 
-      </div>
-
-      <div className="p-6">
         {/* Assignment Section */}
-        <div className="mb-6">
-          <div className="flex items-center gap-2 mb-3">
-            <User className="h-4 w-4 text-[#6B7280]" />
-            <span className="text-xs font-medium text-[#6B7280] uppercase tracking-wide">Assigned To</span>
+        <div className="mb-3">
+          <div className="flex items-center gap-2 mb-2">
+            <User className="h-4 w-4 text-gray-700" />
+            <span className="text-xs font-medium text-gray-700 uppercase tracking-wide">Assigned To</span>
           </div>
           <div className="flex items-center justify-between">
-            <div className="text-sm text-[#1A1A1A]">
+            <div className="text-sm text-gray-900">
               {property.assigned_to || 'Unassigned'}
               {!property.assigned_to && (
                 <Badge className="ml-2 bg-yellow-100 text-yellow-800 text-xs">Needs Assignment</Badge>
@@ -278,7 +269,16 @@ export function PropertyPanel({
             </Select>
           </div>
         </div>
+        
+        {/* Status Badge */}
+        <div className={`${getStatusColor(property.status)} absolute top-4 right-16 px-3 py-1.5 text-xs font-medium rounded-full flex items-center gap-1.5`}>
+          {getStatusIcon(property.status)}
+          {getStatusLabel(property.status)}
+        </div>
 
+      </div>
+
+      <div className="p-6">
         {/* Property Details Grid */}
         <div className="mb-6">
           <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-wide mb-3">Property Details</h3>
