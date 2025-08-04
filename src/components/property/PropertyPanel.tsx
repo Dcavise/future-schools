@@ -148,7 +148,7 @@ export function PropertyPanel({
             <Button className="w-full bg-[#3B82F6] hover:bg-blue-700 text-white font-semibold py-3">
               Complete Review
             </Button>
-            {!property?.assignedAnalyst && (
+            {!property?.assigned_to && (
               <Button 
                 onClick={() => onAssignAnalyst?.(property!)}
                 variant="outline"

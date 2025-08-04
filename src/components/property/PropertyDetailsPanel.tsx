@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Property, PropertyNote } from '@/types/property';
+import { Property } from '@/types/property';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -36,7 +36,7 @@ export function PropertyDetailsPanel({ property, onPropertyUpdate, onClose }: Pr
   const [isEditing, setIsEditing] = useState(false);
   const [editedProperty, setEditedProperty] = useState<Property | null>(null);
   const [newNote, setNewNote] = useState('');
-  const [newNoteType, setNewNoteType] = useState<PropertyNote['type']>('general');
+  const [newNoteType, setNewNoteType] = useState<'general' | 'research' | 'site_visit' | 'compliance'>('general');
 
   if (!property) {
     return (
@@ -69,17 +69,13 @@ export function PropertyDetailsPanel({ property, onPropertyUpdate, onClose }: Pr
 
   const addNote = () => {
     if (newNote.trim() && editedProperty) {
-      const note: PropertyNote = {
-        id: `note-${Date.now()}`,
-        content: newNote.trim(),
-        author: 'Current User', // In real app, this would be from auth context
-        createdAt: new Date().toISOString(),
-        type: newNoteType
-      };
+      const noteToAdd = newNote.trim();
+      const existingNotes = editedProperty.notes || '';
+      const updatedNotes = existingNotes ? `${existingNotes}\n\n[${newNoteType.toUpperCase()}] ${noteToAdd}` : `[${newNoteType.toUpperCase()}] ${noteToAdd}`;
       
       const updatedProperty = {
         ...editedProperty,
-        notes: [...(editedProperty.notes || []), note]
+        notes: updatedNotes
       };
       
       setEditedProperty(updatedProperty);
@@ -125,26 +121,26 @@ export function PropertyDetailsPanel({ property, onPropertyUpdate, onClose }: Pr
     const issues = [];
     
     // Check minimum square footage
-    if (property.squareFootage < 6000) {
+    if (property.square_feet && property.square_feet < 6000) {
       issues.push('Below 6,000 sq ft minimum');
     }
     
     // Check zoning
-    if (property.zoningByRight === false) {
+    if (property.zoning_by_right === false) {
       issues.push('Zoning does not allow schools');
-    } else if (property.zoningByRight === null) {
+    } else if (property.zoning_by_right === null) {
       issues.push('Zoning status needs verification');
     }
     
     // Check fire sprinklers
-    if (property.fireSprinklers === false) {
+    if (property.fire_sprinkler_status === 'No') {
       issues.push('No fire sprinkler system');
-    } else if (property.fireSprinklers === null) {
+    } else if (property.fire_sprinkler_status === null) {
       issues.push('Fire sprinkler status unknown');
     }
     
     // Check occupancy
-    if (!property.currentOccupancy) {
+    if (!property.current_occupancy) {
       issues.push('Current occupancy unknown');
     }
     
@@ -186,14 +182,14 @@ export function PropertyDetailsPanel({ property, onPropertyUpdate, onClose }: Pr
         <div className="p-4 space-y-6">
           
           {/* Assignment Info */}
-          {currentProperty.assignedAnalyst && (
+          {currentProperty.assigned_to && (
             <div className="space-y-2">
               <h3 className="text-sm font-medium flex items-center gap-2">
                 <User className="h-4 w-4" />
                 Assigned Analyst
               </h3>
               <div className="text-sm text-muted-foreground">
-                {currentProperty.assignedAnalyst}
+                {currentProperty.assigned_to}
               </div>
             </div>
           )}
@@ -226,26 +222,26 @@ export function PropertyDetailsPanel({ property, onPropertyUpdate, onClose }: Pr
               <div>
                 <span className="text-muted-foreground">Square Footage</span>
                 <div className="font-medium">
-                  {currentProperty.squareFootage.toLocaleString()} sq ft
-                  {currentProperty.squareFootage < 6000 && (
+                  {currentProperty.square_feet?.toLocaleString() || 'Unknown'} sq ft
+                  {currentProperty.square_feet && currentProperty.square_feet < 6000 && (
                     <span className="text-red-600 text-xs ml-1">(Below min)</span>
                   )}
                 </div>
               </div>
               
               <div>
-                <span className="text-muted-foreground">Building Year</span>
-                <div className="font-medium">{currentProperty.buildingYear || 'Unknown'}</div>
+                <span className="text-muted-foreground">Parcel Number</span>
+                <div className="font-medium">{currentProperty.parcel_number || 'Unknown'}</div>
               </div>
               
               <div>
-                <span className="text-muted-foreground">Lot Size</span>
-                <div className="font-medium">{currentProperty.lotSize || 'Unknown'} acres</div>
+                <span className="text-muted-foreground">Zoning Code</span>
+                <div className="font-medium">{currentProperty.zoning_code || 'Unknown'}</div>
               </div>
               
               <div>
-                <span className="text-muted-foreground">Parking Spaces</span>
-                <div className="font-medium">{currentProperty.parkingSpaces || 'Unknown'}</div>
+                <span className="text-muted-foreground">Created</span>
+                <div className="font-medium">{new Date(currentProperty.created_at).toLocaleDateString()}</div>
               </div>
             </div>
           </div>
@@ -260,10 +256,10 @@ export function PropertyDetailsPanel({ property, onPropertyUpdate, onClose }: Pr
                 <span className="text-sm text-muted-foreground">Zoning Allows Schools</span>
                 {isEditing ? (
                   <Select
-                    value={editedProperty?.zoningByRight?.toString() || "unknown"}
+                    value={editedProperty?.zoning_by_right?.toString() || "unknown"}
                     onValueChange={(value) => setEditedProperty(prev => prev ? {
                       ...prev,
-                      zoningByRight: value === "unknown" ? null : value === "true"
+                      zoning_by_right: value === "unknown" ? null : value === "true"
                     } : null)}
                   >
                     <SelectTrigger className="w-24">
@@ -277,11 +273,11 @@ export function PropertyDetailsPanel({ property, onPropertyUpdate, onClose }: Pr
                   </Select>
                 ) : (
                   <Badge variant={
-                    currentProperty.zoningByRight === true ? "default" :
-                    currentProperty.zoningByRight === false ? "destructive" : "secondary"
+                    currentProperty.zoning_by_right === true ? "default" :
+                    currentProperty.zoning_by_right === false ? "destructive" : "secondary"
                   }>
-                    {currentProperty.zoningByRight === true ? "Yes" :
-                     currentProperty.zoningByRight === false ? "No" : "Unknown"}
+                    {currentProperty.zoning_by_right === true ? "Yes" :
+                     currentProperty.zoning_by_right === false ? "No" : "Unknown"}
                   </Badge>
                 )}
               </div>
@@ -291,28 +287,27 @@ export function PropertyDetailsPanel({ property, onPropertyUpdate, onClose }: Pr
                 <span className="text-sm text-muted-foreground">Fire Sprinklers</span>
                 {isEditing ? (
                   <Select
-                    value={editedProperty?.fireSprinklers?.toString() || "unknown"}
+                    value={editedProperty?.fire_sprinkler_status || "unknown"}
                     onValueChange={(value) => setEditedProperty(prev => prev ? {
                       ...prev,
-                      fireSprinklers: value === "unknown" ? null : value === "true"
+                      fire_sprinkler_status: value === "unknown" ? null : value
                     } : null)}
                   >
                     <SelectTrigger className="w-24">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="true">Yes</SelectItem>
-                      <SelectItem value="false">No</SelectItem>
+                      <SelectItem value="Yes">Yes</SelectItem>
+                      <SelectItem value="No">No</SelectItem>
                       <SelectItem value="unknown">Unknown</SelectItem>
                     </SelectContent>
                   </Select>
                 ) : (
                   <Badge variant={
-                    currentProperty.fireSprinklers === true ? "default" :
-                    currentProperty.fireSprinklers === false ? "destructive" : "secondary"
+                    currentProperty.fire_sprinkler_status === "Yes" ? "default" :
+                    currentProperty.fire_sprinkler_status === "No" ? "destructive" : "secondary"
                   }>
-                    {currentProperty.fireSprinklers === true ? "Yes" :
-                     currentProperty.fireSprinklers === false ? "No" : "Unknown"}
+                    {currentProperty.fire_sprinkler_status || "Unknown"}
                   </Badge>
                 )}
               </div>
@@ -322,10 +317,10 @@ export function PropertyDetailsPanel({ property, onPropertyUpdate, onClose }: Pr
                 <span className="text-sm text-muted-foreground">Current Occupancy</span>
                 {isEditing ? (
                   <Select
-                    value={editedProperty?.currentOccupancy || "unknown"}
+                    value={editedProperty?.current_occupancy || "unknown"}
                     onValueChange={(value) => setEditedProperty(prev => prev ? {
                       ...prev,
-                      currentOccupancy: value === "unknown" ? null : value as 'E' | 'A' | 'Other'
+                      current_occupancy: value === "unknown" ? null : value
                     } : null)}
                   >
                     <SelectTrigger className="w-32">
@@ -340,9 +335,9 @@ export function PropertyDetailsPanel({ property, onPropertyUpdate, onClose }: Pr
                   </Select>
                 ) : (
                   <Badge variant="outline">
-                    {currentProperty.currentOccupancy === 'E' ? 'Educational' :
-                     currentProperty.currentOccupancy === 'A' ? 'Assembly' :
-                     currentProperty.currentOccupancy === 'Other' ? 'Other' : 'Unknown'}
+                    {currentProperty.current_occupancy === 'E' ? 'Educational' :
+                     currentProperty.current_occupancy === 'A' ? 'Assembly' :
+                     currentProperty.current_occupancy === 'Other' ? 'Other' : 'Unknown'}
                   </Badge>
                 )}
               </div>
@@ -353,14 +348,14 @@ export function PropertyDetailsPanel({ property, onPropertyUpdate, onClose }: Pr
           <div className="space-y-3">
             <h3 className="text-sm font-medium flex items-center gap-2">
               <FileText className="h-4 w-4" />
-              Research Notes ({currentProperty.notes?.length || 0})
+              Research Notes
             </h3>
             
             {/* Add Note (when editing) */}
             {isEditing && (
               <div className="space-y-2 p-3 bg-muted/50 rounded-md">
                 <div className="flex gap-2">
-                  <Select value={newNoteType} onValueChange={(value: PropertyNote['type']) => setNewNoteType(value)}>
+                  <Select value={newNoteType} onValueChange={(value: 'general' | 'research' | 'site_visit' | 'compliance') => setNewNoteType(value)}>
                     <SelectTrigger className="w-32">
                       <SelectValue />
                     </SelectTrigger>
@@ -384,24 +379,13 @@ export function PropertyDetailsPanel({ property, onPropertyUpdate, onClose }: Pr
               </div>
             )}
             
-            {/* Notes List */}
+            {/* Notes Display */}
             <div className="space-y-2 max-h-48 overflow-y-auto">
-              {currentProperty.notes?.map((note) => (
-                <div key={note.id} className="p-2 bg-muted/30 rounded text-xs">
-                  <div className="flex items-center justify-between mb-1">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="text-xs">
-                        {note.type.replace('_', ' ')}
-                      </Badge>
-                      <span className="text-muted-foreground">{note.author}</span>
-                    </div>
-                    <span className="text-muted-foreground">
-                      {new Date(note.createdAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <p>{note.content}</p>
+              {currentProperty.notes ? (
+                <div className="p-2 bg-muted/30 rounded text-xs whitespace-pre-wrap">
+                  {currentProperty.notes}
                 </div>
-              )) || (
+              ) : (
                 <p className="text-xs text-muted-foreground italic">No notes yet</p>
               )}
             </div>

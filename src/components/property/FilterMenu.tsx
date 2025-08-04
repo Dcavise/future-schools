@@ -26,24 +26,24 @@ export function FilterMenu({ filters, onFiltersChange, qualifiedCount, totalCoun
 
   const clearFilters = () => {
     onFiltersChange({
-      zoningByRight: null,
-      fireSprinklers: null,
-      currentOccupancy: [],
-      minSquareFootage: 0,
-      maxSquareFootage: 100000,
+      zoning_by_right: null,
+      fire_sprinkler_status: null,
+      current_occupancy: [],
+      min_square_feet: 0,
+      max_square_feet: 100000,
       status: [],
-      assignedTo: null
+      assigned_to: null
     });
   };
 
   const hasActiveFilters = 
-    filters.zoningByRight !== null ||
-    filters.fireSprinklers !== null ||
-    filters.currentOccupancy.length > 0 ||
+    filters.zoning_by_right !== null ||
+    filters.fire_sprinkler_status !== null ||
+    filters.current_occupancy.length > 0 ||
     filters.status.length > 0 ||
-    filters.assignedTo !== null ||
-    filters.minSquareFootage > 0 ||
-    filters.maxSquareFootage < 100000;
+    filters.assigned_to !== null ||
+    filters.min_square_feet > 0 ||
+    filters.max_square_feet < 100000;
 
   return (
     <div className="absolute top-4 left-4 z-10">
@@ -57,12 +57,12 @@ export function FilterMenu({ filters, onFiltersChange, qualifiedCount, totalCoun
         {hasActiveFilters && (
           <Badge variant="destructive" className="ml-2 h-5 px-1.5 text-xs">
             {[
-              filters.zoningByRight !== null,
-              filters.fireSprinklers !== null,
-              filters.currentOccupancy.length > 0,
+              filters.zoning_by_right !== null,
+              filters.fire_sprinkler_status !== null,
+              filters.current_occupancy.length > 0,
               filters.status.length > 0,
-              filters.assignedTo !== null,
-              filters.minSquareFootage > 0 || filters.maxSquareFootage < 100000
+              filters.assigned_to !== null,
+              filters.min_square_feet > 0 || filters.max_square_feet < 100000
             ].filter(Boolean).length}
           </Badge>
         )}
@@ -115,8 +115,8 @@ export function FilterMenu({ filters, onFiltersChange, qualifiedCount, totalCoun
             <div className="space-y-2">
               <label className="text-sm font-medium">Zoning by Right</label>
               <Select
-                value={filters.zoningByRight?.toString() || "all"}
-                onValueChange={(value) => handleFilterChange('zoningByRight', value === "all" ? null : value === "true")}
+                value={filters.zoning_by_right?.toString() || "all"}
+                onValueChange={(value) => handleFilterChange('zoning_by_right', value === "all" ? null : value === "true")}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -133,16 +133,16 @@ export function FilterMenu({ filters, onFiltersChange, qualifiedCount, totalCoun
             <div className="space-y-2">
               <label className="text-sm font-medium">Fire Sprinklers</label>
               <Select
-                value={filters.fireSprinklers?.toString() || "all"}
-                onValueChange={(value) => handleFilterChange('fireSprinklers', value === "all" ? null : value === "true")}
+                value={filters.fire_sprinkler_status || "all"}
+                onValueChange={(value) => handleFilterChange('fire_sprinkler_status', value === "all" ? null : value)}
               >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-background border border-border shadow-lg z-50">
                   <SelectItem value="all">All Properties</SelectItem>
-                  <SelectItem value="true">Yes</SelectItem>
-                  <SelectItem value="false">No</SelectItem>
+                  <SelectItem value="Yes">Yes</SelectItem>
+                  <SelectItem value="No">No</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -151,8 +151,8 @@ export function FilterMenu({ filters, onFiltersChange, qualifiedCount, totalCoun
             <div className="space-y-2">
               <label className="text-sm font-medium">Current Occupancy</label>
               <Select
-                value={filters.currentOccupancy.length > 0 ? filters.currentOccupancy[0] : "all"}
-                onValueChange={(value) => handleFilterChange('currentOccupancy', value === "all" ? [] : [value])}
+                value={filters.current_occupancy.length > 0 ? filters.current_occupancy[0] : "all"}
+                onValueChange={(value) => handleFilterChange('current_occupancy', value === "all" ? [] : [value])}
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -169,21 +169,21 @@ export function FilterMenu({ filters, onFiltersChange, qualifiedCount, totalCoun
             {/* Square Footage */}
             <div className="space-y-3">
               <label className="text-sm font-medium">
-                Square Footage: {filters.minSquareFootage.toLocaleString()} - {filters.maxSquareFootage.toLocaleString()} sq ft
+                Square Footage: {filters.min_square_feet.toLocaleString()} - {filters.max_square_feet.toLocaleString()} sq ft
               </label>
               <div className="space-y-2">
                 <div className="text-xs text-muted-foreground">Minimum</div>
                 <Slider
-                  value={[filters.minSquareFootage]}
-                  onValueChange={(value) => handleFilterChange('minSquareFootage', value[0])}
+                  value={[filters.min_square_feet]}
+                  onValueChange={(value) => handleFilterChange('min_square_feet', value[0])}
                   max={50000}
                   step={1000}
                   className="w-full"
                 />
                 <div className="text-xs text-muted-foreground">Maximum</div>
                 <Slider
-                  value={[filters.maxSquareFootage]}
-                  onValueChange={(value) => handleFilterChange('maxSquareFootage', value[0])}
+                  value={[filters.max_square_feet]}
+                  onValueChange={(value) => handleFilterChange('max_square_feet', value[0])}
                   min={10000}
                   max={100000}
                   step={5000}

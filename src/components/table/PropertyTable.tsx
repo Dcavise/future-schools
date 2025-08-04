@@ -146,24 +146,24 @@ export function PropertyTable({
           bValue = b.address;
           break;
         case 'type':
-          aValue = a.currentOccupancy;
-          bValue = b.currentOccupancy;
+          aValue = a.current_occupancy;
+          bValue = b.current_occupancy;
           break;
         case 'squareFeet':
-          aValue = a.squareFootage;
-          bValue = b.squareFootage;
+          aValue = a.square_feet;
+          bValue = b.square_feet;
           break;
         case 'status':
           aValue = a.status;
           bValue = b.status;
           break;
         case 'owner':
-          aValue = a.assignedAnalyst || 'Unassigned';
-          bValue = b.assignedAnalyst || 'Unassigned';
+          aValue = a.assigned_to || 'Unassigned';
+          bValue = b.assigned_to || 'Unassigned';
           break;
         case 'lastModified':
-          aValue = a.lastUpdated;
-          bValue = b.lastUpdated;
+          aValue = a.updated_at;
+          bValue = b.updated_at;
           break;
         default:
           return 0;
@@ -250,11 +250,11 @@ export function PropertyTable({
       Address: p.address,
       City: p.city,
       State: p.state,
-      Type: p.currentOccupancy === 'E' ? 'Educational' : p.currentOccupancy === 'A' ? 'Assembly' : p.currentOccupancy === 'Other' ? 'Other' : 'Unknown',
-      'Square Feet': p.squareFootage,
+      Type: p.current_occupancy === 'E' ? 'Educational' : p.current_occupancy === 'A' ? 'Assembly' : p.current_occupancy === 'Other' ? 'Other' : 'Unknown',
+      'Square Feet': p.square_feet || 'Unknown',
       'Compliance Status': getStatusLabel(p.status),
-      Owner: p.assignedAnalyst || 'Unassigned',
-      'Last Modified': p.lastUpdated
+      Owner: p.assigned_to || 'Unassigned',
+      'Last Modified': p.updated_at
     }));
     
     const csvContent = [
@@ -534,12 +534,12 @@ export function PropertyTable({
                   </div>
                 </TableCell>
                 <TableCell>
-                  {property.currentOccupancy === 'E' ? 'Educational' : 
-                   property.currentOccupancy === 'A' ? 'Assembly' : 
-                   property.currentOccupancy === 'Other' ? 'Other' : 'Unknown'}
+                  {property.current_occupancy === 'E' ? 'Educational' : 
+                   property.current_occupancy === 'A' ? 'Assembly' : 
+                   property.current_occupancy === 'Other' ? 'Other' : 'Unknown'}
                 </TableCell>
                 <TableCell>
-                  {property.squareFootage.toLocaleString()}
+                  {property.square_feet?.toLocaleString() || 'Unknown'}
                 </TableCell>
                 <TableCell>
                   <Badge className={getStatusColor(property.status)}>
@@ -547,10 +547,10 @@ export function PropertyTable({
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  {property.assignedAnalyst || 'Unassigned'}
+                  {property.assigned_to || 'Unassigned'}
                 </TableCell>
                 <TableCell>
-                  {property.lastUpdated}
+                  {new Date(property.updated_at).toLocaleDateString()}
                 </TableCell>
                 <TableCell>
                   <DropdownMenu>
