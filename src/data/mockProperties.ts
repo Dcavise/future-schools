@@ -20,7 +20,11 @@ export const mockProperties: Property[] = [
     status: 'synced',
     created_at: '2024-01-15T10:30:00Z',
     updated_at: '2024-01-15T10:30:00Z',
-    notes: 'Initial property assessment completed. Building meets size requirements.\n\n[COMPLIANCE] Fire sprinkler system needs verification during site visit.'
+    notes: 'Initial property assessment completed. Building meets size requirements.\n\n[COMPLIANCE] Fire sprinkler system needs verification during site visit.',
+    sync_status: 'synced',
+    last_synced_at: '2024-01-15T11:45:00Z',
+    external_system_id: 'SF-PROP-001-2024',
+    sync_error: null
   },
   {
     id: '2',
@@ -40,7 +44,11 @@ export const mockProperties: Property[] = [
     status: 'reviewing',
     created_at: '2024-01-10T10:30:00Z',
     updated_at: '2024-01-10T10:30:00Z',
-    notes: null
+    notes: null,
+    sync_status: null,
+    last_synced_at: null,
+    external_system_id: null,
+    sync_error: null
   },
   {
     id: '3',
@@ -60,7 +68,11 @@ export const mockProperties: Property[] = [
     status: 'not_qualified',
     created_at: '2024-01-08T10:30:00Z',
     updated_at: '2024-01-08T10:30:00Z',
-    notes: null
+    notes: null,
+    sync_status: null,
+    last_synced_at: null,
+    external_system_id: null,
+    sync_error: null
   },
   {
     id: '4',
@@ -80,7 +92,11 @@ export const mockProperties: Property[] = [
     status: 'synced',
     created_at: '2024-01-12T10:30:00Z',
     updated_at: '2024-01-12T10:30:00Z',
-    notes: null
+    notes: null,
+    sync_status: 'synced',
+    last_synced_at: '2024-01-12T14:20:00Z',
+    external_system_id: 'SF-PROP-004-2024',
+    sync_error: null
   },
   {
     id: '5',
@@ -100,7 +116,11 @@ export const mockProperties: Property[] = [
     status: 'new',
     created_at: '2024-01-05T10:30:00Z',
     updated_at: '2024-01-05T10:30:00Z',
-    notes: null
+    notes: null,
+    sync_status: null,
+    last_synced_at: null,
+    external_system_id: null,
+    sync_error: null
   },
   {
     id: '6',
@@ -120,7 +140,11 @@ export const mockProperties: Property[] = [
     status: 'reviewing',
     created_at: '2024-01-14T10:30:00Z',
     updated_at: '2024-01-14T10:30:00Z',
-    notes: '[RESEARCH] Property requires additional zoning review.\n\n[SITE_VISIT] Scheduled for next week.'
+    notes: '[RESEARCH] Property requires additional zoning review.\n\n[SITE_VISIT] Scheduled for next week.',
+    sync_status: 'pending',
+    last_synced_at: null,
+    external_system_id: null,
+    sync_error: null
   },
   {
     id: '7',
@@ -140,7 +164,11 @@ export const mockProperties: Property[] = [
     status: 'synced',
     created_at: '2024-01-11T10:30:00Z',
     updated_at: '2024-01-11T10:30:00Z',
-    notes: null
+    notes: null,
+    sync_status: 'synced',
+    last_synced_at: '2024-01-11T16:30:00Z',
+    external_system_id: 'SF-PROP-007-2024',
+    sync_error: null
   },
   {
     id: '8',
@@ -160,7 +188,11 @@ export const mockProperties: Property[] = [
     status: 'new',
     created_at: '2024-01-09T10:30:00Z',
     updated_at: '2024-01-09T10:30:00Z',
-    notes: null
+    notes: null,
+    sync_status: null,
+    last_synced_at: null,
+    external_system_id: null,
+    sync_error: null
   },
   {
     id: '9',
@@ -180,7 +212,11 @@ export const mockProperties: Property[] = [
     status: 'synced',
     created_at: '2024-01-13T10:30:00Z',
     updated_at: '2024-01-13T10:30:00Z',
-    notes: null
+    notes: null,
+    sync_status: 'synced',
+    last_synced_at: '2024-01-13T12:15:00Z',
+    external_system_id: 'SF-PROP-009-2024',
+    sync_error: null
   },
   {
     id: '10',
@@ -200,7 +236,11 @@ export const mockProperties: Property[] = [
     status: 'reviewing',
     created_at: '2024-01-07T10:30:00Z',
     updated_at: '2024-01-07T10:30:00Z',
-    notes: null
+    notes: null,
+    sync_status: 'failed',
+    last_synced_at: null,
+    external_system_id: null,
+    sync_error: 'External system timeout - retry scheduled'
   },
   {
     id: '11',
@@ -220,7 +260,11 @@ export const mockProperties: Property[] = [
     status: 'not_qualified',
     created_at: '2024-01-06T10:30:00Z',
     updated_at: '2024-01-06T10:30:00Z',
-    notes: null
+    notes: null,
+    sync_status: null,
+    last_synced_at: null,
+    external_system_id: null,
+    sync_error: null
   },
   {
     id: '12',
@@ -240,7 +284,11 @@ export const mockProperties: Property[] = [
     status: 'reviewing',
     created_at: '2024-01-04T10:30:00Z',
     updated_at: '2024-01-04T10:30:00Z',
-    notes: null
+    notes: null,
+    sync_status: 'pending',
+    last_synced_at: null,
+    external_system_id: null,
+    sync_error: null
   },
   {
     id: '13',
@@ -260,7 +308,11 @@ export const mockProperties: Property[] = [
     status: 'synced',
     created_at: '2024-01-03T10:30:00Z',
     updated_at: '2024-01-03T10:30:00Z',
-    notes: null
+    notes: null,
+    sync_status: 'synced',
+    last_synced_at: '2024-01-03T15:45:00Z',
+    external_system_id: 'SF-PROP-013-2024',
+    sync_error: null
   },
   {
     id: '14',
@@ -280,7 +332,11 @@ export const mockProperties: Property[] = [
     status: 'not_qualified',
     created_at: '2024-01-02T10:30:00Z',
     updated_at: '2024-01-02T10:30:00Z',
-    notes: null
+    notes: null,
+    sync_status: null,
+    last_synced_at: null,
+    external_system_id: null,
+    sync_error: null
   },
   {
     id: '15',
@@ -300,7 +356,11 @@ export const mockProperties: Property[] = [
     status: 'synced',
     created_at: '2024-01-01T10:30:00Z',
     updated_at: '2024-01-01T10:30:00Z',
-    notes: null
+    notes: null,
+    sync_status: 'synced',
+    last_synced_at: '2024-01-01T18:30:00Z',
+    external_system_id: 'SF-PROP-015-2024',
+    sync_error: null
   },
   {
     id: '16',
@@ -320,7 +380,11 @@ export const mockProperties: Property[] = [
     status: 'new',
     created_at: '2023-12-31T10:30:00Z',
     updated_at: '2023-12-31T10:30:00Z',
-    notes: null
+    notes: null,
+    sync_status: null,
+    last_synced_at: null,
+    external_system_id: null,
+    sync_error: null
   },
   {
     id: '17',
@@ -340,7 +404,11 @@ export const mockProperties: Property[] = [
     status: 'reviewing',
     created_at: '2023-12-30T10:30:00Z',
     updated_at: '2023-12-30T10:30:00Z',
-    notes: null
+    notes: null,
+    sync_status: 'pending',
+    last_synced_at: null,
+    external_system_id: null,
+    sync_error: null
   },
   {
     id: '18',
@@ -360,7 +428,11 @@ export const mockProperties: Property[] = [
     status: 'synced',
     created_at: '2023-12-29T10:30:00Z',
     updated_at: '2023-12-29T10:30:00Z',
-    notes: null
+    notes: null,
+    sync_status: 'synced',
+    last_synced_at: '2023-12-29T13:20:00Z',
+    external_system_id: 'SF-PROP-018-2024',
+    sync_error: null
   },
   {
     id: '19',
@@ -380,7 +452,11 @@ export const mockProperties: Property[] = [
     status: 'not_qualified',
     created_at: '2023-12-28T10:30:00Z',
     updated_at: '2023-12-28T10:30:00Z',
-    notes: null
+    notes: null,
+    sync_status: null,
+    last_synced_at: null,
+    external_system_id: null,
+    sync_error: null
   },
   {
     id: '20',
@@ -400,7 +476,11 @@ export const mockProperties: Property[] = [
     status: 'reviewing',
     created_at: '2023-12-27T10:30:00Z',
     updated_at: '2023-12-27T10:30:00Z',
-    notes: null
+    notes: null,
+    sync_status: 'failed',
+    last_synced_at: null,
+    external_system_id: null,
+    sync_error: 'Authentication failed - credentials need refresh'
   }
 ];
 
@@ -453,7 +533,11 @@ export const generateMockProperties = (count: number, baseCoordinates: [number, 
       status: statuses[Math.floor(Math.random() * statuses.length)],
       created_at: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
       updated_at: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),
-      notes: Math.random() > 0.7 ? `[GENERAL] Property assessment note for ${streetNum} ${streetName}` : null
+      notes: Math.random() > 0.7 ? `[GENERAL] Property assessment note for ${streetNum} ${streetName}` : null,
+      sync_status: status === 'synced' ? 'synced' : Math.random() > 0.7 ? 'pending' : Math.random() > 0.9 ? 'failed' : null,
+      last_synced_at: status === 'synced' ? new Date(Date.now() - Math.random() * 3 * 24 * 60 * 60 * 1000).toISOString() : null,
+      external_system_id: status === 'synced' ? `SF-PROP-${id.padStart(3, '0')}-2024` : null,
+      sync_error: Math.random() > 0.95 ? 'Connection timeout - retry scheduled' : null
     };
   });
 };

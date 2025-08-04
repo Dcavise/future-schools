@@ -17,6 +17,12 @@ export interface Property {
   created_at: string; // TIMESTAMP
   updated_at: string; // TIMESTAMP
   notes: string | null; // TEXTAREA
+  
+  // Sync-related fields for external system integration
+  sync_status: 'pending' | 'synced' | 'failed' | null; // Current sync state
+  last_synced_at: string | null; // TIMESTAMP - when last successfully synced
+  external_system_id: string | null; // VARCHAR(100) - ID in external system (Salesforce, etc.)
+  sync_error: string | null; // TEXT - error message if sync failed
 }
 
 export interface FilterCriteria {

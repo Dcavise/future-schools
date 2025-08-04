@@ -23,7 +23,12 @@ import {
   User,
   FileText,
   Plus,
-  AlertCircle
+  AlertCircle,
+  Cloud,
+  CheckCircle,
+  CloudOff,
+  Loader,
+  ExternalLink
 } from 'lucide-react';
 
 interface PropertyDetailsPanelProps {
@@ -147,6 +152,32 @@ export function PropertyDetailsPanel({ property, onPropertyUpdate, onClose }: Pr
     return issues;
   };
 
+  const getSyncStatusIcon = (syncStatus: Property['sync_status']) => {
+    switch (syncStatus) {
+      case 'synced':
+        return <CheckCircle className="h-4 w-4 text-green-600" />;
+      case 'pending':
+        return <Loader className="h-4 w-4 text-blue-600 animate-spin" />;
+      case 'failed':
+        return <CloudOff className="h-4 w-4 text-red-600" />;
+      default:
+        return <Cloud className="h-4 w-4 text-gray-400" />;
+    }
+  };
+
+  const getSyncStatusColor = (syncStatus: Property['sync_status']) => {
+    switch (syncStatus) {
+      case 'synced':
+        return 'bg-green-100 text-green-800 border-green-200';
+      case 'pending':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'failed':
+        return 'bg-red-100 text-red-800 border-red-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
   const currentProperty = editedProperty || property;
   const complianceIssues = getComplianceStatus(currentProperty);
 
@@ -190,6 +221,73 @@ export function PropertyDetailsPanel({ property, onPropertyUpdate, onClose }: Pr
               </h3>
               <div className="text-sm text-muted-foreground">
                 {currentProperty.assigned_to}
+              </div>
+            </div>
+          )}
+
+          {/* Sync Status Section - Only show for synced properties or those with sync info */}
+          {(currentProperty.status === 'synced' || currentProperty.sync_status || currentProperty.external_system_id) && (
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium flex items-center gap-2">
+                <Cloud className="h-4 w-4" />
+                External System Integration
+              </h3>
+              
+              <div className="space-y-2">
+                {/* Sync Status */}
+                {currentProperty.sync_status && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Sync Status</span>
+                    <div className="flex items-center gap-2">
+                      {getSyncStatusIcon(currentProperty.sync_status)}
+                      <Badge className={`${getSyncStatusColor(currentProperty.sync_status)} capitalize`}>
+                        {currentProperty.sync_status}
+                      </Badge>
+                    </div>
+                  </div>
+                )}
+
+                {/* External System ID */}
+                {currentProperty.external_system_id && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">External ID</span>
+                    <div className="flex items-center gap-1">
+                      <code className="text-xs bg-muted px-2 py-1 rounded font-mono">
+                        {currentProperty.external_system_id}
+                      </code>
+                      <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                        <ExternalLink className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Last Synced */}
+                {currentProperty.last_synced_at && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-muted-foreground">Last Synced</span>
+                    <span className="text-sm font-medium">
+                      {new Date(currentProperty.last_synced_at).toLocaleDateString()} at{' '}
+                      {new Date(currentProperty.last_synced_at).toLocaleTimeString([], { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                      })}
+                    </span>
+                  </div>
+                )}
+
+                {/* Sync Error */}
+                {currentProperty.sync_error && (
+                  <div className="p-2 bg-red-50 border border-red-200 rounded">
+                    <div className="flex items-start gap-2">
+                      <AlertCircle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
+                      <div>
+                        <div className="text-xs font-medium text-red-800">Sync Error</div>
+                        <div className="text-xs text-red-700">{currentProperty.sync_error}</div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}

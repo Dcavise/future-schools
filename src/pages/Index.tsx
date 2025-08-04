@@ -91,7 +91,11 @@ const generateProperties = (city: string, count?: number): Property[] => {
       status,
       created_at: created,
       updated_at: now,
-      notes: Math.random() > 0.8 ? 'Sample property notes from initial assessment.' : null
+      notes: Math.random() > 0.8 ? 'Sample property notes from initial assessment.' : null,
+      sync_status: status === 'synced' ? 'synced' : Math.random() > 0.7 ? 'pending' : Math.random() > 0.9 ? 'failed' : null,
+      last_synced_at: status === 'synced' ? new Date(Date.now() - Math.random() * 2 * 24 * 60 * 60 * 1000).toISOString() : null,
+      external_system_id: status === 'synced' ? `SF-PROP-${(i + 1).toString().padStart(3, '0')}-2024` : null,
+      sync_error: Math.random() > 0.98 ? 'Network timeout - retry pending' : null
     };
   });
 };
