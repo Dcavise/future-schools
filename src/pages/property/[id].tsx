@@ -122,15 +122,13 @@ const PropertyDetail = () => {
       <Header />
       
       <div className="property-detail-content">
-        <div className="property-detail-map">
-          <MapView 
-            selectedProperty={property}
-            properties={[property]}
-            className="absolute inset-0"
-            showPanel={false}
-            onPropertySelect={handlePropertySelect}
-          />
-        </div>
+        <MapView 
+          selectedProperty={property}
+          properties={[property]}
+          className="w-full h-full"
+          showPanel={false}
+          onPropertySelect={handlePropertySelect}
+        />
 
         <aside className="property-detail-panel">
           <PropertyPanel
