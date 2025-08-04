@@ -100,9 +100,14 @@ export function PropertyPanel({ property, onClose }: PropertyPanelProps) {
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-start justify-between mb-3">
-            <h2 className="text-lg font-semibold text-foreground leading-tight">
-              {property.address}
-            </h2>
+            <div className="flex-1">
+              <h2 className="text-lg font-semibold text-foreground leading-tight">
+                {property.address}
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                {property.city}, {property.state}
+              </p>
+            </div>
             {onClose && (
               <Button variant="ghost" size="sm" onClick={onClose}>
                 <X className="h-4 w-4" />
