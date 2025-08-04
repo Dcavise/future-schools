@@ -243,12 +243,6 @@ export function PropertyPanel({
           {getStatusLabel(property.status)}
         </div>
 
-        {/* Status Message */}
-        <div className="mb-4">
-          <p className="text-sm font-medium text-gray-700">
-            {getStatusMessage(property.status, property)}
-          </p>
-        </div>
       </div>
 
       <div className="p-6">
