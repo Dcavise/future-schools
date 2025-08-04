@@ -338,6 +338,28 @@ export function PropertyPanel({
           </Select>
         </div>
         
+        {/* Add to Sync Queue Checkbox */}
+        <div className="mb-3">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={property.sync_status === 'pending'}
+              onChange={(e) => {
+                if (onPropertyUpdate) {
+                  const updatedProperty = {
+                    ...property,
+                    sync_status: (e.target.checked ? 'pending' : null) as Property['sync_status'],
+                    updated_at: new Date().toISOString()
+                  };
+                  onPropertyUpdate(updatedProperty);
+                }
+              }}
+              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+            />
+            <span className="text-sm text-gray-700">Add to sync queue</span>
+          </label>
+        </div>
+        
         {/* Status Badge - Editable */}
         <div className="absolute top-4 right-16">
           <Select 
