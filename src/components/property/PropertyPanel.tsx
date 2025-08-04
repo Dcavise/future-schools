@@ -44,7 +44,7 @@ interface PropertyPanelProps {
 export function PropertyPanel({ property, onClose }: PropertyPanelProps) {
   if (!property) {
     return (
-      <div className="w-[420px] h-full bg-white border-l border-border flex items-center justify-center">
+      <div className="fixed md:relative inset-0 md:inset-auto w-full md:w-[420px] h-full bg-white border-l border-border flex items-center justify-center z-40 pt-14 md:pt-0">
         <div className="text-center text-muted-foreground">
           <Building className="h-12 w-12 mx-auto mb-4 opacity-50" />
           <p>Select a property to view details</p>
@@ -95,7 +95,7 @@ export function PropertyPanel({ property, onClose }: PropertyPanelProps) {
   );
 
   return (
-    <div className="w-[420px] h-full bg-white border-l border-border animate-slide-in-right">
+    <div className="fixed md:relative inset-0 md:inset-auto w-full md:w-[420px] h-full bg-white border-l border-border animate-slide-in-right z-40 pt-14 md:pt-0">
       <div className="p-6 h-full overflow-y-auto">
         {/* Header */}
         <div className="mb-6">
