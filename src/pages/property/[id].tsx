@@ -93,28 +93,19 @@ const PropertyDetail = () => {
       
       {/* Main content with map taking full width, sidebar will overlay */}
       <div className="flex-1 h-[calc(100vh-3.5rem)]">
-        {(() => {
-          console.log('PropertyDetail - About to render MapView with:', {
-            selectedPropertyId: property?.id,
-            allPropertiesCount: allProperties.length,
-            firstPropertyId: allProperties.length > 0 ? allProperties[0].id : 'none'
-          });
-          return (
-            <MapView 
-              selectedProperty={property}
-              properties={allProperties}
-              className="w-full h-full"
-              showPanel={true}
-              onPropertySelect={(newProperty) => {
-                console.log('PropertyDetail - navigating to:', newProperty.id);
-                // Navigate to the new property while maintaining the properties list
-                navigate(`/property/${newProperty.id}`, { 
-                  state: { properties: allProperties }
-                });
-              }}
-            />
-          );
-        })()}
+        <MapView 
+          selectedProperty={property}
+          properties={allProperties}
+          className="w-full h-full"
+          showPanel={true}
+          onPropertySelect={(newProperty) => {
+            console.log('PropertyDetail - navigating to:', newProperty.id);
+            // Navigate to the new property while maintaining the properties list
+            navigate(`/property/${newProperty.id}`, { 
+              state: { properties: allProperties }
+            });
+          }}
+        />
 
         {/* Property Panel - Fixed overlay on right side */}
         <PropertyPanel
