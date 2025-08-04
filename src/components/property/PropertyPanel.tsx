@@ -26,7 +26,9 @@ import {
   MapPin,
   FileText,
   Plus,
-  ChevronDown
+  ChevronDown,
+  Circle,
+  PauseCircle
 } from 'lucide-react';
 import { Property } from '@/types/property';
 import { cn } from '@/lib/utils';
@@ -301,6 +303,83 @@ const EditableNotes = ({ notes, onSave }: {
   );
 };
 
+// Status badge component
+const StatusBadge = ({ status, onStatusChange }: {
+  status: Property['status'];
+  onStatusChange: (status: Property['status']) => void;
+}) => {
+  const [isEditing, setIsEditing] = useState(false);
+
+  const statusConfig = {
+    new: { 
+      label: "New", 
+      color: "bg-gray-100 text-gray-700 border-gray-200",
+      icon: Circle 
+    },
+    reviewing: { 
+      label: "Reviewing", 
+      color: "bg-blue-100 text-blue-700 border-blue-200",
+      icon: Clock 
+    },
+    synced: { 
+      label: "Synced", 
+      color: "bg-green-100 text-green-700 border-green-200",
+      icon: CheckCircle 
+    },
+    not_qualified: { 
+      label: "Not Qualified", 
+      color: "bg-red-100 text-red-700 border-red-200",
+      icon: XCircle 
+    }
+  };
+
+  const current = statusConfig[status];
+  const Icon = current.icon;
+
+  if (isEditing) {
+    return (
+      <Select 
+        value={status} 
+        onValueChange={(value: Property['status']) => {
+          onStatusChange(value);
+          setIsEditing(false);
+        }}
+      >
+        <SelectTrigger className="w-36 h-8">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {Object.entries(statusConfig).map(([key, config]) => {
+            const StatusIcon = config.icon;
+            return (
+              <SelectItem key={key} value={key}>
+                <div className="flex items-center gap-2">
+                  <StatusIcon className="h-3 w-3" />
+                  {config.label}
+                </div>
+              </SelectItem>
+            );
+          })}
+        </SelectContent>
+      </Select>
+    );
+  }
+
+  return (
+    <button
+      onClick={() => setIsEditing(true)}
+      className={cn(
+        "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all border",
+        "hover:ring-2 hover:ring-offset-1 hover:ring-primary/20",
+        current.color
+      )}
+    >
+      <Icon className="h-3 w-3" />
+      {current.label}
+    </button>
+  );
+};
+
 // Compliance status badge component
 const ComplianceStatusBadge = ({ status }: { status: string }) => {
   const getStatusConfig = (status: string) => {
@@ -404,6 +483,16 @@ export function PropertyPanel({
   onAssignAnalyst,
   onPropertyUpdate 
 }: PropertyPanelProps) {
+
+  const handleStatusChange = (status: Property['status']) => {
+    if (onPropertyUpdate) {
+      onPropertyUpdate({
+        ...property,
+        status,
+        updated_at: new Date().toISOString()
+      });
+    }
+  };
 
   if (!property) {
     return (
@@ -569,6 +658,16 @@ export function PropertyPanel({
           <p className="text-lg text-muted-foreground mb-3">
             {property.city}, {property.state} {property.zip}
           </p>
+          
+          {/* Status Badge */}
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-sm text-muted-foreground">Status:</span>
+            <StatusBadge 
+              status={property.status}
+              onStatusChange={handleStatusChange}
+            />
+          </div>
+          
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
               <span>Parcel:</span>
