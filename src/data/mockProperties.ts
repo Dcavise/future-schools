@@ -3,7 +3,7 @@ import { Property } from '@/types/property';
 export const mockProperties: Property[] = [
   // BOSTON PROPERTIES
   {
-    id: '1',
+    id: 'prop_1',
     address: '123 Main St',
     city: 'Boston',
     state: 'MA',
@@ -33,7 +33,7 @@ export const mockProperties: Property[] = [
     parcel_sq_ft: 35000
   },
   {
-    id: '2',
+    id: 'prop_2',
     address: '456 Oak Ave',
     city: 'Cambridge',
     state: 'MA',
@@ -63,7 +63,7 @@ export const mockProperties: Property[] = [
     parcel_sq_ft: 28000
   },
   {
-    id: '3',
+    id: 'prop_3',
     address: '789 Pine St',
     city: 'Somerville', 
     state: 'MA',
@@ -93,7 +93,7 @@ export const mockProperties: Property[] = [
     parcel_sq_ft: 8000
   },
   {
-    id: '4',
+    id: 'prop_4',
     address: '321 Elm St',
     city: 'Brighton',
     state: 'MA', 
@@ -123,7 +123,7 @@ export const mockProperties: Property[] = [
     parcel_sq_ft: 42000
   },
   {
-    id: '5',
+    id: 'prop_5',
     address: '654 Maple Dr',
     city: 'Brookline',
     state: 'MA',
@@ -177,7 +177,7 @@ export const generateMockProperties = (count: number, baseCoordinates: [number, 
   ];
 
   return Array.from({ length: count }, (_, i) => {
-    const id = (mockProperties.length + i + 1).toString();
+    const id = `prop_${mockProperties.length + i + 1}`;
     const streetNum = Math.floor(Math.random() * 9999) + 1;
     const streetName = streetNames[Math.floor(Math.random() * streetNames.length)];
     const city = cities[Math.floor(Math.random() * cities.length)];
