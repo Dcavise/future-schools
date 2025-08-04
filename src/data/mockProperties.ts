@@ -17,7 +17,7 @@ export const mockProperties: Property[] = [
     current_occupancy: 'Other',
     fire_sprinkler_status: 'Yes',
     assigned_to: 'Jarnail T',
-    status: 'qualified',
+    status: 'synced',
     created_at: '2024-01-15T10:30:00Z',
     updated_at: '2024-01-15T10:30:00Z',
     notes: 'Initial property assessment completed. Building meets size requirements.\n\n[COMPLIANCE] Fire sprinkler system needs verification during site visit.'
@@ -57,7 +57,7 @@ export const mockProperties: Property[] = [
     current_occupancy: 'Other',
     fire_sprinkler_status: 'No',
     assigned_to: 'Aly A',
-    status: 'disqualified',
+    status: 'not_qualified',
     created_at: '2024-01-08T10:30:00Z',
     updated_at: '2024-01-08T10:30:00Z',
     notes: null
@@ -77,7 +77,7 @@ export const mockProperties: Property[] = [
     current_occupancy: 'E',
     fire_sprinkler_status: 'Yes',
     assigned_to: null,
-    status: 'qualified',
+    status: 'synced',
     created_at: '2024-01-12T10:30:00Z',
     updated_at: '2024-01-12T10:30:00Z',
     notes: null
@@ -97,7 +97,7 @@ export const mockProperties: Property[] = [
     current_occupancy: 'A',
     fire_sprinkler_status: 'Yes',
     assigned_to: null,
-    status: 'unreviewed',
+    status: 'new',
     created_at: '2024-01-05T10:30:00Z',
     updated_at: '2024-01-05T10:30:00Z',
     notes: null
@@ -137,7 +137,7 @@ export const mockProperties: Property[] = [
     current_occupancy: 'E',
     fire_sprinkler_status: 'Yes',
     assigned_to: 'Chris W',
-    status: 'qualified',
+    status: 'synced',
     created_at: '2024-01-11T10:30:00Z',
     updated_at: '2024-01-11T10:30:00Z',
     notes: null
@@ -157,7 +157,7 @@ export const mockProperties: Property[] = [
     current_occupancy: null,
     fire_sprinkler_status: null,
     assigned_to: null,
-    status: 'unreviewed',
+    status: 'new',
     created_at: '2024-01-09T10:30:00Z',
     updated_at: '2024-01-09T10:30:00Z',
     notes: null
@@ -177,7 +177,7 @@ export const mockProperties: Property[] = [
     current_occupancy: 'A',
     fire_sprinkler_status: 'Yes',
     assigned_to: 'JB',
-    status: 'qualified',
+    status: 'synced',
     created_at: '2024-01-13T10:30:00Z',
     updated_at: '2024-01-13T10:30:00Z',
     notes: null
@@ -217,7 +217,7 @@ export const mockProperties: Property[] = [
     current_occupancy: 'E',
     fire_sprinkler_status: 'No',
     assigned_to: null,
-    status: 'disqualified',
+    status: 'not_qualified',
     created_at: '2024-01-06T10:30:00Z',
     updated_at: '2024-01-06T10:30:00Z',
     notes: null
@@ -257,7 +257,7 @@ export const mockProperties: Property[] = [
     current_occupancy: 'A',
     fire_sprinkler_status: 'Yes',
     assigned_to: 'David H',
-    status: 'qualified',
+    status: 'synced',
     created_at: '2024-01-03T10:30:00Z',
     updated_at: '2024-01-03T10:30:00Z',
     notes: null
@@ -277,7 +277,7 @@ export const mockProperties: Property[] = [
     current_occupancy: null,
     fire_sprinkler_status: 'No',
     assigned_to: null,
-    status: 'disqualified',
+    status: 'not_qualified',
     created_at: '2024-01-02T10:30:00Z',
     updated_at: '2024-01-02T10:30:00Z',
     notes: null
@@ -297,7 +297,7 @@ export const mockProperties: Property[] = [
     current_occupancy: 'E',
     fire_sprinkler_status: 'Yes',
     assigned_to: 'Aly A',
-    status: 'qualified',
+    status: 'synced',
     created_at: '2024-01-01T10:30:00Z',
     updated_at: '2024-01-01T10:30:00Z',
     notes: null
@@ -317,7 +317,7 @@ export const mockProperties: Property[] = [
     current_occupancy: 'Other',
     fire_sprinkler_status: null,
     assigned_to: null,
-    status: 'unreviewed',
+    status: 'new',
     created_at: '2023-12-31T10:30:00Z',
     updated_at: '2023-12-31T10:30:00Z',
     notes: null
@@ -357,7 +357,7 @@ export const mockProperties: Property[] = [
     current_occupancy: 'E',
     fire_sprinkler_status: 'Yes',
     assigned_to: 'Chris W',
-    status: 'qualified',
+    status: 'synced',
     created_at: '2023-12-29T10:30:00Z',
     updated_at: '2023-12-29T10:30:00Z',
     notes: null
@@ -377,7 +377,7 @@ export const mockProperties: Property[] = [
     current_occupancy: null,
     fire_sprinkler_status: 'No',
     assigned_to: null,
-    status: 'disqualified',
+    status: 'not_qualified',
     created_at: '2023-12-28T10:30:00Z',
     updated_at: '2023-12-28T10:30:00Z',
     notes: null

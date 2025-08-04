@@ -57,17 +57,17 @@ const generateProperties = (city: string, count?: number): Property[] => {
     const current_occupancy = Math.random() > 0.3 ? (['E', 'A', 'Other'] as const)[Math.floor(Math.random() * 3)] : null;
 
     // Calculate status based on compliance
-    let status: string;
+    let status: Property['status'];
     if (zoning_by_right === true && fire_sprinkler_status === 'Yes' && current_occupancy !== null) {
-      status = 'qualified';
+      status = 'synced';
     } else if (zoning_by_right === false || fire_sprinkler_status === 'No') {
-      status = 'disqualified';
+      status = 'not_qualified';
     } else if (Math.random() > 0.8) {
       status = 'on_hold';
     } else if (Math.random() > 0.6) {
       status = 'reviewing';
     } else {
-      status = 'unreviewed';
+      status = 'new';
     }
 
     const now = new Date().toISOString();

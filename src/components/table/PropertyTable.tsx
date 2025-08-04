@@ -98,10 +98,10 @@ export function PropertyTable({
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'qualified': return 'bg-green-500 text-white';
-      case 'reviewing': 
-      case 'unreviewed': return 'bg-yellow-500 text-white';
-      case 'disqualified': return 'bg-red-500 text-white';
+      case 'synced': return 'bg-green-500 text-white';
+      case 'reviewing': return 'bg-blue-500 text-white';
+      case 'new': return 'bg-gray-500 text-white';
+      case 'not_qualified': return 'bg-red-500 text-white';
       case 'on_hold': return 'bg-gray-500 text-white';
       default: return 'bg-gray-500 text-white';
     }
@@ -109,10 +109,10 @@ export function PropertyTable({
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case 'qualified': return 'Qualified';
-      case 'reviewing': return 'Under Review';
-      case 'unreviewed': return 'Needs Review';
-      case 'disqualified': return 'Disqualified';
+      case 'synced': return 'Synced';
+      case 'reviewing': return 'Reviewing';
+      case 'new': return 'New';
+      case 'not_qualified': return 'Not Qualified';
       case 'on_hold': return 'On Hold';
       default: return 'Unknown';
     }
@@ -283,7 +283,7 @@ export function PropertyTable({
 
   const getContextualActions = () => {
     const selectedProps = properties.filter(p => selectedProperties.includes(p.id));
-    const allQualified = selectedProps.every(p => p.status === 'qualified');
+    const allQualified = selectedProps.every(p => p.status === 'synced');
     return allQualified;
   };
 

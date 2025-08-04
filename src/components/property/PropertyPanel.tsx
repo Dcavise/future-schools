@@ -327,7 +327,7 @@ export function PropertyPanel({
                 {property.zoning_by_right === false && (
                   <div className="text-xs text-[#DC2626] mt-1">Non-conforming use</div>
                 )}
-                {property.zoning_by_right === null && property.status === 'unreviewed' && (
+                {property.zoning_by_right === null && property.status === 'new' && (
                   <div className="text-xs text-[#D97706] mt-1">Click to update</div>
                 )}
               </div>
@@ -346,7 +346,7 @@ export function PropertyPanel({
                 {property.fire_sprinkler_status === 'No' && (
                   <div className="text-xs text-[#DC2626] mt-1">System not present</div>
                 )}
-                {property.fire_sprinkler_status === null && property.status === 'unreviewed' && (
+                {property.fire_sprinkler_status === null && property.status === 'new' && (
                   <div className="text-xs text-[#D97706] mt-1">Click to update</div>
                 )}
               </div>
@@ -361,7 +361,7 @@ export function PropertyPanel({
               <div className="min-w-0 flex-1">
                 <div className="text-xs font-medium text-gray-900">Current Occupancy</div>
                 <div className="text-xs text-gray-600">{getOccupancyLabel(property.current_occupancy)}</div>
-                {property.current_occupancy === null && property.status === 'unreviewed' && (
+                {property.current_occupancy === null && property.status === 'new' && (
                   <div className="text-xs text-[#D97706] mt-1">Click to update</div>
                 )}
               </div>

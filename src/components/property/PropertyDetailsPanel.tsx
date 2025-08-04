@@ -85,13 +85,13 @@ export function PropertyDetailsPanel({ property, onPropertyUpdate, onClose }: Pr
 
   const getStatusIcon = (status: Property['status']) => {
     switch (status) {
-      case 'qualified':
+      case 'synced':
         return <CheckCircle2 className="h-5 w-5 text-green-600" />;
       case 'reviewing':
-        return <Clock className="h-5 w-5 text-yellow-600" />;
-      case 'disqualified':
+        return <Clock className="h-5 w-5 text-blue-600" />;
+      case 'not_qualified':
         return <X className="h-5 w-5 text-red-600" />;
-      case 'unreviewed':
+      case 'new':
         return <HelpCircle className="h-5 w-5 text-gray-600" />;
       case 'on_hold':
         return <AlertTriangle className="h-5 w-5 text-purple-600" />;
@@ -102,13 +102,13 @@ export function PropertyDetailsPanel({ property, onPropertyUpdate, onClose }: Pr
 
   const getStatusColor = (status: Property['status']) => {
     switch (status) {
-      case 'qualified':
+      case 'synced':
         return 'bg-green-100 text-green-800 border-green-200';
       case 'reviewing':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      case 'disqualified':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'not_qualified':
         return 'bg-red-100 text-red-800 border-red-200';
-      case 'unreviewed':
+      case 'new':
         return 'bg-gray-100 text-gray-800 border-gray-200';
       case 'on_hold':
         return 'bg-purple-100 text-purple-800 border-purple-200';
