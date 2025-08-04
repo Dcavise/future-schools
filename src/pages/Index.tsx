@@ -19,14 +19,18 @@ const Index = () => {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-background">
+    <div className="h-screen bg-background relative">
       {/* Header */}
       <Header />
 
-      {/* Map View */}
-      <div className={isEmptyState ? 'opacity-30 grayscale' : ''}>
-        <MapView />
-      </div>
+      {/* Map Layer - Behind everything */}
+      <MapView 
+        className="z-0 pt-14"
+        style={{
+          filter: isEmptyState ? 'grayscale(100%) brightness(1.2)' : 'none',
+          opacity: isEmptyState ? 0.3 : 1
+        }}
+      />
 
       {/* Search Overlay - Only show in empty state */}
       {isEmptyState && (

@@ -8,8 +8,8 @@ interface SearchOverlayProps {
 
 export function SearchOverlay({ onCitySearchClick, onAddressSearchClick }: SearchOverlayProps) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="w-[420px] bg-card rounded-lg shadow-large p-6">
+    <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
+      <div className="w-[420px] bg-card rounded-lg shadow-large p-6 pointer-events-auto">
         <h2 className="text-xl font-semibold text-foreground mb-6 text-center">
           What are you looking for?
         </h2>
