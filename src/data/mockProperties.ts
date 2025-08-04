@@ -406,7 +406,7 @@ export const mockProperties: Property[] = [
 
 // Helper function to generate additional properties for overload testing
 export const generateMockProperties = (count: number, baseCoordinates: [number, number] = [-71.0589, 42.3601]): Property[] => {
-  const statuses: Property['status'][] = ['qualified', 'reviewing', 'unreviewed', 'disqualified', 'on_hold'];
+  const statuses: Property['status'][] = ['synced', 'reviewing', 'new', 'not_qualified', 'on_hold'];
   const occupancyTypes = ['E', 'A', 'Other', null];
   const sprinklerStatuses = ['Yes', 'No', null];
   const zoningByRight = [true, false, null];

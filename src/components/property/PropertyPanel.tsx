@@ -68,10 +68,10 @@ export function PropertyPanel({
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'qualified': return 'bg-[#10B981] text-white';
-      case 'reviewing': 
-      case 'unreviewed': return 'bg-[#F59E0B] text-white';
-      case 'disqualified': return 'bg-[#EF4444] text-white';
+      case 'synced': return 'bg-[#10B981] text-white';
+      case 'reviewing': return 'bg-[#3B82F6] text-white';
+      case 'not_qualified': return 'bg-[#EF4444] text-white';
+      case 'new': return 'bg-[#6B7280] text-white';
       case 'on_hold': return 'bg-gray-500 text-white';
       default: return 'bg-gray-500 text-white';
     }
@@ -115,10 +115,10 @@ export function PropertyPanel({
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case 'qualified': return 'Qualified';
-      case 'reviewing': return 'Under Review';
-      case 'unreviewed': return 'Needs Review';
-      case 'disqualified': return 'Disqualified';
+      case 'synced': return 'Synced';
+      case 'reviewing': return 'Reviewing';
+      case 'new': return 'New';
+      case 'not_qualified': return 'Not Qualified';
       case 'on_hold': return 'On Hold';
       default: return 'Unknown';
     }
