@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { mockProperties, generateMockProperties } from '@/data/mockProperties';
 import { Property } from '@/types/property';
-import { PropertyDetailsPanel } from '@/components/property/PropertyDetailsPanel';
-import { PropertySidebar } from '@/components/property/PropertySidebar';
+import { PropertyPanel } from '@/components/property/PropertyPanel';
 import { MapView } from '@/components/map/MapView';
 import { Header } from '@/components/shared/Header';
 import { ArrowLeft } from 'lucide-react';
@@ -86,19 +85,13 @@ const PropertyDetail = () => {
           className="w-full h-full"
         />
 
-        {/* Property Sidebar - Fixed overlay on right side */}
-        <PropertySidebar
+        {/* Property Panel - Fixed overlay on right side */}
+        <PropertyPanel
           property={property}
           onPropertyUpdate={handlePropertyUpdate}
           onClose={() => navigate('/')}
-          onPreviousProperty={currentIndex > 0 ? (() => {
-            console.log('Creating previous handler', { currentIndex, canGoPrevious: currentIndex > 0 });
-            return handlePreviousProperty;
-          })() : undefined}
-          onNextProperty={currentIndex < allProperties.length - 1 ? (() => {
-            console.log('Creating next handler', { currentIndex, propertiesLength: allProperties.length, canGoNext: currentIndex < allProperties.length - 1 });
-            return handleNextProperty;
-          })() : undefined}
+          onPreviousProperty={currentIndex > 0 ? handlePreviousProperty : undefined}
+          onNextProperty={currentIndex < allProperties.length - 1 ? handleNextProperty : undefined}
         />
       </div>
     </div>
