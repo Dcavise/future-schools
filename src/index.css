@@ -184,3 +184,23 @@ html, body, #root {
   overflow-y: auto;
   box-shadow: -2px 0 4px rgba(0, 0, 0, 0.1);
 }
+
+/* Index page layout - dashboard with map and panel */
+.index-layout {
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding-top: 56px; /* Account for header */
+  box-sizing: border-box;
+}
+
+.index-content {
+  display: flex;
+  height: 100%; /* Use full height of padded container */
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}

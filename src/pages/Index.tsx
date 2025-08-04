@@ -327,7 +327,7 @@ const Index = () => {
   const displayProperties = hasActiveFilters ? filteredProperties : properties;
 
   return (
-    <div className="h-screen bg-background relative">
+    <div className="index-layout">
       {/* Header */}
       <Header 
         onFiltersClick={showPropertiesView ? handleFiltersToggle : undefined}
@@ -338,7 +338,6 @@ const Index = () => {
         onViewToggle={handleViewToggle}
         showViewToggle={showPropertiesView && !isOverloadMode}
       />
-
 
       {/* Quick Filter Overlay */}
       <QuickFilterOverlay
@@ -382,9 +381,8 @@ const Index = () => {
 
       {/* Main Content Area */}
       <div 
-        className="flex" 
+        className="index-content" 
         style={{ 
-          height: 'calc(100vh - 56px)',
           marginTop: isFilterPanelOpen ? '280px' : hasActiveFilters ? '36px' : '0'
         }}
       >
