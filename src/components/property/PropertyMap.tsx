@@ -92,6 +92,7 @@ export function PropertyMap({ properties, selectedProperty, onPropertySelect }: 
     }
 
     el.addEventListener('click', () => {
+      console.log('Marker clicked for property:', property.id, property.address);
       onPropertySelect(property);
     });
 

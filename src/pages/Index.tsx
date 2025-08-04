@@ -70,7 +70,10 @@ const Index = () => {
           <PropertyMap
             properties={filteredProperties}
             selectedProperty={selectedProperty}
-            onPropertySelect={setSelectedProperty}
+            onPropertySelect={(property) => {
+              console.log('Property selected in Index:', property?.id, property?.address);
+              setSelectedProperty(property);
+            }}
           />
           <FilterMenu
             filters={filters}
