@@ -370,8 +370,11 @@ export function MapView({
     console.log('MapView - properties changed:', {
       propertiesCount: properties.length,
       selectedProperty: selectedProperty?.address || 'none',
+      selectedPropertyId: selectedProperty?.id || 'none',
       isHeatmapMode,
-      showPanel
+      showPanel,
+      firstPropertyId: properties.length > 0 ? properties[0].id : 'none',
+      propertiesWithCoords: properties.filter(p => p.latitude && p.longitude).length
     });
 
     // Clear existing markers
