@@ -118,13 +118,11 @@ const PropertyDetail = () => {
   }, [navigate, allProperties]);
 
   return (
-    <div className="property-detail-layout bg-background">
+    <div className="property-detail-layout">
       <Header />
       
-      {/* Main content with map and panel */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Map Section - No padding, no gap */}
-        <div className="flex-[6] relative overflow-hidden border-r bg-gray-50">
+      <div className="property-detail-content">
+        <div className="property-detail-map">
           <MapView 
             selectedProperty={property}
             properties={[property]}
@@ -134,8 +132,7 @@ const PropertyDetail = () => {
           />
         </div>
 
-        {/* Property Panel */}
-        <div className="w-[420px] h-full">
+        <aside className="property-detail-panel">
           <PropertyPanel
             property={property}
             onPropertyUpdate={handlePropertyUpdate}
@@ -143,7 +140,7 @@ const PropertyDetail = () => {
             onPreviousProperty={currentIndex > 0 ? handlePreviousProperty : undefined}
             onNextProperty={currentIndex < allProperties.length - 1 ? handleNextProperty : undefined}
           />
-        </div>
+        </aside>
       </div>
     </div>
   );
