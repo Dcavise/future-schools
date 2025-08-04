@@ -341,7 +341,12 @@ const Index = () => {
 
       {/* View Toggle - Hide in overload mode */}
       {showPropertiesView && !isOverloadMode && (
-        <div className="fixed top-14 right-6 z-50 flex bg-white border rounded-md shadow-sm">
+        <div 
+          className="fixed top-14 z-40 flex bg-white border rounded-md shadow-lg p-1 transition-all duration-300"
+          style={{
+            right: (showPropertiesView && currentView === 'map' && !isOverloadMode) ? '540px' : '120px'
+          }}
+        >
           <Button
             variant={currentView === 'map' ? 'default' : 'ghost'}
             size="sm"
