@@ -92,7 +92,7 @@ export function PropertyPanel({
 
   if (!property) {
     return (
-      <div className="fixed top-[56px] right-0 w-[420px] bottom-0 bg-white border-l border-[#E5E7EB] shadow-[-2px_0_8px_rgba(0,0,0,0.05)] flex items-center justify-center z-40">
+      <div className="h-full bg-white border-l border-[#E5E7EB] shadow-[-2px_0_8px_rgba(0,0,0,0.05)] flex items-center justify-center">
         <div className="text-center text-[#6B7280]">
           <Building className="h-12 w-12 mx-auto mb-4 opacity-50" />
           <p>Select a property to view details</p>
