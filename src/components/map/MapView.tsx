@@ -1,8 +1,4 @@
-import React, { useEffect, useRef } from 'react';
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
-
-const MAPBOX_TOKEN = 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw';
+import React from 'react';
 
 interface MapViewProps {
   className?: string;
@@ -10,69 +6,22 @@ interface MapViewProps {
 }
 
 export function MapView({ className = '', style = {} }: MapViewProps) {
-  const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<mapboxgl.Map | null>(null);
-
-  // Initialize map
-  useEffect(() => {
-    if (!mapContainer.current || map.current) return;
-
-    try {
-      console.log('Initializing Mapbox map...');
-      mapboxgl.accessToken = MAPBOX_TOKEN;
-      
-      map.current = new mapboxgl.Map({
-        container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/light-v11',
-        center: [-71.0589, 42.3601], // Boston, MA coordinates
-        zoom: 12,
-        dragRotate: false
-      });
-
-      // Add navigation controls positioned top-right
-      map.current.addControl(
-        new mapboxgl.NavigationControl(),
-        'top-right'
-      );
-
-      map.current.on('load', () => {
-        console.log('Mapbox map loaded successfully');
-      });
-
-      map.current.on('error', (e) => {
-        console.error('Mapbox error:', e);
-      });
-
-    } catch (error) {
-      console.error('Failed to initialize map:', error);
-    }
-
-    // Cleanup function
-    return () => {
-      if (map.current) {
-        console.log('Cleaning up map...');
-        map.current.remove();
-        map.current = null;
-      }
-    };
-  }, []);
-
-  // Trigger resize when style changes (especially when filters are removed)
-  useEffect(() => {
-    if (map.current) {
-      console.log('Triggering map resize due to style change');
-      setTimeout(() => {
-        map.current?.resize();
-      }, 100);
-    }
-  }, [style]);
-
   return (
     <div 
-      ref={mapContainer}
-      className={`fixed inset-0 ${className}`}
+      className={`fixed inset-0 bg-gray-100 flex items-center justify-center ${className}`}
       style={style}
-    />
+    >
+      <div className="text-center p-8 bg-white rounded-lg shadow-lg max-w-md">
+        <div className="text-6xl mb-4">🗺️</div>
+        <h3 className="text-lg font-semibold text-gray-800 mb-2">Map View</h3>
+        <p className="text-gray-600 text-sm mb-4">
+          Map will display here with a valid Mapbox token
+        </p>
+        <div className="text-xs text-gray-500 bg-gray-50 p-3 rounded">
+          <strong>For production:</strong> Add your Mapbox token to Supabase Secrets
+        </div>
+      </div>
+    </div>
   );
 }
 
