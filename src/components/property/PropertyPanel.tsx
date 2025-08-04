@@ -269,7 +269,7 @@ export function PropertyPanel({
   };
 
   return (
-    <div className="fixed top-[56px] right-0 w-[420px] bottom-0 bg-white border-l border-[#E5E7EB] shadow-[-2px_0_8px_rgba(0,0,0,0.05)] z-40 flex flex-col">
+    <div className="h-full bg-white">
       {/* Fixed Panel Header */}
       <div className={`h-[200px] p-6 relative ${getHeaderClass(property.status)}`}>
         {/* Navigation Arrows */}
