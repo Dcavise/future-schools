@@ -96,6 +96,12 @@ export const PropertySidebar: React.FC<PropertySidebarProps> = ({
     onPropertyUpdate(updatedProperty);
   };
 
+  const getAssigneeDisplayName = (assigneeValue: string | null) => {
+    if (!assigneeValue) return 'No Assignee';
+    const member = TEAM_MEMBERS.find(m => m.value === assigneeValue);
+    return member ? member.label : assigneeValue;
+  };
+
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'N/A';
     try {
