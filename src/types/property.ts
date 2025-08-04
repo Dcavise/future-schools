@@ -18,6 +18,14 @@ export interface Property {
   updated_at: string; // TIMESTAMP
   notes: string | null; // TEXTAREA
   
+  // Additional fields for comprehensive property management
+  county: string | null; // VARCHAR(100)
+  listed_owner: string | null; // VARCHAR(255)
+  folio_int: string | null; // VARCHAR(50) - Internal folio number
+  municipal_zoning_url: string | null; // TEXT - URL to municipal zoning ordinance
+  city_portal_url: string | null; // TEXT - URL to city portal
+  parcel_sq_ft: number | null; // INTEGER - Parcel square footage
+  
   // Sync-related fields for external system integration
   sync_status: 'pending' | 'synced' | 'failed' | null; // Current sync state
   last_synced_at: string | null; // TIMESTAMP - when last successfully synced

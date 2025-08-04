@@ -71,10 +71,13 @@ const generateProperties = (city: string, count?: number): Property[] => {
     const now = new Date().toISOString();
     const created = new Date(Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000).toISOString();
 
+    const propertyCity = city.split(',')[0];
+    const counties = ['Suffolk County', 'Middlesex County', 'Norfolk County', 'Essex County'];
+    
     return {
       id: `prop_${i + 1}`,
       address: `${2700 + i} ${['Canterbury', 'Oak', 'Elm', 'Park', 'Main'][i % 5]} St`,
-      city: city.split(',')[0],
+      city: propertyCity,
       state: city.split(',')[1]?.trim() || 'MA',
       zip: `${Math.floor(Math.random() * 90000) + 10000}`,
       latitude: lat,
@@ -85,7 +88,7 @@ const generateProperties = (city: string, count?: number): Property[] => {
       zoning_by_right,
       current_occupancy,
       fire_sprinkler_status,
-      assigned_to: Math.random() > 0.7 ? ['Jarnail T', 'David H', 'Aly A', 'Ryan D', 'Chris W', 'JB', 'Stephen B'][Math.floor(Math.random() * 7)] : null,
+      assigned_to: Math.random() > 0.7 ? ['jarnail', 'david-h', 'aly', 'ryan-d', 'cavise', 'jb', 'stephen'][Math.floor(Math.random() * 7)] : null,
       status,
       created_at: created,
       updated_at: now,
@@ -93,7 +96,13 @@ const generateProperties = (city: string, count?: number): Property[] => {
       sync_status: status === 'synced' ? 'synced' : Math.random() > 0.7 ? 'pending' : Math.random() > 0.9 ? 'failed' : null,
       last_synced_at: status === 'synced' ? new Date(Date.now() - Math.random() * 2 * 24 * 60 * 60 * 1000).toISOString() : null,
       external_system_id: status === 'synced' ? `SF-PROP-${(i + 1).toString().padStart(3, '0')}-2024` : null,
-      sync_error: Math.random() > 0.98 ? 'Network timeout - retry pending' : null
+      sync_error: Math.random() > 0.98 ? 'Network timeout - retry pending' : null,
+      county: counties[Math.floor(Math.random() * counties.length)],
+      listed_owner: `${propertyCity} Properties LLC`,
+      folio_int: `INT-${propertyCity.substring(0, 3).toUpperCase()}-${(i + 1).toString().padStart(3, '0')}-2023`,
+      municipal_zoning_url: `https://${propertyCity.toLowerCase()}.gov/zoning/${['p-np', 'c-1', 'r-2', 'm-1'][Math.floor(Math.random() * 4)]}`,
+      city_portal_url: `https://${propertyCity.toLowerCase()}.gov/property/${2700 + i}-${['canterbury', 'oak', 'elm', 'park', 'main'][i % 5]}-st`,
+      parcel_sq_ft: Math.floor(Math.random() * 100000) + 10000
     };
   });
 };

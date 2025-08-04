@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { mockProperties } from '@/data/mockProperties';
 import { Property } from '@/types/property';
 import { PropertyDetailsPanel } from '@/components/property/PropertyDetailsPanel';
+import { PropertySidebar } from '@/components/property/PropertySidebar';
 import { MapView } from '@/components/map/MapView';
 import { Header } from '@/components/shared/Header';
 import { ArrowLeft } from 'lucide-react';
@@ -47,14 +48,12 @@ const PropertyDetail = () => {
           <MapView />
         </div>
 
-        {/* Property Details Panel - 40% */}
-        <div className="flex-[4] h-[calc(100vh-5rem)]">
-          <PropertyDetailsPanel
-            property={property}
-            onPropertyUpdate={handlePropertyUpdate}
-            onClose={() => navigate('/')}
-          />
-        </div>
+        {/* Property Sidebar - Overlays on right side */}
+        <PropertySidebar
+          property={property}
+          onPropertyUpdate={handlePropertyUpdate}
+          onClose={() => navigate('/')}
+        />
       </div>
     </div>
   );
