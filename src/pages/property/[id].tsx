@@ -78,16 +78,15 @@ const PropertyDetail = () => {
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
       
-      <div className="flex-1 flex gap-6 p-6 pt-4">
-        {/* Map Section - 60% */}
-        <div className="flex-[6] h-[calc(100vh-5rem)] relative rounded-lg overflow-hidden border">
-          <MapView 
-            selectedProperty={property}
-            properties={allProperties}
-          />
-        </div>
+      {/* Main content with map taking full width, sidebar will overlay */}
+      <div className="flex-1 h-[calc(100vh-3.5rem)]">
+        <MapView 
+          selectedProperty={property}
+          properties={allProperties}
+          className="w-full h-full"
+        />
 
-        {/* Property Sidebar - Overlays on right side */}
+        {/* Property Sidebar - Fixed overlay on right side */}
         <PropertySidebar
           property={property}
           onPropertyUpdate={handlePropertyUpdate}
