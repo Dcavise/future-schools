@@ -53,28 +53,39 @@ export function Header({
           {/* Filter Button */}
           {onFiltersClick && (
             <Button
-              variant="outline"
-              size="sm"
+              variant="ghost"
               onClick={onFiltersClick}
-              className="flex items-center gap-2 relative"
+              className={`h-9 px-3 gap-2 text-sm font-medium transition-all duration-200 ${
+                activeFilterCount > 0
+                  ? 'border border-[#3B82F6] bg-[#EFF6FF] text-[#3B82F6] hover:bg-[#DBEAFE]'
+                  : 'hover:bg-[#F3F4F6] text-gray-700 border-0'
+              }`}
             >
-              <Filter className="h-4 w-4" />
-              Filters
+              <div className="relative">
+                <Filter className="h-4 w-4" />
+                {/* Red dot indicator when filters are applied */}
+                {activeFilterCount > 0 && (
+                  <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>
+                )}
+              </div>
+              <span>Filters</span>
+              {/* Count badge */}
               {activeFilterCount > 0 && (
-                <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>
+                <Badge className="h-5 px-1.5 text-xs bg-[#3B82F6] text-white border-0 ml-1">
+                  {activeFilterCount}
+                </Badge>
               )}
             </Button>
           )}
           
           {/* Import Button */}
           <Button
-            variant="outline"
-            size="sm"
+            variant="ghost"
             onClick={() => navigate('/import')}
-            className="flex items-center gap-2"
+            className="h-9 px-3 gap-2 text-sm font-medium text-gray-700 hover:bg-[#F3F4F6]"
           >
             <Upload className="h-4 w-4" />
-            Import
+            <span>Import</span>
           </Button>
           
           {/* View Toggle */}
