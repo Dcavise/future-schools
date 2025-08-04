@@ -83,6 +83,13 @@ const PropertyDetail = () => {
           selectedProperty={property}
           properties={allProperties}
           className="w-full h-full"
+          showPanel={true}
+          onPropertySelect={(newProperty) => {
+            // Navigate to the new property while maintaining the properties list
+            navigate(`/property/${newProperty.id}`, { 
+              state: { properties: allProperties }
+            });
+          }}
         />
 
         {/* Property Panel - Fixed overlay on right side */}
