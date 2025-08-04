@@ -321,30 +321,7 @@ export function PropertyPanel({
       </div>
 
       <div className="p-6">
-        {/* Property Details Grid */}
-        <div className="mb-6">
-          <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-wide mb-3">Property Details</h3>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <div className="text-xs text-[#6B7280] mb-1">Square Feet</div>
-              <div className="text-sm text-[#1A1A1A]">{property.square_feet?.toLocaleString() || 'N/A'}</div>
-            </div>
-            <div>
-              <div className="text-xs text-[#6B7280] mb-1">ZIP Code</div>
-              <div className="text-sm text-[#1A1A1A]">{property.zip || 'N/A'}</div>
-            </div>
-            <div>
-              <div className="text-xs text-[#6B7280] mb-1">Parcel Number</div>
-              <div className="text-sm text-[#1A1A1A]">{property.parcel_number || 'N/A'}</div>
-            </div>
-            <div>
-              <div className="text-xs text-[#6B7280] mb-1">Zoning Code</div>
-              <div className="text-sm text-[#1A1A1A]">{property.zoning_code || 'N/A'}</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Compliance Section */}
+        {/* Compliance Requirements Section */}
         <div className="mb-6">
           <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-wide mb-4">Compliance Requirements</h3>
           <div className="grid grid-cols-2 gap-3 p-4 bg-[#F9FAFB] rounded-lg">
@@ -412,27 +389,8 @@ export function PropertyPanel({
           </div>
         </div>
 
-        {/* Additional Details */}
-        <div className="space-y-4 mb-6">
-          <div>
-            <div className="text-xs text-[#6B7280] mb-1">Coordinates</div>
-            <div className="text-sm text-[#1A1A1A]">
-              {property.latitude && property.longitude 
-                ? `${property.latitude}, ${property.longitude}` 
-                : 'N/A'}
-            </div>
-          </div>
-          
-          <div>
-            <div className="text-xs text-[#6B7280] mb-1">Created</div>
-            <div className="text-sm text-[#1A1A1A]">{new Date(property.created_at).toLocaleDateString()}</div>
-          </div>
-          
-          <div>
-            <div className="text-xs text-[#6B7280] mb-1">Last Updated</div>
-            <div className="text-sm text-[#1A1A1A]">{new Date(property.updated_at).toLocaleDateString()}</div>
-          </div>
-        </div>
+        {/* Divider */}
+        <div className="border-t border-gray-200 mb-6"></div>
 
         {/* Notes Section */}
         <div className="mb-6">
@@ -443,6 +401,59 @@ export function PropertyPanel({
             className="min-h-[100px] resize-none border-gray-200"
             readOnly
           />
+        </div>
+
+        {/* Divider */}
+        <div className="border-t border-gray-200 mb-6"></div>
+
+        {/* Property Details Section */}
+        <div className="mb-6">
+          <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-wide mb-3">Property Details</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <div className="text-xs text-[#6B7280] mb-1">Square Feet</div>
+              <div className="text-sm text-[#1A1A1A]">{property.square_feet?.toLocaleString() || 'N/A'}</div>
+            </div>
+            <div>
+              <div className="text-xs text-[#6B7280] mb-1">ZIP Code</div>
+              <div className="text-sm text-[#1A1A1A]">{property.zip || 'N/A'}</div>
+            </div>
+            <div>
+              <div className="text-xs text-[#6B7280] mb-1">Parcel Number</div>
+              <div className="text-sm text-[#1A1A1A]">{property.parcel_number || 'N/A'}</div>
+            </div>
+            <div>
+              <div className="text-xs text-[#6B7280] mb-1">Zoning Code</div>
+              <div className="text-sm text-[#1A1A1A]">{property.zoning_code || 'N/A'}</div>
+            </div>
+            <div>
+              <div className="text-xs text-[#6B7280] mb-1">Coordinates</div>
+              <div className="text-sm text-[#1A1A1A]">
+                {property.latitude && property.longitude 
+                  ? `${property.latitude}, ${property.longitude}` 
+                  : 'N/A'}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="border-t border-gray-200 mb-6"></div>
+
+        {/* Metadata Section */}
+        <div className="mb-6">
+          <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-wide mb-3">Metadata</h3>
+          <div className="space-y-4">
+            <div>
+              <div className="text-xs text-[#6B7280] mb-1">Created</div>
+              <div className="text-sm text-[#1A1A1A]">{new Date(property.created_at).toLocaleDateString()}</div>
+            </div>
+            
+            <div>
+              <div className="text-xs text-[#6B7280] mb-1">Last Updated</div>
+              <div className="text-sm text-[#1A1A1A]">{new Date(property.updated_at).toLocaleDateString()}</div>
+            </div>
+          </div>
         </div>
 
         {/* Action Section */}
