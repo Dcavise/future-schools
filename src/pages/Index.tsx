@@ -82,7 +82,7 @@ const Index = () => {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-background">
+    <div className="h-screen flex flex-col bg-background pt-14">
       {/* Header */}
       <Header />
 

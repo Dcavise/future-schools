@@ -1,92 +1,76 @@
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
-} from '@/components/ui/dropdown-menu';
-import { 
-  Home, 
-  Upload, 
-  Users, 
-  BarChart3, 
-  Settings, 
-  ChevronDown 
-} from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 
 export function Header() {
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  const isActive = (path: string) => {
-    return location.pathname === path || location.pathname.startsWith(path + '/');
-  };
-
-  const navigationItems = [
-    { label: 'Dashboard', path: '/', icon: Home },
-    { label: 'Import', path: '/import', icon: Upload },
-    { label: 'Team', path: '/team', icon: Users },
-    { label: 'Analytics', path: '/analytics', icon: BarChart3 },
-    { label: 'Settings', path: '/settings', icon: Settings },
-  ];
-
   return (
-    <div className="border-b bg-background px-6 py-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-6">
-          <h1 
-            className="text-xl font-semibold text-foreground cursor-pointer hover:text-primary transition-colors" 
-            onClick={() => navigate('/')}
+    <header 
+      className="fixed top-0 left-0 right-0 z-[100] h-14 bg-white flex items-center justify-between px-6"
+      style={{ 
+        borderBottom: '1px solid #E0E0E0',
+        backgroundColor: '#FFFFFF'
+      }}
+    >
+      {/* Left side - Logo */}
+      <div className="flex items-center">
+        <h1 
+          className="text-xl font-semibold cursor-pointer"
+          style={{ 
+            fontSize: '20px',
+            color: '#1A1A1A'
+          }}
+        >
+          Primer
+        </h1>
+      </div>
+      
+      {/* Right side - User Menu */}
+      <div className="flex items-center">
+        <div 
+          className="flex items-center gap-2 px-2 py-1 rounded hover:bg-gray-50 cursor-pointer transition-colors"
+          style={{ 
+            padding: '8px',
+            borderRadius: '6px'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = '#F5F5F5';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'transparent';
+          }}
+        >
+          {/* User Avatar */}
+          <div 
+            className="flex items-center justify-center text-white font-semibold rounded-full"
+            style={{
+              width: '32px',
+              height: '32px',
+              backgroundColor: '#0066CC',
+              fontSize: '14px'
+            }}
           >
-            Property Evaluation Dashboard
-          </h1>
+            JS
+          </div>
           
-          <nav className="hidden md:flex items-center gap-1">
-            {navigationItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <Button
-                  key={item.path}
-                  variant={isActive(item.path) ? 'default' : 'ghost'}
-                  onClick={() => navigate(item.path)}
-                  className="flex items-center gap-2"
-                >
-                  <Icon className="h-4 w-4" />
-                  {item.label}
-                </Button>
-              );
-            })}
-          </nav>
-        </div>
-        
-        {/* Mobile Navigation */}
-        <div className="md:hidden">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm">
-                Menu <ChevronDown className="ml-2 h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              {navigationItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <DropdownMenuItem
-                    key={item.path}
-                    onClick={() => navigate(item.path)}
-                    className="flex items-center gap-2"
-                  >
-                    <Icon className="h-4 w-4" />
-                    {item.label}
-                  </DropdownMenuItem>
-                );
-              })}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {/* User Name */}
+          <span 
+            className="font-medium"
+            style={{
+              fontSize: '14px',
+              color: '#1A1A1A',
+              marginLeft: '8px',
+              marginRight: '4px'
+            }}
+          >
+            John Smith
+          </span>
+          
+          {/* Dropdown Arrow */}
+          <ChevronDown 
+            className="w-4 h-4"
+            style={{ color: '#1A1A1A' }}
+          />
         </div>
       </div>
-    </div>
+    </header>
   );
 }
