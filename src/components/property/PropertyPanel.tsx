@@ -256,7 +256,7 @@ export function PropertyPanel({
             {property.address}
           </h2>
           <p className="text-sm text-[#6B7280] mt-1">
-            {property.city}, {property.state}
+            {property.city}, {property.state} {property.zip}
           </p>
         </div>
 
@@ -464,10 +464,6 @@ export function PropertyPanel({
                 onChange={(e) => onPropertyUpdate?.({ ...property, square_feet: e.target.value ? parseInt(e.target.value) : null })}
                 className="text-sm"
               />
-            </div>
-            <div>
-              <div className="text-xs text-[#6B7280] mb-1">ZIP Code</div>
-              <div className="text-sm text-[#1A1A1A]">{property.zip || 'N/A'}</div>
             </div>
             <div>
               <div className="text-xs text-[#6B7280] mb-1">Parcel Number</div>
