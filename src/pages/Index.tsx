@@ -415,12 +415,13 @@ const Index = () => {
         }}
       >
         {/* Map or Table View */}
-        {(currentView === 'map' || isOverloadMode) ? (
+        {currentView === 'map' || isOverloadMode ? (
+          /* Always show MapView - grayed out in empty state, interactive with properties */
           <MapView 
             className="z-0"
             style={{
-              filter: (isEmptyState && !isLoading) ? 'grayscale(100%) brightness(1.2)' : 'none',
-              opacity: (isEmptyState && !isLoading) ? 0.3 : 1,
+              filter: (isEmptyState && !isLoading) ? 'grayscale(100%) brightness(1.1)' : 'none',
+              opacity: (isEmptyState && !isLoading) ? 0.25 : 1,
               pointerEvents: (isEmptyState && !isLoading) ? 'none' : 'auto'
             }}
             properties={showPropertiesView ? displayProperties : []}
