@@ -8,43 +8,7 @@ import { QuickFilterOverlay } from '@/components/filters/QuickFilterOverlay';
 import { PropertyTable } from '@/components/table/PropertyTable';
 import { Button } from '@/components/ui/button';
 import { Map, List } from 'lucide-react';
-
-interface Property {
-  id: string;
-  address: string;
-  city: string;
-  state: string;
-  lat: number;
-  lng: number;
-  buildingOwner: string;
-  lastModified: string;
-  compliance: {
-    zoning: string;
-    currentOccupancy: string;
-    byRightStatus: string;
-    fireSprinklerStatus: string;
-  };
-  propertyDetails: {
-    parcelNumber: string;
-    squareFeet: number;
-    owner: string;
-  };
-  reference: {
-    county: string;
-    page: string;
-    block: string;
-    book: string;
-    created: string;
-    updated: string;
-  };
-  status: 'qualified' | 'review' | 'disqualified';
-  // Legacy fields for compatibility
-  taxValue: number;
-  taxYearly: number;
-  occupancyRate: number;
-  sqft: number;
-  type: string;
-}
+import { Property } from '@/types/property';
 
 interface FilterCriteria {
   status: string[];
@@ -67,25 +31,6 @@ const generateProperties = (city: string, count?: number): Property[] => {
   const propertyCount = city === 'New York, NY' ? 523 : (count || 75);
   
   return Array.from({ length: propertyCount }, (_, i) => {
-    const compliance = {
-      zoning: ['P-NP', 'C-1', 'R-2', 'M-1'][Math.floor(Math.random() * 4)],
-      currentOccupancy: Math.random() > 0.3 ? 'Unknown' : ['Retail', 'Office', 'Mixed'][Math.floor(Math.random() * 3)],
-      byRightStatus: Math.random() > 0.7 ? 'Compliant' : 'Unknown',
-      fireSprinklerStatus: Math.random() > 0.6 ? 'Compliant' : 'Unknown'
-    };
-
-    // Calculate status based on compliance
-    const hasUnknownCompliance = compliance.currentOccupancy === 'Unknown' || 
-                                 compliance.byRightStatus === 'Unknown' || 
-                                 compliance.fireSprinklerStatus === 'Unknown';
-    
-    let status: 'qualified' | 'review' | 'disqualified';
-    if (!hasUnknownCompliance) {
-      status = 'qualified';
-    } else {
-      status = Math.random() > 0.8 ? 'disqualified' : 'review';
-    }
-
     // Coordinate adjustments for different cities
     let baseLat = 42.3601;
     let baseLng = -71.0589;
@@ -109,36 +54,49 @@ const generateProperties = (city: string, count?: number): Property[] => {
       baseLng = -122.3321;
     }
 
+    const lng = baseLng + (Math.random() - 0.5) * spread;
+    const lat = baseLat + (Math.random() - 0.5) * spread;
+    
+    // Generate compliance data
+    const zoningByRight = Math.random() > 0.3 ? true : Math.random() > 0.5 ? false : null;
+    const fireSprinklers = Math.random() > 0.4 ? true : Math.random() > 0.6 ? false : null;
+    const currentOccupancy = Math.random() > 0.3 ? (['E', 'A', 'Other'] as const)[Math.floor(Math.random() * 3)] : null;
+
+    // Calculate status based on compliance
+    let status: 'unreviewed' | 'reviewing' | 'qualified' | 'disqualified' | 'on_hold';
+    if (zoningByRight === true && fireSprinklers === true && currentOccupancy !== null) {
+      status = 'qualified';
+    } else if (zoningByRight === false || fireSprinklers === false) {
+      status = 'disqualified';
+    } else if (Math.random() > 0.8) {
+      status = 'on_hold';
+    } else if (Math.random() > 0.6) {
+      status = 'reviewing';
+    } else {
+      status = 'unreviewed';
+    }
+
     return {
       id: `prop_${i + 1}`,
       address: `${2700 + i} ${['Canterbury', 'Oak', 'Elm', 'Park', 'Main'][i % 5]} St`,
       city: city.split(',')[0],
       state: city.split(',')[1]?.trim() || 'MA',
-      lat: baseLat + (Math.random() - 0.5) * spread,
-      lng: baseLng + (Math.random() - 0.5) * spread,
-      buildingOwner: 'Unassigned',
-      lastModified: '2 days ago',
-      compliance,
-      propertyDetails: {
-        parcelNumber: `${1217346 + i}`,
-        squareFeet: Math.floor(5000 + Math.random() * 50000),
-        owner: ['CITY OF AUSTIN', 'PRIVATE OWNER', '123 MAIN LLC'][Math.floor(Math.random() * 3)]
-      },
-      reference: {
-        county: 'Travis',
-        page: 'Not specified',
-        block: 'G, 6',
-        book: 'Not specified',
-        created: 'Jul 28, 2025, 1:40 PM',
-        updated: 'Jul 28, 2025, 1:40 PM'
-      },
+      zip: `${Math.floor(Math.random() * 90000) + 10000}`,
+      coordinates: [lng, lat] as [number, number],
+      parcelNumber: `${1217346 + i}`,
+      squareFootage: Math.floor(5000 + Math.random() * 50000),
+      zoningCode: ['P-NP', 'C-1', 'R-2', 'M-1'][Math.floor(Math.random() * 4)],
+      zoningByRight,
+      currentOccupancy,
+      fireSprinklers,
+      assignedTo: Math.random() > 0.7 ? `user_${Math.floor(Math.random() * 5) + 1}` : undefined,
+      assignedAnalyst: Math.random() > 0.7 ? ['John Smith', 'Sarah Johnson', 'Mike Davis', 'Emily Chen'][Math.floor(Math.random() * 4)] : undefined,
       status,
-      // Legacy fields for compatibility
-      taxValue: Math.floor(800000 + Math.random() * 2000000),
-      taxYearly: 0,
-      occupancyRate: Math.floor(60 + Math.random() * 40),
-      sqft: Math.floor(5000 + Math.random() * 20000),
-      type: ['Office', 'Retail', 'Industrial', 'Mixed-use'][Math.floor(Math.random() * 4)]
+      lastUpdated: new Date(Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000).toLocaleDateString(),
+      buildingYear: Math.random() > 0.3 ? 1950 + Math.floor(Math.random() * 70) : undefined,
+      parkingSpaces: Math.random() > 0.5 ? Math.floor(Math.random() * 50) + 5 : undefined,
+      price: Math.random() > 0.6 ? Math.floor(800000 + Math.random() * 2000000) : undefined,
+      lotSize: Math.random() > 0.4 ? Math.floor(5000 + Math.random() * 20000) : undefined
     };
   });
 };
@@ -172,10 +130,10 @@ const Index = () => {
       filtered = filtered.filter(p => {
         return filters.compliance.every(filterType => {
           switch (filterType) {
-            case 'zoning': return p.compliance.zoning !== 'Unknown';
-            case 'occupancy': return p.compliance.currentOccupancy !== 'Unknown';
-            case 'byRight': return p.compliance.byRightStatus === 'Compliant';
-            case 'sprinkler': return p.compliance.fireSprinklerStatus === 'Compliant';
+            case 'zoning': return p.zoningByRight === true;
+            case 'occupancy': return p.currentOccupancy !== null;
+            case 'byRight': return p.zoningByRight === true;
+            case 'sprinkler': return p.fireSprinklers === true;
             default: return true;
           }
         });
@@ -185,17 +143,19 @@ const Index = () => {
     // Property type filters
     if (filters.propertyType.length > 0) {
       filtered = filtered.filter(p => {
-        return filters.propertyType.includes(p.compliance.currentOccupancy) ||
-               (filters.propertyType.includes('Unknown') && p.compliance.currentOccupancy === 'Unknown');
+        const occupancyLabel = p.currentOccupancy === 'E' ? 'Educational' : 
+                              p.currentOccupancy === 'A' ? 'Assembly' : 
+                              p.currentOccupancy === 'Other' ? 'Other' : 'Unknown';
+        return filters.propertyType.includes(occupancyLabel);
       });
     }
     
     // Size filters
     if (filters.minSquareFeet) {
-      filtered = filtered.filter(p => p.propertyDetails.squareFeet >= parseInt(filters.minSquareFeet));
+      filtered = filtered.filter(p => p.squareFootage >= parseInt(filters.minSquareFeet));
     }
     if (filters.maxSquareFeet) {
-      filtered = filtered.filter(p => p.propertyDetails.squareFeet <= parseInt(filters.maxSquareFeet));
+      filtered = filtered.filter(p => p.squareFootage <= parseInt(filters.maxSquareFeet));
     }
     
     setFilteredProperties(filtered);

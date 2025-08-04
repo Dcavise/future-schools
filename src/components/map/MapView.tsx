@@ -1,39 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
+import { Property } from '@/types/property';
 
 const MAPBOX_TOKEN = 'pk.eyJ1IjoiZ3J1YmNsdWIxMjMiLCJhIjoiY203bmszdnFsMDF5czJxbjFuampiNXUwOSJ9.YixeEGA2iZd5yFhbyKv9Vg';
-
-interface Property {
-  id: string;
-  address: string;
-  lat: number;
-  lng: number;
-  status: 'qualified' | 'review' | 'disqualified';
-  city: string;
-  state: string;
-  buildingOwner: string;
-  lastModified: string;
-  compliance: {
-    zoning: string;
-    currentOccupancy: string;
-    byRightStatus: string;
-    fireSprinklerStatus: string;
-  };
-  propertyDetails: {
-    parcelNumber: string;
-    squareFeet: number;
-    owner: string;
-  };
-  reference: {
-    county: string;
-    page: string;
-    block: string;
-    book: string;
-    created: string;
-    updated: string;
-  };
-}
 
 interface MapViewProps {
   className?: string;
@@ -148,7 +118,7 @@ export function MapView({
         type: 'Feature' as const,
         geometry: {
           type: 'Point' as const,
-          coordinates: [property.lng, property.lat]
+          coordinates: property.coordinates
         },
         properties: {
           id: property.id,
@@ -254,7 +224,7 @@ export function MapView({
     if (properties.length > 0) {
       const bounds = new mapboxgl.LngLatBounds();
       properties.forEach(property => {
-        bounds.extend([property.lng, property.lat]);
+        bounds.extend(property.coordinates);
       });
       map.current.fitBounds(bounds, { 
         padding: 50,
@@ -324,7 +294,7 @@ export function MapView({
 
       // Create and add marker
       const marker = new mapboxgl.Marker(el)
-        .setLngLat([property.lng, property.lat])
+        .setLngLat(property.coordinates)
         .addTo(map.current!);
 
       markersRef.current[property.id] = marker;
@@ -355,7 +325,7 @@ export function MapView({
       if (properties.length > 0) {
         const bounds = new mapboxgl.LngLatBounds();
         properties.forEach(property => {
-          bounds.extend([property.lng, property.lat]);
+          bounds.extend(property.coordinates);
         });
         
         // Fly to bounds with smooth animation

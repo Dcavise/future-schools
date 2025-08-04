@@ -46,37 +46,7 @@ import {
   Archive,
   CheckCircle
 } from 'lucide-react';
-
-interface Property {
-  id: string;
-  address: string;
-  city: string;
-  state: string;
-  lat: number;
-  lng: number;
-  buildingOwner: string;
-  lastModified: string;
-  compliance: {
-    zoning: string;
-    currentOccupancy: string;
-    byRightStatus: string;
-    fireSprinklerStatus: string;
-  };
-  propertyDetails: {
-    parcelNumber: string;
-    squareFeet: number;
-    owner: string;
-  };
-  reference: {
-    county: string;
-    page: string;
-    block: string;
-    book: string;
-    created: string;
-    updated: string;
-  };
-  status: 'qualified' | 'review' | 'disqualified';
-}
+import { Property } from '@/types/property';
 
 interface PropertyTableProps {
   properties: Property[];
@@ -129,8 +99,10 @@ export function PropertyTable({
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'qualified': return 'bg-green-500 text-white';
-      case 'review': return 'bg-yellow-500 text-white';
+      case 'reviewing': 
+      case 'unreviewed': return 'bg-yellow-500 text-white';
       case 'disqualified': return 'bg-red-500 text-white';
+      case 'on_hold': return 'bg-gray-500 text-white';
       default: return 'bg-gray-500 text-white';
     }
   };
@@ -138,8 +110,10 @@ export function PropertyTable({
   const getStatusLabel = (status: string) => {
     switch (status) {
       case 'qualified': return 'Qualified';
-      case 'review': return 'Needs Review';
+      case 'reviewing': return 'Under Review';
+      case 'unreviewed': return 'Needs Review';
       case 'disqualified': return 'Disqualified';
+      case 'on_hold': return 'On Hold';
       default: return 'Unknown';
     }
   };
@@ -172,24 +146,24 @@ export function PropertyTable({
           bValue = b.address;
           break;
         case 'type':
-          aValue = a.compliance.currentOccupancy;
-          bValue = b.compliance.currentOccupancy;
+          aValue = a.currentOccupancy;
+          bValue = b.currentOccupancy;
           break;
         case 'squareFeet':
-          aValue = a.propertyDetails.squareFeet;
-          bValue = b.propertyDetails.squareFeet;
+          aValue = a.squareFootage;
+          bValue = b.squareFootage;
           break;
         case 'status':
           aValue = a.status;
           bValue = b.status;
           break;
         case 'owner':
-          aValue = a.buildingOwner;
-          bValue = b.buildingOwner;
+          aValue = a.assignedAnalyst || 'Unassigned';
+          bValue = b.assignedAnalyst || 'Unassigned';
           break;
         case 'lastModified':
-          aValue = a.lastModified;
-          bValue = b.lastModified;
+          aValue = a.lastUpdated;
+          bValue = b.lastUpdated;
           break;
         default:
           return 0;
@@ -276,11 +250,11 @@ export function PropertyTable({
       Address: p.address,
       City: p.city,
       State: p.state,
-      Type: p.compliance.currentOccupancy,
-      'Square Feet': p.propertyDetails.squareFeet,
+      Type: p.currentOccupancy === 'E' ? 'Educational' : p.currentOccupancy === 'A' ? 'Assembly' : p.currentOccupancy === 'Other' ? 'Other' : 'Unknown',
+      'Square Feet': p.squareFootage,
       'Compliance Status': getStatusLabel(p.status),
-      Owner: p.buildingOwner,
-      'Last Modified': p.lastModified
+      Owner: p.assignedAnalyst || 'Unassigned',
+      'Last Modified': p.lastUpdated
     }));
     
     const csvContent = [
@@ -560,10 +534,12 @@ export function PropertyTable({
                   </div>
                 </TableCell>
                 <TableCell>
-                  {property.compliance.currentOccupancy}
+                  {property.currentOccupancy === 'E' ? 'Educational' : 
+                   property.currentOccupancy === 'A' ? 'Assembly' : 
+                   property.currentOccupancy === 'Other' ? 'Other' : 'Unknown'}
                 </TableCell>
                 <TableCell>
-                  {property.propertyDetails.squareFeet.toLocaleString()}
+                  {property.squareFootage.toLocaleString()}
                 </TableCell>
                 <TableCell>
                   <Badge className={getStatusColor(property.status)}>
@@ -571,10 +547,10 @@ export function PropertyTable({
                   </Badge>
                 </TableCell>
                 <TableCell>
-                  {property.buildingOwner}
+                  {property.assignedAnalyst || 'Unassigned'}
                 </TableCell>
                 <TableCell>
-                  {property.lastModified}
+                  {property.lastUpdated}
                 </TableCell>
                 <TableCell>
                   <DropdownMenu>
