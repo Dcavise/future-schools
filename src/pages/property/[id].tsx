@@ -96,27 +96,32 @@ const PropertyDetail = () => {
   }, [navigate, allProperties]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="property-detail-layout bg-background">
       <Header />
       
-      {/* Main content with map taking full width, sidebar will overlay */}
-      <div className="flex-1 relative">
-        <MapView 
-          selectedProperty={property}
-          properties={allProperties}
-          className="w-full h-full"
-          showPanel={true}
-          onPropertySelect={handlePropertySelect}
-        />
+      {/* Main content with map and panel */}
+      <div className="property-detail-content">
+        {/* Map Section */}
+        <div className="property-detail-map bg-gray-50">
+          <MapView 
+            selectedProperty={property}
+            properties={[property]}
+            className="absolute inset-0"
+            showPanel={false}
+            onPropertySelect={handlePropertySelect}
+          />
+        </div>
 
-        {/* Property Panel - Fixed overlay on right side */}
-        <PropertyPanel
-          property={property}
-          onPropertyUpdate={handlePropertyUpdate}
-          onClose={() => navigate('/')}
-          onPreviousProperty={currentIndex > 0 ? handlePreviousProperty : undefined}
-          onNextProperty={currentIndex < allProperties.length - 1 ? handleNextProperty : undefined}
-        />
+        {/* Property Panel */}
+        <div className="property-detail-panel">
+          <PropertyPanel
+            property={property}
+            onPropertyUpdate={handlePropertyUpdate}
+            onClose={() => navigate('/')}
+            onPreviousProperty={currentIndex > 0 ? handlePreviousProperty : undefined}
+            onNextProperty={currentIndex < allProperties.length - 1 ? handleNextProperty : undefined}
+          />
+        </div>
       </div>
     </div>
   );
