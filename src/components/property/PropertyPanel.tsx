@@ -270,10 +270,45 @@ export function PropertyPanel({
           </div>
         </div>
         
-        {/* Status Badge */}
-        <div className={`${getStatusColor(property.status)} absolute top-4 right-16 px-3 py-1.5 text-xs font-medium rounded-full flex items-center gap-1.5`}>
-          {getStatusIcon(property.status)}
-          {getStatusLabel(property.status)}
+        {/* Status Badge - Editable */}
+        <div className="absolute top-4 right-16">
+          <Select 
+            value={property.status} 
+            onValueChange={(value: Property['status']) => onPropertyUpdate?.({ ...property, status: value })}
+          >
+            <SelectTrigger className={`${getStatusColor(property.status)} px-3 py-1.5 text-xs font-medium rounded-full flex items-center gap-1.5 border-0 h-auto w-auto`}>
+              <div className="flex items-center gap-1.5">
+                {getStatusIcon(property.status)}
+                {getStatusLabel(property.status)}
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="new">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-gray-400"></div>
+                  New
+                </div>
+              </SelectItem>
+              <SelectItem value="reviewing">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                  Reviewing
+                </div>
+              </SelectItem>
+              <SelectItem value="synced">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                  Synced
+                </div>
+              </SelectItem>
+              <SelectItem value="not_qualified">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                  Not Qualified
+                </div>
+              </SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
       </div>
