@@ -95,13 +95,13 @@ export function SearchOverlay({ onCitySearchClick, onAddressSearchClick, onCityS
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
-      <div className="w-[420px] bg-card rounded-lg shadow-large p-6 pointer-events-auto transition-all duration-300">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+      <div className="w-[420px] bg-white rounded-lg shadow-xl p-8 animate-fade-in">
         
         {/* Initial View - Two Cards */}
         {currentView === 'initial' && (
           <div className="animate-fade-in">
-            <h2 className="text-xl font-semibold text-foreground mb-6 text-center">
+            <h2 className="text-xl font-semibold text-gray-900 mb-6 text-center">
               What are you looking for?
             </h2>
             
@@ -109,28 +109,28 @@ export function SearchOverlay({ onCitySearchClick, onAddressSearchClick, onCityS
               {/* City Search Option */}
               <button
                 onClick={handleCitySearchStart}
-                className="w-full h-16 bg-background border border-border rounded-lg p-4 flex items-center gap-4 hover:bg-accent hover:border-ring transition-colors"
+                className="w-full h-[72px] bg-white border border-gray-200 rounded-md p-4 flex items-center gap-4 hover:bg-gray-50 hover:border-blue-500 hover:-translate-y-0.5 hover:shadow-sm transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               >
-                <div className="flex-shrink-0">
-                  <MapPin className="h-5 w-5 text-primary" />
+                <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <MapPin className="h-5 w-5 text-blue-600" />
                 </div>
                 <div className="flex-1 text-left">
-                  <div className="font-medium text-foreground">Search by City</div>
-                  <div className="text-sm text-muted-foreground">Generate lists of qualified properties</div>
+                  <div className="font-medium text-gray-900">Search by City</div>
+                  <div className="text-sm text-gray-600 mt-0.5">Generate lists of qualified properties</div>
                 </div>
               </button>
 
               {/* Address Search Option */}
               <button
                 onClick={handleAddressSearchStart}
-                className="w-full h-16 bg-background border border-border rounded-lg p-4 flex items-center gap-4 hover:bg-accent hover:border-ring transition-colors"
+                className="w-full h-[72px] bg-white border border-gray-200 rounded-md p-4 flex items-center gap-4 hover:bg-gray-50 hover:border-blue-500 hover:-translate-y-0.5 hover:shadow-sm transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               >
-                <div className="flex-shrink-0">
-                  <Building className="h-5 w-5 text-primary" />
+                <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Building className="h-5 w-5 text-blue-600" />
                 </div>
                 <div className="flex-1 text-left">
-                  <div className="font-medium text-foreground">Search by Address</div>
-                  <div className="text-sm text-muted-foreground">Look up compliance for specific property</div>
+                  <div className="font-medium text-gray-900">Search by Address</div>
+                  <div className="text-sm text-gray-600 mt-0.5">Find and evaluate specific properties</div>
                 </div>
               </button>
             </div>

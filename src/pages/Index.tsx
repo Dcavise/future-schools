@@ -420,7 +420,8 @@ const Index = () => {
             className="z-0"
             style={{
               filter: (isEmptyState && !isLoading) ? 'grayscale(100%) brightness(1.2)' : 'none',
-              opacity: (isEmptyState && !isLoading) ? 0.3 : 1
+              opacity: (isEmptyState && !isLoading) ? 0.3 : 1,
+              pointerEvents: (isEmptyState && !isLoading) ? 'none' : 'auto'
             }}
             properties={showPropertiesView ? displayProperties : []}
             selectedProperty={selectedProperty}

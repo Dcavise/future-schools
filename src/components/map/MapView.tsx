@@ -69,19 +69,27 @@ export function MapView({
       console.log('Initializing Mapbox map...');
       mapboxgl.accessToken = MAPBOX_TOKEN;
       
+      // Use Continental US view for empty state, or Boston for populated state
+      const center: [number, number] = properties.length === 0 ? [-98.5795, 39.8283] : [-71.0589, 42.3601];
+      const zoom = properties.length === 0 ? 3.5 : 12;
+      
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/light-v11',
-        center: [-71.0589, 42.3601], // Boston, MA coordinates
-        zoom: 12,
+        center,
+        zoom,
+        bearing: 0,
+        pitch: 0,
         dragRotate: false
       });
 
-      // Add navigation controls positioned top-right
-      map.current.addControl(
-        new mapboxgl.NavigationControl(),
-        'top-right'
-      );
+      // Only add navigation controls if there are properties (not empty state)
+      if (properties.length > 0) {
+        map.current.addControl(
+          new mapboxgl.NavigationControl(),
+          'top-right'
+        );
+      }
 
       map.current.on('load', () => {
         console.log('Mapbox map loaded successfully');
