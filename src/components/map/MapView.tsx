@@ -69,9 +69,9 @@ export function MapView({
       console.log('Initializing Mapbox map...');
       mapboxgl.accessToken = MAPBOX_TOKEN;
       
-      // Use Continental US view for empty state, or Boston for populated state
-      const center: [number, number] = properties.length === 0 ? [-98.5795, 39.8283] : [-71.0589, 42.3601];
-      const zoom = properties.length === 0 ? 3.5 : 12;
+      // Always start with Continental US view for consistent initialization
+      const center: [number, number] = [-98.5795, 39.8283];
+      const zoom = 3.5;
       
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
@@ -83,13 +83,7 @@ export function MapView({
         dragRotate: false
       });
 
-      // Only add navigation controls if there are properties (not empty state)
-      if (properties.length > 0) {
-        map.current.addControl(
-          new mapboxgl.NavigationControl(),
-          'top-right'
-        );
-      }
+      // Navigation controls are added in a separate effect based on properties
 
       map.current.on('load', () => {
         console.log('Mapbox map loaded successfully');
@@ -119,6 +113,29 @@ export function MapView({
       }
     };
   }, []);
+
+  // Add/remove navigation controls based on properties
+  useEffect(() => {
+    if (!map.current) return;
+
+    const hasControls = document.querySelector('.mapboxgl-ctrl-group');
+    
+    if (properties.length > 0 && !hasControls) {
+      // Add navigation controls when we have properties
+      map.current.addControl(
+        new mapboxgl.NavigationControl(),
+        'top-right'
+      );
+    } else if (properties.length === 0 && hasControls) {
+      // Remove controls in empty state
+      const controls = map.current._controls;
+      controls.forEach(control => {
+        if (control instanceof mapboxgl.NavigationControl) {
+          map.current.removeControl(control);
+        }
+      });
+    }
+  }, [properties.length]);
 
   // Add heatmap layer function
   const addHeatmapLayer = () => {
@@ -334,15 +351,18 @@ export function MapView({
       // Use individual markers for smaller datasets
       addMarkers();
       
-      // Fit bounds to show all properties
+      // Fly to city bounds to show all properties
       if (properties.length > 0) {
         const bounds = new mapboxgl.LngLatBounds();
         properties.forEach(property => {
           bounds.extend([property.lng, property.lat]);
         });
+        
+        // Fly to bounds with smooth animation
         map.current.fitBounds(bounds, { 
           padding: showPanel ? { right: 440, top: 50, bottom: 50, left: 50 } : 50,
-          maxZoom: 15
+          maxZoom: 15,
+          duration: 1000  // 1 second smooth transition
         });
       }
     }
