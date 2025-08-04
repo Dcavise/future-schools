@@ -25,7 +25,7 @@ const TEAM_MEMBERS = [
   { value: 'stephen', label: 'Stephen' },
   { value: 'aly', label: 'Aly' },
   { value: 'ryan-d', label: 'Ryan D' },
-  { value: '', label: 'No Assignee' },
+  { value: 'unassigned', label: 'No Assignee' },
 ];
 
 const ZONING_OPTIONS = [
@@ -101,7 +101,7 @@ export const PropertySidebar: React.FC<PropertySidebarProps> = ({
   };
 
   const getAssigneeDisplayName = (assigneeValue: string | null) => {
-    if (!assigneeValue) return 'No Assignee';
+    if (!assigneeValue || assigneeValue === 'unassigned') return 'No Assignee';
     const member = TEAM_MEMBERS.find(m => m.value === assigneeValue);
     return member ? member.label : assigneeValue;
   };
@@ -187,8 +187,8 @@ export const PropertySidebar: React.FC<PropertySidebarProps> = ({
         <div className="space-y-1">
           <label className="text-xs font-medium text-muted-foreground">Assigned To</label>
           <Select 
-            value={property.assigned_to || ''} 
-            onValueChange={(value) => handleFieldUpdate('assigned_to', value || null)}
+            value={property.assigned_to || 'unassigned'} 
+            onValueChange={(value) => handleFieldUpdate('assigned_to', value === 'unassigned' ? null : value)}
           >
             <SelectTrigger className="h-8">
               <SelectValue placeholder="No Assignee" />

@@ -160,7 +160,7 @@ export const generateMockProperties = (count: number, baseCoordinates: [number, 
   const occupancyTypes = ['business', 'assembly', 'industrial', 'unknown'];
   const sprinklerStatuses = ['yes', 'no', 'unknown'];
   const zoningByRight = [true, false, null];
-  const analysts = ['jarnail', 'david-h', 'cavise', 'jb', 'stephen', 'aly', 'ryan-d', ''];
+  const analysts = ['jarnail', 'david-h', 'cavise', 'jb', 'stephen', 'aly', 'ryan-d', null];
   const counties = ['Suffolk County', 'Middlesex County', 'Norfolk County', 'Essex County'];
   
   const streetNames = [
@@ -201,7 +201,7 @@ export const generateMockProperties = (count: number, baseCoordinates: [number, 
       zoning_by_right: zoningByRight[Math.floor(Math.random() * zoningByRight.length)],
       current_occupancy: occupancyTypes[Math.floor(Math.random() * occupancyTypes.length)],
       fire_sprinkler_status: sprinklerStatuses[Math.floor(Math.random() * sprinklerStatuses.length)],
-      assigned_to: analysts[Math.floor(Math.random() * analysts.length)] || null,
+      assigned_to: analysts[Math.floor(Math.random() * analysts.length)],
       status,
       created_at: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
       updated_at: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),
