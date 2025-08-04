@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { mockProperties, generateMockProperties } from '@/data/mockProperties';
 import { Property } from '@/types/property';
@@ -14,7 +14,7 @@ const PropertyDetail = () => {
   const location = useLocation();
   
   // Get properties from state (passed from search page) or generate them
-  const allProperties = useState<Property[]>(() => {
+  const allProperties = useMemo(() => {
     const state = location.state as { properties?: Property[] } | null;
     console.log('PropertyDetail - location state:', state);
     if (state?.properties) {
@@ -25,7 +25,7 @@ const PropertyDetail = () => {
     const fallbackProperties = [...mockProperties, ...generateMockProperties(75)];
     console.log('PropertyDetail - using fallback properties:', fallbackProperties.length);
     return fallbackProperties;
-  })[0];
+  }, [location.state]);
   
   const [currentIndex, setCurrentIndex] = useState<number>(() => {
     const foundIndex = allProperties.findIndex(p => p.id === id);
