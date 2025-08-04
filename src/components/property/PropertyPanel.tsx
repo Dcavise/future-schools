@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Building, Check, HelpCircle, X as XIcon, User, ChevronLeft, ChevronRight, UserPlus, Calendar, Clock, AlertCircle } from 'lucide-react';
 import { Property } from '@/types/property';
 
@@ -12,7 +13,19 @@ interface PropertyPanelProps {
   onPreviousProperty?: () => void;
   onMarkQualified?: (property: Property) => void;
   onAssignAnalyst?: (property: Property) => void;
+  onPropertyUpdate?: (property: Property) => void;
 }
+
+const teamMembers = [
+  'Unassigned',
+  'Jarnail T',
+  'David H', 
+  'Aly A',
+  'Ryan D',
+  'Chris W',
+  'JB',
+  'Stephen B'
+];
 
 export function PropertyPanel({ 
   property, 
@@ -20,8 +33,16 @@ export function PropertyPanel({
   onNextProperty, 
   onPreviousProperty, 
   onMarkQualified, 
-  onAssignAnalyst 
+  onAssignAnalyst,
+  onPropertyUpdate 
 }: PropertyPanelProps) {
+  const [selectedAssignee, setSelectedAssignee] = useState<string>(property?.assigned_to || 'Unassigned');
+
+  // Update selectedAssignee when property changes
+  React.useEffect(() => {
+    setSelectedAssignee(property?.assigned_to || 'Unassigned');
+  }, [property?.assigned_to]);
+
   if (!property) {
     return (
       <div className="fixed top-[56px] right-0 w-[420px] bottom-0 bg-white border-l border-[#E5E7EB] shadow-[-2px_0_8px_rgba(0,0,0,0.05)] flex items-center justify-center z-40">
@@ -32,6 +53,18 @@ export function PropertyPanel({
       </div>
     );
   }
+
+  const handleAssignmentChange = (value: string) => {
+    setSelectedAssignee(value);
+    if (onPropertyUpdate) {
+      const updatedProperty = {
+        ...property,
+        assigned_to: value === 'Unassigned' ? null : value,
+        updated_at: new Date().toISOString()
+      };
+      onPropertyUpdate(updatedProperty);
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -91,20 +124,6 @@ export function PropertyPanel({
     }
   };
 
-  const getActionButton = (status: string) => {
-    switch (status) {
-      case 'qualified':
-        return <Button className="w-full bg-blue-600 hover:bg-blue-700">Schedule Site Visit</Button>;
-      case 'reviewing':
-      case 'unreviewed':
-        return <Button variant="outline" className="w-full border-blue-200 text-blue-700 hover:bg-blue-50">Complete Review</Button>;
-      case 'disqualified':
-        return <Button variant="secondary" className="w-full bg-gray-100 text-gray-700 hover:bg-gray-200">Find Alternative</Button>;
-      default:
-        return <Button variant="outline" className="w-full">Review Property</Button>;
-    }
-  };
-
   const getComplianceIcon = (value: boolean | string | null) => {
     if (value === true || value === 'Yes') return <Check className="h-4 w-4 text-green-600" />;
     if (value === false || value === 'No') return <XIcon className="h-4 w-4 text-red-600" />;
@@ -124,12 +143,6 @@ export function PropertyPanel({
       case 'Other': return 'Other';
       default: return 'Unknown';
     }
-  };
-
-  const isFullyCompliant = () => {
-    return property?.zoning_by_right === true && 
-           property?.fire_sprinkler_status === 'Yes' && 
-           property?.current_occupancy !== null;
   };
 
   const getPrimaryAction = (status: string) => {
@@ -241,17 +254,36 @@ export function PropertyPanel({
       </div>
 
       <div className="p-6">
-        {/* Building Owner Section */}
+        {/* Assignment Section */}
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-3">
             <User className="h-4 w-4 text-[#6B7280]" />
             <span className="text-xs font-medium text-[#6B7280] uppercase tracking-wide">Assigned To</span>
           </div>
-          <div className="text-sm text-[#1A1A1A]">
-            {property.assigned_to || 'Unassigned'}
-            {!property.assigned_to && (
-              <Badge className="ml-2 bg-yellow-100 text-yellow-800 text-xs">Needs Assignment</Badge>
-            )}
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-[#1A1A1A]">
+              {property.assigned_to || 'Unassigned'}
+              {!property.assigned_to && (
+                <Badge className="ml-2 bg-yellow-100 text-yellow-800 text-xs">Needs Assignment</Badge>
+              )}
+            </div>
+            
+            {/* Assignment Dropdown */}
+            <Select 
+              value={selectedAssignee} 
+              onValueChange={handleAssignmentChange}
+            >
+              <SelectTrigger className="w-[140px] h-8">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {teamMembers.map((member) => (
+                  <SelectItem key={member} value={member}>
+                    {member}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
@@ -359,12 +391,12 @@ export function PropertyPanel({
           
           <div>
             <div className="text-xs text-[#6B7280] mb-1">Created</div>
-            <div className="text-sm text-[#1A1A1A]">{property.created_at}</div>
+            <div className="text-sm text-[#1A1A1A]">{new Date(property.created_at).toLocaleDateString()}</div>
           </div>
           
           <div>
             <div className="text-xs text-[#6B7280] mb-1">Last Updated</div>
-            <div className="text-sm text-[#1A1A1A]">{property.updated_at}</div>
+            <div className="text-sm text-[#1A1A1A]">{new Date(property.updated_at).toLocaleDateString()}</div>
           </div>
         </div>
 
@@ -378,7 +410,6 @@ export function PropertyPanel({
             readOnly
           />
         </div>
-
 
         {/* Action Section */}
         <div className="pt-4 border-t border-gray-200">

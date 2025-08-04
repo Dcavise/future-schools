@@ -87,7 +87,7 @@ const generateProperties = (city: string, count?: number): Property[] => {
       zoning_by_right,
       current_occupancy,
       fire_sprinkler_status,
-      assigned_to: Math.random() > 0.7 ? `user_${Math.floor(Math.random() * 5) + 1}` : null,
+      assigned_to: Math.random() > 0.7 ? ['Jarnail T', 'David H', 'Aly A', 'Ryan D', 'Chris W', 'JB', 'Stephen B'][Math.floor(Math.random() * 7)] : null,
       status,
       created_at: created,
       updated_at: now,
@@ -400,7 +400,15 @@ const Index = () => {
 
         {/* Property Panel - Only show when we have properties, in map view, and not in overload mode */}
         {showPropertiesView && currentView === 'map' && !isOverloadMode && (
-          <PropertyPanel property={selectedProperty} />
+          <PropertyPanel 
+            property={selectedProperty} 
+            onPropertyUpdate={(updatedProperty) => {
+              // Update the property in the properties array
+              setProperties(prev => prev.map(p => p.id === updatedProperty.id ? updatedProperty : p));
+              setFilteredProperties(prev => prev.map(p => p.id === updatedProperty.id ? updatedProperty : p));
+              setSelectedProperty(updatedProperty);
+            }}
+          />
         )}
       </div>
       

@@ -337,20 +337,29 @@ export function PropertyTable({
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start" className="bg-white">
-                    <DropdownMenuItem onClick={() => handleAssignOwner('John Smith')}>
-                      John Smith
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleAssignOwner('Sarah Johnson')}>
-                      Sarah Johnson
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleAssignOwner('Mike Chen')}>
-                      Mike Chen
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleAssignOwner('Lisa Williams')}>
-                      Lisa Williams
-                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => handleAssignOwner('Unassigned')}>
                       Unassigned
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleAssignOwner('Jarnail T')}>
+                      Jarnail T
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleAssignOwner('David H')}>
+                      David H
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleAssignOwner('Aly A')}>
+                      Aly A
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleAssignOwner('Ryan D')}>
+                      Ryan D
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleAssignOwner('Chris W')}>
+                      Chris W
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleAssignOwner('JB')}>
+                      JB
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleAssignOwner('Stephen B')}>
+                      Stephen B
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
