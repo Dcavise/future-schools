@@ -95,7 +95,7 @@ export function PropertyPanel({ property, onClose }: PropertyPanelProps) {
   );
 
   return (
-    <div className="w-[420px] h-full bg-white border-l border-border animate-slide-in-right">
+    <div className="w-full h-full bg-white border border-border rounded-lg animate-slide-in-right">
       <div className="p-6 h-full overflow-y-auto">
         {/* Header */}
         <div className="mb-6">
