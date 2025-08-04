@@ -4,15 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card } from '@/components/ui/card';
 import { Building, GraduationCap, Users, Home } from 'lucide-react';
-
-interface FilterCriteria {
-  status: string[];
-  compliance: string[];
-  propertyType: string[];
-  minSquareFeet: string;
-  maxSquareFeet: string;
-  sizeRange: string[];
-}
+import { FilterCriteria } from '@/types/property';
 
 interface FilterPanelProps {
   isOpen: boolean;
@@ -42,29 +34,46 @@ export function FilterPanel({
     onFiltersChange({ ...filters, status: newStatus });
   };
 
-  const handleComplianceChange = (compliance: string, checked: boolean) => {
-    const newCompliance = checked 
-      ? [...filters.compliance, compliance]
-      : filters.compliance.filter(c => c !== compliance);
-    onFiltersChange({ ...filters, compliance: newCompliance });
+  const handleZoningChange = (checked: boolean) => {
+    onFiltersChange({ ...filters, zoning_by_right: checked ? true : null });
   };
 
-  const handlePropertyTypeChange = (type: string, checked: boolean) => {
+  const handleSprinklerChange = (status: string, checked: boolean) => {
+    onFiltersChange({ 
+      ...filters, 
+      fire_sprinkler_status: checked ? status : null 
+    });
+  };
+
+  const handleOccupancyChange = (type: string, checked: boolean) => {
     const newTypes = checked 
-      ? [...filters.propertyType, type]
-      : filters.propertyType.filter(t => t !== type);
-    onFiltersChange({ ...filters, propertyType: newTypes });
+      ? [...filters.current_occupancy, type]
+      : filters.current_occupancy.filter(t => t !== type);
+    onFiltersChange({ ...filters, current_occupancy: newTypes });
   };
 
-  const handleSizeChange = (field: 'minSquareFeet' | 'maxSquareFeet', value: string) => {
-    onFiltersChange({ ...filters, [field]: value });
+  const handleSizeChange = (field: 'min_square_feet' | 'max_square_feet', value: string) => {
+    const numValue = value === '' ? (field === 'min_square_feet' ? 0 : 100000) : parseInt(value);
+    onFiltersChange({ ...filters, [field]: numValue });
   };
 
-  const handleSizeRangeChange = (range: string, checked: boolean) => {
-    const newRanges = checked 
-      ? [...(filters.sizeRange || []), range]
-      : (filters.sizeRange || []).filter(r => r !== range);
-    onFiltersChange({ ...filters, sizeRange: newRanges });
+  const handleQuickRange = (range: string) => {
+    let min = 0, max = 100000;
+    switch (range) {
+      case 'under10k':
+        min = 0; max = 10000;
+        break;
+      case '10k-25k':
+        min = 10000; max = 25000;
+        break;
+      case '25k-50k':
+        min = 25000; max = 50000;
+        break;
+      case '50k+':
+        min = 50000; max = 100000;
+        break;
+    }
+    onFiltersChange({ ...filters, min_square_feet: min, max_square_feet: max });
   };
 
   const getSizeRangeLabel = (range: string) => {
@@ -79,11 +88,25 @@ export function FilterPanel({
 
   const getPropertyTypeIcon = (type: string) => {
     switch (type) {
-      case 'Educational': return <GraduationCap className="h-4 w-4 text-gray-500" />;
-      case 'Assembly': return <Users className="h-4 w-4 text-gray-500" />;
+      case 'E': return <GraduationCap className="h-4 w-4 text-gray-500" />;
+      case 'A': return <Users className="h-4 w-4 text-gray-500" />;
       case 'Other': return <Building className="h-4 w-4 text-gray-500" />;
-      case 'Unknown': return <Home className="h-4 w-4 text-gray-500" />;
-      default: return <Building className="h-4 w-4 text-gray-500" />;
+      default: return <Home className="h-4 w-4 text-gray-500" />;
+    }
+  };
+
+  const isRangeActive = (range: string) => {
+    switch (range) {
+      case 'under10k':
+        return filters.min_square_feet === 0 && filters.max_square_feet === 10000;
+      case '10k-25k':
+        return filters.min_square_feet === 10000 && filters.max_square_feet === 25000;
+      case '25k-50k':
+        return filters.min_square_feet === 25000 && filters.max_square_feet === 50000;
+      case '50k+':
+        return filters.min_square_feet === 50000 && filters.max_square_feet === 100000;
+      default:
+        return false;
     }
   };
 
@@ -101,8 +124,10 @@ export function FilterPanel({
             <div className="space-y-2">
               {[
                 { value: 'qualified', label: 'Qualified (all compliant)', color: 'bg-green-500' },
-                { value: 'review', label: 'Needs Review (has unknowns)', color: 'bg-amber-500' },
-                { value: 'disqualified', label: 'Disqualified (non-compliant)', color: 'bg-red-500' }
+                { value: 'reviewing', label: 'Needs Review (has unknowns)', color: 'bg-amber-500' },
+                { value: 'unreviewed', label: 'Unreviewed', color: 'bg-gray-500' },
+                { value: 'disqualified', label: 'Disqualified (non-compliant)', color: 'bg-red-500' },
+                { value: 'on_hold', label: 'On Hold', color: 'bg-purple-500' }
               ].map(({ value, label, color }) => (
                 <label key={value} className="flex items-center space-x-3 p-2 rounded-md cursor-pointer transition-colors hover:bg-gray-50">
                   <Checkbox
@@ -123,27 +148,35 @@ export function FilterPanel({
           <div>
             <h3 className="text-sm font-semibold mb-4 text-gray-900">Compliance Fields</h3>
             <div className="space-y-2">
-              {[
-                { value: 'zoning', label: 'Has complete zoning data', subtext: 'By-right status known' },
-                { value: 'occupancy', label: 'Has occupancy data', subtext: 'Current use verified' },
-                { value: 'byRight', label: 'By-right compliant', subtext: 'Permitted use confirmed' },
-                { value: 'sprinkler', label: 'Has fire sprinklers', subtext: 'System present and functional' }
-              ].map(({ value, label, subtext }) => (
-                <label key={value} className="flex items-start space-x-2 p-2 rounded-md cursor-pointer transition-colors hover:bg-gray-50">
-                  <Checkbox
-                    id={`compliance-${value}`}
-                    checked={filters.compliance.includes(value)}
-                    onCheckedChange={(checked) => handleComplianceChange(value, checked as boolean)}
-                    className="mt-0.5"
-                  />
-                  <div className="flex-1">
-                    <div className="text-sm text-gray-700">
-                      {label}
-                    </div>
-                    <div className="text-xs text-[#6B7280] mt-1">{subtext}</div>
+              <label className="flex items-start space-x-2 p-2 rounded-md cursor-pointer transition-colors hover:bg-gray-50">
+                <Checkbox
+                  id="zoning-by-right"
+                  checked={filters.zoning_by_right === true}
+                  onCheckedChange={(checked) => handleZoningChange(checked as boolean)}
+                  className="mt-0.5"
+                />
+                <div className="flex-1">
+                  <div className="text-sm text-gray-700">
+                    By-right compliant
                   </div>
-                </label>
-              ))}
+                  <div className="text-xs text-[#6B7280] mt-1">Permitted use confirmed</div>
+                </div>
+              </label>
+              
+              <label className="flex items-start space-x-2 p-2 rounded-md cursor-pointer transition-colors hover:bg-gray-50">
+                <Checkbox
+                  id="fire-sprinklers-yes"
+                  checked={filters.fire_sprinkler_status === 'Yes'}
+                  onCheckedChange={(checked) => handleSprinklerChange('Yes', checked as boolean)}
+                  className="mt-0.5"
+                />
+                <div className="flex-1">
+                  <div className="text-sm text-gray-700">
+                    Has fire sprinklers
+                  </div>
+                  <div className="text-xs text-[#6B7280] mt-1">System present and functional</div>
+                </div>
+              </label>
             </div>
           </div>
 
@@ -152,16 +185,15 @@ export function FilterPanel({
             <h3 className="text-sm font-semibold mb-4 text-gray-900">Property Type</h3>
             <div className="space-y-2">
               {[
-                { value: 'Educational', label: 'Educational (E)' },
-                { value: 'Assembly', label: 'Assembly (A)' },
-                { value: 'Other', label: 'Other' },
-                { value: 'Unknown', label: 'Unknown' }
+                { value: 'E', label: 'Educational (E)' },
+                { value: 'A', label: 'Assembly (A)' },
+                { value: 'Other', label: 'Other' }
               ].map(({ value, label }) => (
                 <label key={value} className="flex items-center space-x-3 p-2 rounded-md cursor-pointer transition-colors hover:bg-gray-50">
                   <Checkbox
                     id={`type-${value}`}
-                    checked={filters.propertyType.includes(value)}
-                    onCheckedChange={(checked) => handlePropertyTypeChange(value, checked as boolean)}
+                    checked={filters.current_occupancy.includes(value)}
+                    onCheckedChange={(checked) => handleOccupancyChange(value, checked as boolean)}
                   />
                   {getPropertyTypeIcon(value)}
                   <span className="text-sm text-gray-700 flex-1">
@@ -185,8 +217,8 @@ export function FilterPanel({
                     <Input
                       type="number"
                       placeholder="0"
-                      value={filters.minSquareFeet}
-                      onChange={(e) => handleSizeChange('minSquareFeet', e.target.value)}
+                      value={filters.min_square_feet || ''}
+                      onChange={(e) => handleSizeChange('min_square_feet', e.target.value)}
                       className="w-full pr-12"
                     />
                     <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-gray-500">sq ft</span>
@@ -198,8 +230,8 @@ export function FilterPanel({
                     <Input
                       type="number"
                       placeholder="999,999"
-                      value={filters.maxSquareFeet}
-                      onChange={(e) => handleSizeChange('maxSquareFeet', e.target.value)}
+                      value={filters.max_square_feet === 100000 ? '' : filters.max_square_feet || ''}
+                      onChange={(e) => handleSizeChange('max_square_feet', e.target.value)}
                       className="w-full pr-12"
                     />
                     <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-gray-500">sq ft</span>
@@ -214,11 +246,11 @@ export function FilterPanel({
                   {['under10k', '10k-25k', '25k-50k', '50k+'].map((range) => (
                     <Button
                       key={range}
-                      variant={filters.sizeRange?.includes(range) ? 'default' : 'ghost'}
+                      variant={isRangeActive(range) ? 'default' : 'ghost'}
                       size="sm"
-                      onClick={() => handleSizeRangeChange(range, !filters.sizeRange?.includes(range))}
+                      onClick={() => handleQuickRange(range)}
                       className={`text-xs px-3 py-1 h-auto ${
-                        filters.sizeRange?.includes(range) 
+                        isRangeActive(range)
                           ? 'bg-blue-600 text-white hover:bg-blue-700' 
                           : 'text-gray-600 hover:bg-gray-100'
                       }`}

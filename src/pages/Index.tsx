@@ -8,24 +8,16 @@ import { QuickFilterOverlay } from '@/components/filters/QuickFilterOverlay';
 import { PropertyTable } from '@/components/table/PropertyTable';
 import { Button } from '@/components/ui/button';
 import { Map, List } from 'lucide-react';
-import { Property } from '@/types/property';
-
-interface FilterCriteria {
-  status: string[];
-  compliance: string[];
-  propertyType: string[];
-  minSquareFeet: string;
-  maxSquareFeet: string;
-  sizeRange: string[];
-}
+import { Property, FilterCriteria } from '@/types/property';
 
 const defaultFilters: FilterCriteria = {
+  zoning_by_right: null,
+  fire_sprinkler_status: null,
+  current_occupancy: [],
+  min_square_feet: 0,
+  max_square_feet: 100000,
   status: [],
-  compliance: [],
-  propertyType: [],
-  minSquareFeet: '',
-  maxSquareFeet: '',
-  sizeRange: []
+  assigned_to: null
 };
 
 const generateProperties = (city: string, count?: number): Property[] => {
@@ -128,53 +120,34 @@ const Index = () => {
       filtered = filtered.filter(p => tempFilters.status.includes(p.status));
     }
     
-    // Compliance filters
-    if (tempFilters.compliance.length > 0) {
-      filtered = filtered.filter(p => {
-        return tempFilters.compliance.every(filterType => {
-          switch (filterType) {
-            case 'zoning': return p.zoning_by_right === true;
-            case 'occupancy': return p.current_occupancy !== null;
-            case 'byRight': return p.zoning_by_right === true;
-            case 'sprinkler': return p.fire_sprinkler_status === 'Yes';
-            default: return true;
-          }
-        });
-      });
+    // Zoning by right filter
+    if (tempFilters.zoning_by_right !== null) {
+      filtered = filtered.filter(p => p.zoning_by_right === tempFilters.zoning_by_right);
     }
     
-    // Property type filters
-    if (tempFilters.propertyType.length > 0) {
-      filtered = filtered.filter(p => {
-        const occupancyLabel = p.current_occupancy === 'E' ? 'Educational' : 
-                              p.current_occupancy === 'A' ? 'Assembly' : 
-                              p.current_occupancy === 'Other' ? 'Other' : 'Unknown';
-        return tempFilters.propertyType.includes(occupancyLabel);
-      });
+    // Fire sprinkler filter
+    if (tempFilters.fire_sprinkler_status !== null) {
+      filtered = filtered.filter(p => p.fire_sprinkler_status === tempFilters.fire_sprinkler_status);
+    }
+    
+    // Current occupancy filters
+    if (tempFilters.current_occupancy.length > 0) {
+      filtered = filtered.filter(p => 
+        p.current_occupancy && tempFilters.current_occupancy.includes(p.current_occupancy)
+      );
     }
     
     // Size filters
-    if (tempFilters.minSquareFeet) {
-      filtered = filtered.filter(p => (p.square_feet || 0) >= parseInt(tempFilters.minSquareFeet));
+    if (tempFilters.min_square_feet > 0) {
+      filtered = filtered.filter(p => (p.square_feet || 0) >= tempFilters.min_square_feet);
     }
-    if (tempFilters.maxSquareFeet) {
-      filtered = filtered.filter(p => (p.square_feet || 0) <= parseInt(tempFilters.maxSquareFeet));
+    if (tempFilters.max_square_feet < 100000) {
+      filtered = filtered.filter(p => (p.square_feet || 0) <= tempFilters.max_square_feet);
     }
     
-    // Size range filters
-    if (tempFilters.sizeRange && tempFilters.sizeRange.length > 0) {
-      filtered = filtered.filter(p => {
-        return tempFilters.sizeRange!.some(range => {
-          const sqft = p.square_feet || 0;
-          switch (range) {
-            case 'under10k': return sqft < 10000;
-            case '10k-25k': return sqft >= 10000 && sqft < 25000;
-            case '25k-50k': return sqft >= 25000 && sqft < 50000;
-            case '50k+': return sqft >= 50000;
-            default: return false;
-          }
-        });
-      });
+    // Assigned to filter
+    if (tempFilters.assigned_to !== null) {
+      filtered = filtered.filter(p => p.assigned_to === tempFilters.assigned_to);
     }
     
     return filtered;
@@ -186,11 +159,12 @@ const Index = () => {
     
     // Check if we have active filters
     const isActive = filters.status.length > 0 || 
-                    filters.compliance.length > 0 || 
-                    filters.propertyType.length > 0 ||
-                    (filters.sizeRange?.length || 0) > 0 ||
-                    filters.minSquareFeet !== '' ||
-                    filters.maxSquareFeet !== '';
+                    filters.zoning_by_right !== null || 
+                    filters.fire_sprinkler_status !== null ||
+                    filters.current_occupancy.length > 0 ||
+                    filters.min_square_feet > 0 ||
+                    filters.max_square_feet < 100000 ||
+                    filters.assigned_to !== null;
     setHasActiveFilters(isActive);
   };
 
@@ -201,11 +175,12 @@ const Index = () => {
 
   const getActiveFilterCount = () => {
     return filters.status.length + 
-           filters.compliance.length + 
-           filters.propertyType.length + 
-           (filters.sizeRange?.length || 0) +
-           (filters.minSquareFeet ? 1 : 0) + 
-           (filters.maxSquareFeet ? 1 : 0);
+           (filters.zoning_by_right !== null ? 1 : 0) + 
+           (filters.fire_sprinkler_status !== null ? 1 : 0) + 
+           filters.current_occupancy.length +
+           (filters.min_square_feet > 0 ? 1 : 0) + 
+           (filters.max_square_feet < 100000 ? 1 : 0) +
+           (filters.assigned_to !== null ? 1 : 0);
   };
 
   const handleCitySearch = () => {
@@ -294,14 +269,11 @@ const Index = () => {
     let estimate = properties.length;
     
     // Apply rough estimation logic
-    if (quickFilters.status.length > 0) {
-      estimate = Math.floor(estimate * (quickFilters.status.length / 3));
+    if (quickFilters.status && quickFilters.status.length > 0) {
+      estimate = Math.floor(estimate * (quickFilters.status.length / 5)); // 5 possible statuses
     }
-    if (quickFilters.propertyType.length > 0) {
-      estimate = Math.floor(estimate * (quickFilters.propertyType.length / 3));
-    }
-    if (quickFilters.sizeRange.length > 0) {
-      estimate = Math.floor(estimate * (quickFilters.sizeRange.length / 3));
+    if (quickFilters.current_occupancy && quickFilters.current_occupancy.length > 0) {
+      estimate = Math.floor(estimate * (quickFilters.current_occupancy.length / 3)); // 3 occupancy types
     }
     
     return Math.max(1, estimate);
