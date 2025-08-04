@@ -474,15 +474,13 @@ export function PropertyPanel({
             </div>
             <div>
               <div className="text-xs text-[#6B7280] mb-1">Zoning Code</div>
-              <div className="text-sm text-[#1A1A1A]">{property.zoning_code || 'N/A'}</div>
-            </div>
-            <div>
-              <div className="text-xs text-[#6B7280] mb-1">Coordinates</div>
-              <div className="text-sm text-[#1A1A1A]">
-                {property.latitude && property.longitude 
-                  ? `${property.latitude}, ${property.longitude}` 
-                  : 'N/A'}
-              </div>
+              <Input
+                type="text"
+                value={property.zoning_code || ''}
+                onChange={(e) => onPropertyUpdate?.({ ...property, zoning_code: e.target.value || null })}
+                className="text-sm"
+                placeholder="Enter zoning code"
+              />
             </div>
           </div>
         </div>
@@ -516,6 +514,15 @@ export function PropertyPanel({
             <div>
               <div className="text-xs text-[#6B7280] mb-1">Last Updated</div>
               <div className="text-sm text-[#1A1A1A]">{new Date(property.updated_at).toLocaleDateString()}</div>
+            </div>
+            
+            <div>
+              <div className="text-xs text-[#6B7280] mb-1">Coordinates</div>
+              <div className="text-sm text-[#1A1A1A]">
+                {property.latitude && property.longitude 
+                  ? `${property.latitude}, ${property.longitude}` 
+                  : 'N/A'}
+              </div>
             </div>
           </div>
         </div>
