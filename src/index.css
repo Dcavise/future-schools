@@ -149,34 +149,35 @@ html, body, #root {
   min-height: 0; /* Important for flexbox children */
 }
 
-/* Fix for property detail page specific layout */
+/* Property detail page layout - constraints as aesthetic */
 .property-detail-layout {
   height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.property-detail-content {
-  flex: 1;
-  display: flex;
-  gap: 0;
-  padding: 0;
+  width: 100vw;
   overflow: hidden;
-  min-height: 0; /* Critical for flex children */
-}
-
-.property-detail-map {
-  flex: 6;
   position: relative;
-  border-radius: 0.5rem;
-  overflow: hidden;
-  border: 1px solid #e5e7eb;
-  background-color: #f9fafb;
-  min-height: 0; /* Critical */
 }
 
-.property-detail-panel {
-  flex: 4;
+/* Content wrapper - simple flex, no gaps */
+.property-detail-content {
+  display: flex;
   height: 100%;
-  min-height: 0; /* Critical */
+  width: 100%;
+  /* NO gap, NO padding - let children manage their boundaries */
+}
+
+/* Map - fills available space */
+.property-detail-map {
+  flex: 1;
+  position: relative;
+  /* NO margins, NO padding */
+}
+
+/* Panel - fixed width, self-contained */
+.property-detail-panel {
+  width: 420px;
+  flex-shrink: 0;
+  height: 100%;
+  overflow-y: auto;
+  /* Shadow instead of border for cleaner edge */
+  box-shadow: -2px 0 4px rgba(0, 0, 0, 0.1);
 }
