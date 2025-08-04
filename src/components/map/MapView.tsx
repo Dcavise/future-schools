@@ -169,12 +169,12 @@ export function MapView({
           'interpolate',
           ['linear'],
           ['heatmap-density'],
-          0, 'rgba(134, 239, 172, 0)',
-          0.2, 'rgba(134, 239, 172, 0.8)',
-          0.4, 'rgba(252, 211, 77, 0.8)',
-          0.6, 'rgba(249, 115, 22, 0.8)',
-          0.8, 'rgba(239, 68, 68, 0.8)',
-          1, 'rgba(239, 68, 68, 1)'
+          0, 'rgba(107, 114, 128, 0)',      // Gray (new)
+          0.2, 'rgba(107, 114, 128, 0.5)',  // Gray
+          0.4, 'rgba(59, 130, 246, 0.6)',   // Blue (reviewing)
+          0.6, 'rgba(16, 185, 129, 0.7)',   // Green (synced)
+          0.8, 'rgba(239, 68, 68, 0.8)',    // Red (not_qualified)
+          1, 'rgba(239, 68, 68, 1)'         // Red
         ],
         'heatmap-radius': [
           'interpolate',
@@ -259,39 +259,78 @@ export function MapView({
       // Create marker element
       const el = document.createElement('div');
       el.className = 'property-marker';
-      el.style.width = isSelected ? '20px' : '16px';
-      el.style.height = isSelected ? '20px' : '16px';
+      
+      // Enhanced visual treatment based on status
+      const baseSize = isSelected ? 20 : 16;
+      const selectedMultiplier = property.status === 'synced' ? 1.1 : 1; // Synced properties slightly larger
+      const opacity = property.status === 'not_qualified' ? 0.7 : 1; // De-emphasize not qualified
+      
+      el.style.width = `${baseSize * selectedMultiplier}px`;
+      el.style.height = `${baseSize * selectedMultiplier}px`;
       el.style.borderRadius = '50%';
       el.style.cursor = 'pointer';
       el.style.border = isSelected ? '3px solid #fff' : '2px solid #fff';
-      el.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
+      el.style.boxShadow = isSelected ? '0 4px 8px rgba(0,0,0,0.3)' : '0 2px 4px rgba(0,0,0,0.2)';
       el.style.transition = 'all 0.2s ease';
+      el.style.opacity = opacity.toString();
+      
+      // Add pulsing animation for reviewing status
+      if (property.status === 'reviewing') {
+        el.style.animation = 'pulse 2s infinite';
+        const style = document.createElement('style');
+        style.textContent = `
+          @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: ${opacity}; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+          }
+        `;
+        if (!document.head.querySelector('style[data-marker-animation]')) {
+          style.setAttribute('data-marker-animation', 'true');
+          document.head.appendChild(style);
+        }
+      }
       
       // Set color based on status
-      const colors = {
-        qualified: '#10B981',
-        review: '#F59E0B', 
-        disqualified: '#EF4444'
+      const getStatusColor = (status: Property['status']) => {
+        switch (status) {
+          case 'synced': return '#10B981';        // Green
+          case 'reviewing': return '#3B82F6';     // Blue
+          case 'new': return '#6B7280';           // Gray
+          case 'not_qualified': return '#EF4444'; // Red
+          case 'on_hold': return '#8B5CF6';       // Purple
+          default: return '#6B7280';              // Default gray
+        }
       };
-      el.style.backgroundColor = colors[property.status];
+      
+      const statusColor = getStatusColor(property.status);
+      el.style.backgroundColor = statusColor;
 
-      // Add hover effects
+      // Enhanced hover effects
       el.addEventListener('mouseenter', () => {
         if (!isSelected) {
-          el.style.width = '20px';
-          el.style.height = '20px';
+          const hoverSize = baseSize * selectedMultiplier * 1.25;
+          el.style.width = `${hoverSize}px`;
+          el.style.height = `${hoverSize}px`;
+          el.style.transform = 'translateZ(0)'; // Force GPU acceleration
         }
       });
 
       el.addEventListener('mouseleave', () => {
         if (!isSelected) {
-          el.style.width = '16px';
-          el.style.height = '16px';
+          el.style.width = `${baseSize * selectedMultiplier}px`;
+          el.style.height = `${baseSize * selectedMultiplier}px`;
+          el.style.transform = 'none';
         }
       });
 
-      // Add click handler
+      // Add click handler with status-based feedback
       el.addEventListener('click', () => {
+        // Add subtle click feedback
+        el.style.transform = 'scale(0.9)';
+        setTimeout(() => {
+          el.style.transform = isSelected ? 'none' : 'none';
+        }, 100);
+        
         onPropertySelect?.(property);
       });
 
@@ -302,6 +341,24 @@ export function MapView({
 
       markersRef.current[property.id] = marker;
     });
+  };
+
+  // Update heatmap colors to reflect status distribution  
+  const updateHeatmapColors = () => {
+    if (!map.current || !map.current.getLayer('properties-heatmap')) return;
+    
+    // Update heatmap color scheme to match status colors
+    map.current.setPaintProperty('properties-heatmap', 'heatmap-color', [
+      'interpolate',
+      ['linear'],
+      ['heatmap-density'],
+      0, 'rgba(107, 114, 128, 0)',      // Gray (new)
+      0.2, 'rgba(107, 114, 128, 0.5)',  // Gray
+      0.4, 'rgba(59, 130, 246, 0.6)',   // Blue (reviewing)
+      0.6, 'rgba(16, 185, 129, 0.7)',   // Green (synced)
+      0.8, 'rgba(239, 68, 68, 0.8)',    // Red (not_qualified)
+      1, 'rgba(239, 68, 68, 1)'         // Red
+    ]);
   };
 
   // Update property visualization when properties change
