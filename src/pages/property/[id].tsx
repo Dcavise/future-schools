@@ -100,9 +100,9 @@ const PropertyDetail = () => {
       <Header />
       
       {/* Main content with map and panel */}
-      <div className="property-detail-content">
-        {/* Map Section */}
-        <div className="property-detail-map bg-gray-50">
+      <div className="flex-1 flex overflow-hidden">
+        {/* Map Section - No padding, no gap */}
+        <div className="flex-[6] relative overflow-hidden border-r bg-gray-50">
           <MapView 
             selectedProperty={property}
             properties={[property]}
@@ -113,7 +113,7 @@ const PropertyDetail = () => {
         </div>
 
         {/* Property Panel */}
-        <div className="property-detail-panel">
+        <div className="flex-[4] h-full">
           <PropertyPanel
             property={property}
             onPropertyUpdate={handlePropertyUpdate}
