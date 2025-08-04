@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Copy } from 'lucide-react';
 import { Building, Check, HelpCircle, X as XIcon, User, ChevronLeft, ChevronRight, UserPlus, Calendar, Clock, AlertCircle, ChevronDown } from 'lucide-react';
 import { Property } from '@/types/property';
 
@@ -258,6 +259,20 @@ export function PropertyPanel({
           <p className="text-sm text-[#6B7280] mt-1">
             {property.city}, {property.state} {property.zip}
           </p>
+          <div className="flex items-center gap-2 mt-2">
+            <span className="text-xs text-[#6B7280]">Parcel:</span>
+            <span className="text-xs text-[#1A1A1A] font-mono">{property.parcel_number || 'N/A'}</span>
+            {property.parcel_number && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-5 w-5 p-0 hover:bg-gray-100"
+                onClick={() => navigator.clipboard.writeText(property.parcel_number!)}
+              >
+                <Copy className="h-3 w-3" />
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Assignment Section */}
@@ -464,10 +479,6 @@ export function PropertyPanel({
                 onChange={(e) => onPropertyUpdate?.({ ...property, square_feet: e.target.value ? parseInt(e.target.value) : null })}
                 className="text-sm"
               />
-            </div>
-            <div>
-              <div className="text-xs text-[#6B7280] mb-1">Parcel Number</div>
-              <div className="text-sm text-[#1A1A1A]">{property.parcel_number || 'N/A'}</div>
             </div>
             <div>
               <div className="text-xs text-[#6B7280] mb-1">Zoning Code</div>
