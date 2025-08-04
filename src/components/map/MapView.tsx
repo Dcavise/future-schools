@@ -118,7 +118,7 @@ export function MapView({
         type: 'Feature' as const,
         geometry: {
           type: 'Point' as const,
-          coordinates: property.coordinates
+          coordinates: [property.longitude!, property.latitude!]
         },
         properties: {
           id: property.id,
@@ -224,7 +224,7 @@ export function MapView({
     if (properties.length > 0) {
       const bounds = new mapboxgl.LngLatBounds();
       properties.forEach(property => {
-        bounds.extend(property.coordinates);
+        bounds.extend([property.longitude!, property.latitude!]);
       });
       // Fit bounds for heatmap with better padding
       map.current.fitBounds(bounds, { 
@@ -297,7 +297,7 @@ export function MapView({
 
       // Create and add marker
       const marker = new mapboxgl.Marker(el)
-        .setLngLat(property.coordinates)
+        .setLngLat([property.longitude!, property.latitude!])
         .addTo(map.current!);
 
       markersRef.current[property.id] = marker;
@@ -328,7 +328,7 @@ export function MapView({
       if (properties.length > 0) {
         const bounds = new mapboxgl.LngLatBounds();
         properties.forEach(property => {
-          bounds.extend(property.coordinates);
+          bounds.extend([property.longitude!, property.latitude!]);
         });
         
         // Wait a brief moment to ensure map is ready, then fly to bounds

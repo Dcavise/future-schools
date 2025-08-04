@@ -60,15 +60,15 @@ const generateProperties = (city: string, count?: number): Property[] => {
     const lat = baseLat + (Math.random() - 0.5) * spread;
     
     // Generate compliance data
-    const zoningByRight = Math.random() > 0.3 ? true : Math.random() > 0.5 ? false : null;
-    const fireSprinklers = Math.random() > 0.4 ? true : Math.random() > 0.6 ? false : null;
-    const currentOccupancy = Math.random() > 0.3 ? (['E', 'A', 'Other'] as const)[Math.floor(Math.random() * 3)] : null;
+    const zoning_by_right = Math.random() > 0.3 ? true : Math.random() > 0.5 ? false : null;
+    const fire_sprinkler_status = Math.random() > 0.4 ? 'Yes' : Math.random() > 0.6 ? 'No' : null;
+    const current_occupancy = Math.random() > 0.3 ? (['E', 'A', 'Other'] as const)[Math.floor(Math.random() * 3)] : null;
 
     // Calculate status based on compliance
-    let status: 'unreviewed' | 'reviewing' | 'qualified' | 'disqualified' | 'on_hold';
-    if (zoningByRight === true && fireSprinklers === true && currentOccupancy !== null) {
+    let status: string;
+    if (zoning_by_right === true && fire_sprinkler_status === 'Yes' && current_occupancy !== null) {
       status = 'qualified';
-    } else if (zoningByRight === false || fireSprinklers === false) {
+    } else if (zoning_by_right === false || fire_sprinkler_status === 'No') {
       status = 'disqualified';
     } else if (Math.random() > 0.8) {
       status = 'on_hold';
@@ -78,27 +78,28 @@ const generateProperties = (city: string, count?: number): Property[] => {
       status = 'unreviewed';
     }
 
+    const now = new Date().toISOString();
+    const created = new Date(Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000).toISOString();
+
     return {
       id: `prop_${i + 1}`,
       address: `${2700 + i} ${['Canterbury', 'Oak', 'Elm', 'Park', 'Main'][i % 5]} St`,
       city: city.split(',')[0],
       state: city.split(',')[1]?.trim() || 'MA',
       zip: `${Math.floor(Math.random() * 90000) + 10000}`,
-      coordinates: [lng, lat] as [number, number],
-      parcelNumber: `${1217346 + i}`,
-      squareFootage: Math.floor(5000 + Math.random() * 50000),
-      zoningCode: ['P-NP', 'C-1', 'R-2', 'M-1'][Math.floor(Math.random() * 4)],
-      zoningByRight,
-      currentOccupancy,
-      fireSprinklers,
-      assignedTo: Math.random() > 0.7 ? `user_${Math.floor(Math.random() * 5) + 1}` : undefined,
-      assignedAnalyst: Math.random() > 0.7 ? ['John Smith', 'Sarah Johnson', 'Mike Davis', 'Emily Chen'][Math.floor(Math.random() * 4)] : undefined,
+      latitude: lat,
+      longitude: lng,
+      parcel_number: Math.random() > 0.2 ? `${1217346 + i}` : null,
+      square_feet: Math.floor(5000 + Math.random() * 50000),
+      zoning_code: ['P-NP', 'C-1', 'R-2', 'M-1'][Math.floor(Math.random() * 4)],
+      zoning_by_right,
+      current_occupancy,
+      fire_sprinkler_status,
+      assigned_to: Math.random() > 0.7 ? `user_${Math.floor(Math.random() * 5) + 1}` : null,
       status,
-      lastUpdated: new Date(Date.now() - Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000).toLocaleDateString(),
-      buildingYear: Math.random() > 0.3 ? 1950 + Math.floor(Math.random() * 70) : undefined,
-      parkingSpaces: Math.random() > 0.5 ? Math.floor(Math.random() * 50) + 5 : undefined,
-      price: Math.random() > 0.6 ? Math.floor(800000 + Math.random() * 2000000) : undefined,
-      lotSize: Math.random() > 0.4 ? Math.floor(5000 + Math.random() * 20000) : undefined
+      created_at: created,
+      updated_at: now,
+      notes: Math.random() > 0.8 ? 'Sample property notes from initial assessment.' : null
     };
   });
 };
@@ -132,10 +133,10 @@ const Index = () => {
       filtered = filtered.filter(p => {
         return tempFilters.compliance.every(filterType => {
           switch (filterType) {
-            case 'zoning': return p.zoningByRight === true;
-            case 'occupancy': return p.currentOccupancy !== null;
-            case 'byRight': return p.zoningByRight === true;
-            case 'sprinkler': return p.fireSprinklers === true;
+            case 'zoning': return p.zoning_by_right === true;
+            case 'occupancy': return p.current_occupancy !== null;
+            case 'byRight': return p.zoning_by_right === true;
+            case 'sprinkler': return p.fire_sprinkler_status === 'Yes';
             default: return true;
           }
         });
@@ -145,30 +146,31 @@ const Index = () => {
     // Property type filters
     if (tempFilters.propertyType.length > 0) {
       filtered = filtered.filter(p => {
-        const occupancyLabel = p.currentOccupancy === 'E' ? 'Educational' : 
-                              p.currentOccupancy === 'A' ? 'Assembly' : 
-                              p.currentOccupancy === 'Other' ? 'Other' : 'Unknown';
+        const occupancyLabel = p.current_occupancy === 'E' ? 'Educational' : 
+                              p.current_occupancy === 'A' ? 'Assembly' : 
+                              p.current_occupancy === 'Other' ? 'Other' : 'Unknown';
         return tempFilters.propertyType.includes(occupancyLabel);
       });
     }
     
     // Size filters
     if (tempFilters.minSquareFeet) {
-      filtered = filtered.filter(p => p.squareFootage >= parseInt(tempFilters.minSquareFeet));
+      filtered = filtered.filter(p => (p.square_feet || 0) >= parseInt(tempFilters.minSquareFeet));
     }
     if (tempFilters.maxSquareFeet) {
-      filtered = filtered.filter(p => p.squareFootage <= parseInt(tempFilters.maxSquareFeet));
+      filtered = filtered.filter(p => (p.square_feet || 0) <= parseInt(tempFilters.maxSquareFeet));
     }
     
     // Size range filters
     if (tempFilters.sizeRange && tempFilters.sizeRange.length > 0) {
       filtered = filtered.filter(p => {
         return tempFilters.sizeRange!.some(range => {
+          const sqft = p.square_feet || 0;
           switch (range) {
-            case 'under10k': return p.squareFootage < 10000;
-            case '10k-25k': return p.squareFootage >= 10000 && p.squareFootage < 25000;
-            case '25k-50k': return p.squareFootage >= 25000 && p.squareFootage < 50000;
-            case '50k+': return p.squareFootage >= 50000;
+            case 'under10k': return sqft < 10000;
+            case '10k-25k': return sqft >= 10000 && sqft < 25000;
+            case '25k-50k': return sqft >= 25000 && sqft < 50000;
+            case '50k+': return sqft >= 50000;
             default: return false;
           }
         });

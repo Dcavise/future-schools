@@ -1,43 +1,32 @@
 export interface Property {
-  id: string;
-  address: string;
-  city: string;
-  state: string;
-  zip?: string;
-  coordinates: [number, number]; // [lng, lat]
-  parcelNumber?: string;
-  squareFootage: number;
-  zoningCode?: string;
-  zoningByRight: boolean | null;
-  currentOccupancy: 'E' | 'A' | 'Other' | null; // E=Educational, A=Assembly, Other
-  fireSprinklers: boolean | null;
-  assignedTo?: string; // User ID
-  assignedAnalyst?: string; // Analyst name for display
-  status: 'unreviewed' | 'reviewing' | 'qualified' | 'disqualified' | 'on_hold';
-  lastUpdated: string;
-  buildingYear?: number;
-  parkingSpaces?: number;
-  price?: number;
-  lotSize?: number;
-  notes?: PropertyNote[];
-}
-
-export interface PropertyNote {
-  id: string;
-  content: string;
-  author: string;
-  createdAt: string;
-  type: 'research' | 'site_visit' | 'compliance' | 'general';
+  id: string; // UUID
+  address: string; // VARCHAR(255)
+  city: string; // VARCHAR(100)  
+  state: string; // CHAR(2)
+  zip: string; // VARCHAR(10)
+  latitude: number | null; // DECIMAL(10,8)
+  longitude: number | null; // DECIMAL(11,8)
+  parcel_number: string | null; // VARCHAR(50)
+  square_feet: number | null; // INTEGER
+  zoning_code: string | null; // VARCHAR(20)
+  zoning_by_right: boolean | null; // BOOLEAN
+  current_occupancy: string | null; // VARCHAR(50) - E, A, Other
+  fire_sprinkler_status: string | null; // VARCHAR(20) - Yes, No
+  assigned_to: string | null; // UUID (FK)
+  status: string; // VARCHAR(50) - unreviewed, reviewing, qualified, disqualified, on_hold
+  created_at: string; // TIMESTAMP
+  updated_at: string; // TIMESTAMP
+  notes: string | null; // TEXTAREA
 }
 
 export interface FilterCriteria {
-  zoningByRight: boolean | null;
-  fireSprinklers: boolean | null;
-  currentOccupancy: ('E' | 'A' | 'Other')[];
-  minSquareFootage: number;
-  maxSquareFootage: number;
+  zoning_by_right: boolean | null;
+  fire_sprinkler_status: string | null;
+  current_occupancy: string[];
+  min_square_feet: number;
+  max_square_feet: number;
   status: string[];
-  assignedTo: string | null;
+  assigned_to: string | null;
 }
 
 export interface PropertyCluster {

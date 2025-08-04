@@ -66,9 +66,9 @@ export function PropertyPanel({
 
   const getStatusMessage = (status: string, property: Property) => {
     const unknownCount = [
-      property.zoningByRight === null,
-      property.fireSprinklers === null,
-      property.currentOccupancy === null
+      property.zoning_by_right === null,
+      property.fire_sprinkler_status === null,
+      property.current_occupancy === null
     ].filter(Boolean).length;
 
     switch (status) {
@@ -105,15 +105,15 @@ export function PropertyPanel({
     }
   };
 
-  const getComplianceIcon = (value: boolean | null) => {
-    if (value === true) return <Check className="h-4 w-4 text-green-600" />;
-    if (value === false) return <XIcon className="h-4 w-4 text-red-600" />;
+  const getComplianceIcon = (value: boolean | string | null) => {
+    if (value === true || value === 'Yes') return <Check className="h-4 w-4 text-green-600" />;
+    if (value === false || value === 'No') return <XIcon className="h-4 w-4 text-red-600" />;
     return <HelpCircle className="h-4 w-4 text-yellow-600" />;
   };
 
-  const getComplianceStatus = (value: boolean | null) => {
-    if (value === true) return "Compliant";
-    if (value === false) return "Non-compliant"; 
+  const getComplianceStatus = (value: boolean | string | null) => {
+    if (value === true || value === 'Yes') return "Compliant";
+    if (value === false || value === 'No') return "Non-compliant"; 
     return "Unknown";
   };
 
@@ -127,9 +127,9 @@ export function PropertyPanel({
   };
 
   const isFullyCompliant = () => {
-    return property?.zoningByRight === true && 
-           property?.fireSprinklers === true && 
-           property?.currentOccupancy !== null;
+    return property?.zoning_by_right === true && 
+           property?.fire_sprinkler_status === 'Yes' && 
+           property?.current_occupancy !== null;
   };
 
   const getPrimaryAction = (status: string) => {
@@ -245,12 +245,12 @@ export function PropertyPanel({
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-3">
             <User className="h-4 w-4 text-[#6B7280]" />
-            <span className="text-xs font-medium text-[#6B7280] uppercase tracking-wide">Building Owner</span>
+            <span className="text-xs font-medium text-[#6B7280] uppercase tracking-wide">Assigned To</span>
           </div>
           <div className="text-sm text-[#1A1A1A]">
-            {property.assignedAnalyst || 'Unassigned'}
-            {!property.assignedAnalyst && (
-              <Badge className="ml-2 bg-yellow-100 text-yellow-800 text-xs">Needs Review</Badge>
+            {property.assigned_to || 'Unassigned'}
+            {!property.assigned_to && (
+              <Badge className="ml-2 bg-yellow-100 text-yellow-800 text-xs">Needs Assignment</Badge>
             )}
           </div>
         </div>
@@ -261,19 +261,19 @@ export function PropertyPanel({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <div className="text-xs text-[#6B7280] mb-1">Square Feet</div>
-              <div className="text-sm text-[#1A1A1A]">{property.squareFootage?.toLocaleString() || 'N/A'}</div>
+              <div className="text-sm text-[#1A1A1A]">{property.square_feet?.toLocaleString() || 'N/A'}</div>
             </div>
             <div>
-              <div className="text-xs text-[#6B7280] mb-1">Building Year</div>
-              <div className="text-sm text-[#1A1A1A]">{property.buildingYear || 'N/A'}</div>
+              <div className="text-xs text-[#6B7280] mb-1">ZIP Code</div>
+              <div className="text-sm text-[#1A1A1A]">{property.zip || 'N/A'}</div>
             </div>
             <div>
-              <div className="text-xs text-[#6B7280] mb-1">Lot Size</div>
-              <div className="text-sm text-[#1A1A1A]">{property.lotSize ? `${property.lotSize.toLocaleString()} sq ft` : 'N/A'}</div>
+              <div className="text-xs text-[#6B7280] mb-1">Parcel Number</div>
+              <div className="text-sm text-[#1A1A1A]">{property.parcel_number || 'N/A'}</div>
             </div>
             <div>
-              <div className="text-xs text-[#6B7280] mb-1">Parking</div>
-              <div className="text-sm text-[#1A1A1A]">{property.parkingSpaces ? `${property.parkingSpaces} spaces` : 'N/A'}</div>
+              <div className="text-xs text-[#6B7280] mb-1">Zoning Code</div>
+              <div className="text-sm text-[#1A1A1A]">{property.zoning_code || 'N/A'}</div>
             </div>
           </div>
         </div>
@@ -284,18 +284,18 @@ export function PropertyPanel({
           <div className="grid grid-cols-2 gap-3 p-4 bg-[#F9FAFB] rounded-lg">
             {/* Zoning By-Right */}
             <div className={`flex items-center gap-2 p-3 bg-white rounded border-l-3 ${
-              property.zoningByRight === true ? 'border-l-[#10B981] bg-[#F0FDF4]' :
-              property.zoningByRight === false ? 'border-l-[#EF4444] bg-[#FEF2F2]' : 
+              property.zoning_by_right === true ? 'border-l-[#10B981] bg-[#F0FDF4]' :
+              property.zoning_by_right === false ? 'border-l-[#EF4444] bg-[#FEF2F2]' : 
               'border-l-[#F59E0B] bg-[#FFFBEB] cursor-pointer hover:border-l-[#D97706] hover:shadow-sm'
             }`}>
-              {getComplianceIcon(property.zoningByRight)}
+              {getComplianceIcon(property.zoning_by_right)}
               <div className="min-w-0 flex-1">
                 <div className="text-xs font-medium text-gray-900">Zoning By-Right</div>
-                <div className="text-xs text-gray-600">{getComplianceStatus(property.zoningByRight)}</div>
-                {property.zoningByRight === false && (
+                <div className="text-xs text-gray-600">{getComplianceStatus(property.zoning_by_right)}</div>
+                {property.zoning_by_right === false && (
                   <div className="text-xs text-[#DC2626] mt-1">Non-conforming use</div>
                 )}
-                {property.zoningByRight === null && property.status === 'unreviewed' && (
+                {property.zoning_by_right === null && property.status === 'unreviewed' && (
                   <div className="text-xs text-[#D97706] mt-1">Click to update</div>
                 )}
               </div>
@@ -303,18 +303,18 @@ export function PropertyPanel({
             
             {/* Fire Sprinklers */}
             <div className={`flex items-center gap-2 p-3 bg-white rounded border-l-3 ${
-              property.fireSprinklers === true ? 'border-l-[#10B981] bg-[#F0FDF4]' :
-              property.fireSprinklers === false ? 'border-l-[#EF4444] bg-[#FEF2F2]' : 
+              property.fire_sprinkler_status === 'Yes' ? 'border-l-[#10B981] bg-[#F0FDF4]' :
+              property.fire_sprinkler_status === 'No' ? 'border-l-[#EF4444] bg-[#FEF2F2]' : 
               'border-l-[#F59E0B] bg-[#FFFBEB] cursor-pointer hover:border-l-[#D97706] hover:shadow-sm'
             }`}>
-              {getComplianceIcon(property.fireSprinklers)}
+              {getComplianceIcon(property.fire_sprinkler_status)}
               <div className="min-w-0 flex-1">
                 <div className="text-xs font-medium text-gray-900">Fire Sprinklers</div>
-                <div className="text-xs text-gray-600">{getComplianceStatus(property.fireSprinklers)}</div>
-                {property.fireSprinklers === false && (
+                <div className="text-xs text-gray-600">{getComplianceStatus(property.fire_sprinkler_status)}</div>
+                {property.fire_sprinkler_status === 'No' && (
                   <div className="text-xs text-[#DC2626] mt-1">System not present</div>
                 )}
-                {property.fireSprinklers === null && property.status === 'unreviewed' && (
+                {property.fire_sprinkler_status === null && property.status === 'unreviewed' && (
                   <div className="text-xs text-[#D97706] mt-1">Click to update</div>
                 )}
               </div>
@@ -322,14 +322,14 @@ export function PropertyPanel({
             
             {/* Current Occupancy */}
             <div className={`flex items-center gap-2 p-3 bg-white rounded border-l-3 ${
-              property.currentOccupancy !== null ? 'border-l-[#10B981] bg-[#F0FDF4]' : 
+              property.current_occupancy !== null ? 'border-l-[#10B981] bg-[#F0FDF4]' : 
               'border-l-[#F59E0B] bg-[#FFFBEB] cursor-pointer hover:border-l-[#D97706] hover:shadow-sm'
             }`}>
-              {getComplianceIcon(property.currentOccupancy !== null)}
+              {getComplianceIcon(property.current_occupancy !== null)}
               <div className="min-w-0 flex-1">
                 <div className="text-xs font-medium text-gray-900">Current Occupancy</div>
-                <div className="text-xs text-gray-600">{getOccupancyLabel(property.currentOccupancy)}</div>
-                {property.currentOccupancy === null && property.status === 'unreviewed' && (
+                <div className="text-xs text-gray-600">{getOccupancyLabel(property.current_occupancy)}</div>
+                {property.current_occupancy === null && property.status === 'unreviewed' && (
                   <div className="text-xs text-[#D97706] mt-1">Click to update</div>
                 )}
               </div>
@@ -348,50 +348,34 @@ export function PropertyPanel({
 
         {/* Additional Details */}
         <div className="space-y-4 mb-6">
-          {property.parcelNumber && (
-            <div>
-              <div className="text-xs text-[#6B7280] mb-1">Parcel Number</div>
-              <div className="text-sm text-[#1A1A1A]">{property.parcelNumber}</div>
+          <div>
+            <div className="text-xs text-[#6B7280] mb-1">Coordinates</div>
+            <div className="text-sm text-[#1A1A1A]">
+              {property.latitude && property.longitude 
+                ? `${property.latitude}, ${property.longitude}` 
+                : 'N/A'}
             </div>
-          )}
+          </div>
           
-          {property.price && (
-            <div>
-              <div className="text-xs text-[#6B7280] mb-1">Estimated Value</div>
-              <div className="text-sm text-[#1A1A1A]">${property.price.toLocaleString()}</div>
-            </div>
-          )}
+          <div>
+            <div className="text-xs text-[#6B7280] mb-1">Created</div>
+            <div className="text-sm text-[#1A1A1A]">{property.created_at}</div>
+          </div>
           
           <div>
             <div className="text-xs text-[#6B7280] mb-1">Last Updated</div>
-            <div className="text-sm text-[#1A1A1A]">{property.lastUpdated}</div>
+            <div className="text-sm text-[#1A1A1A]">{property.updated_at}</div>
           </div>
         </div>
 
         {/* Notes Section */}
-        {property.notes && property.notes.length > 0 && (
-          <div className="mb-6">
-            <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-wide mb-3">Research Notes</h3>
-            <div className="space-y-3">
-              {property.notes.map((note) => (
-                <div key={note.id} className="bg-gray-50 rounded p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-medium text-[#6B7280]">{note.author}</span>
-                    <span className="text-xs text-[#6B7280]">{note.createdAt}</span>
-                  </div>
-                  <p className="text-sm text-[#1A1A1A]">{note.content}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Scoping Notes */}
         <div className="mb-6">
-          <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-wide mb-3">Scoping Notes</h3>
+          <h3 className="text-xs font-medium text-[#6B7280] uppercase tracking-wide mb-3">Notes</h3>
           <Textarea 
             placeholder="Add notes about this property..."
+            value={property.notes || ''}
             className="min-h-[100px] resize-none border-gray-200"
+            readOnly
           />
         </div>
 
