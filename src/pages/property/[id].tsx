@@ -44,12 +44,7 @@ const PropertyDetail = () => {
       <div className="flex-1 flex gap-4 p-4 min-h-0">
         {/* Map Section - 70% */}
         <div className="flex-[7] min-h-0 relative">
-          <MapView
-            properties={[property]}
-            selectedProperty={property}
-            selectedCity="boston"
-            onPropertySelect={() => {}}
-          />
+          <MapView />
         </div>
 
         {/* Property Details Panel - 30% */}
