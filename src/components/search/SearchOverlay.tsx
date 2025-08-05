@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MapPin, Building, ArrowLeft, Search } from 'lucide-react';
+import { MapPin, Building, Search, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
@@ -9,7 +9,14 @@ interface SearchOverlayProps {
   onCitySelected?: (city: string) => void;
 }
 
-type ViewState = 'initial' | 'city-search' | 'address-search';
+type SearchResultType = 'city' | 'address';
+
+interface SearchResult {
+  id: string;
+  text: string;
+  type: SearchResultType;
+  icon: React.ReactNode;
+}
 
 const cities = [
   "Boston, MA",
@@ -24,57 +31,101 @@ const cities = [
 ];
 
 export function SearchOverlay({ onCitySearchClick, onAddressSearchClick, onCitySelected }: SearchOverlayProps) {
-  const [currentView, setCurrentView] = useState<ViewState>('initial');
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredCities, setFilteredCities] = useState<string[]>([]);
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Filter cities based on search query
+  // Auto-focus search input on mount
+  useEffect(() => {
+    if (searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, []);
+
+  // Generate search results based on query
   useEffect(() => {
     if (searchQuery.trim()) {
-      const filtered = cities.filter(city => 
-        city.toLowerCase().includes(searchQuery.toLowerCase())
-      ).slice(0, 5);
-      setFilteredCities(filtered);
-      setShowDropdown(true);
+      const results: SearchResult[] = [];
+      const query = searchQuery.toLowerCase();
+
+      // Add city matches
+      const cityMatches = cities.filter(city => 
+        city.toLowerCase().includes(query)
+      ).slice(0, 4);
+
+      cityMatches.forEach((city, index) => {
+        results.push({
+          id: `city-${index}`,
+          text: city,
+          type: 'city',
+          icon: <MapPin className="h-4 w-4 text-primary" />
+        });
+      });
+
+      // Add address suggestions based on patterns
+      if (isAddressLike(searchQuery)) {
+        // Generate some mock address suggestions
+        const addressSuggestions = generateAddressSuggestions(searchQuery);
+        addressSuggestions.forEach((address, index) => {
+          results.push({
+            id: `address-${index}`,
+            text: address,
+            type: 'address',
+            icon: <Building className="h-4 w-4 text-secondary" />
+          });
+        });
+      }
+
+      setSearchResults(results);
+      setShowDropdown(results.length > 0);
     } else {
-      setFilteredCities([]);
+      setSearchResults([]);
       setShowDropdown(false);
     }
   }, [searchQuery]);
 
-  // Auto-focus search input when city search view is shown
-  useEffect(() => {
-    if (currentView === 'city-search' && searchInputRef.current) {
-      searchInputRef.current.focus();
-    }
-  }, [currentView]);
-
-  const handleCitySearchStart = () => {
-    setCurrentView('city-search');
+  // Detect if input looks like an address
+  const isAddressLike = (input: string): boolean => {
+    const addressPatterns = [
+      /^\d+\s+\w+/,           // Starts with number + space + word (e.g., "123 Main")
+      /\d+.*\s+(st|street|ave|avenue|rd|road|blvd|boulevard|dr|drive|ln|lane|ct|court|pl|place|way)/i,
+      /\d{5}$/,               // Ends with 5 digits (zip code)
+    ];
+    return addressPatterns.some(pattern => pattern.test(input.trim()));
   };
 
-  const handleAddressSearchStart = () => {
-    setCurrentView('address-search');
-    onAddressSearchClick();
+  // Generate mock address suggestions
+  const generateAddressSuggestions = (query: string): string[] => {
+    const suggestions = [
+      `${query} Street, Boston, MA`,
+      `${query} Avenue, Cambridge, MA`,
+      `${query} Road, Somerville, MA`
+    ];
+    return suggestions.slice(0, 2);
   };
 
-  const handleBackToInitial = () => {
-    setCurrentView('initial');
-    setSearchQuery('');
-    setShowDropdown(false);
-  };
-
-  const handleCitySelection = (city: string) => {
-    setSearchQuery(city);
+  const handleResultSelection = (result: SearchResult) => {
+    setSearchQuery(result.text);
     setShowDropdown(false);
     
     // Brief delay to show selection, then close overlay
     setTimeout(() => {
-      onCitySelected?.(city);
-      onCitySearchClick();
+      if (result.type === 'city') {
+        onCitySelected?.(result.text);
+        onCitySearchClick();
+      } else {
+        onAddressSearchClick();
+      }
     }, 200);
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery('');
+    setShowDropdown(false);
+    if (searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
   };
 
   const highlightMatch = (text: string, query: string) => {
@@ -94,111 +145,110 @@ export function SearchOverlay({ onCitySearchClick, onAddressSearchClick, onCityS
     );
   };
 
+  // Group results by type for organized display
+  const groupedResults = searchResults.reduce((acc, result) => {
+    if (!acc[result.type]) acc[result.type] = [];
+    acc[result.type].push(result);
+    return acc;
+  }, {} as Record<SearchResultType, SearchResult[]>);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
-      <div className="w-[420px] bg-white rounded-lg shadow-xl p-8 animate-fade-in">
+      <div className="w-[500px] bg-background rounded-lg shadow-xl p-8 animate-fade-in border border-border">
         
-        {/* Initial View - Two Cards */}
-        {currentView === 'initial' && (
-          <div className="animate-fade-in">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6 text-center">
-              What are you looking for?
-            </h2>
-            
-            <div className="space-y-4">
-              {/* City Search Option */}
-              <button
-                onClick={handleCitySearchStart}
-                className="w-full h-[72px] bg-white border border-gray-200 rounded-md p-4 flex items-center gap-4 hover:bg-gray-50 hover:border-blue-500 hover:-translate-y-0.5 hover:shadow-sm transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              >
-                <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <MapPin className="h-5 w-5 text-blue-600" />
-                </div>
-                <div className="flex-1 text-left">
-                  <div className="font-medium text-gray-900">Search by City</div>
-                  <div className="text-sm text-gray-600 mt-0.5">Generate lists of qualified properties</div>
-                </div>
-              </button>
-
-              {/* Address Search Option */}
-              <button
-                onClick={handleAddressSearchStart}
-                className="w-full h-[72px] bg-white border border-gray-200 rounded-md p-4 flex items-center gap-4 hover:bg-gray-50 hover:border-blue-500 hover:-translate-y-0.5 hover:shadow-sm transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-              >
-                <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Building className="h-5 w-5 text-blue-600" />
-                </div>
-                <div className="flex-1 text-left">
-                  <div className="font-medium text-gray-900">Search by Address</div>
-                  <div className="text-sm text-gray-600 mt-0.5">Find and evaluate specific properties</div>
-                </div>
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* City Search View */}
-        {currentView === 'city-search' && (
-          <div className="animate-fade-in">
-            {/* Header with back button */}
-            <div className="flex items-center mb-6">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleBackToInitial}
-                className="mr-3 -ml-2"
-              >
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-              <h2 className="text-xl font-semibold text-foreground">
-                Search by City
-              </h2>
-            </div>
-
-            {/* Search Input */}
-            <div className="relative mb-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  ref={searchInputRef}
-                  type="text"
-                  placeholder="Enter city name..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-
-              {/* Autocomplete Dropdown */}
-              {showDropdown && filteredCities.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-card border border-border rounded-lg shadow-lg z-10 animate-fade-in">
-                  {filteredCities.map((city, index) => (
-                    <button
-                      key={index}
-                      onClick={() => handleCitySelection(city)}
-                      className="w-full px-4 py-3 text-left hover:bg-accent transition-colors first:rounded-t-lg last:rounded-b-lg flex items-center gap-3"
-                    >
-                      <MapPin className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                      <span className="text-foreground">
-                        {highlightMatch(city, searchQuery)}
-                      </span>
-                    </button>
-                  ))}
-                </div>
+        {/* Unified Search Interface */}
+        <div className="animate-fade-in">
+          <h2 className="text-xl font-semibold text-foreground mb-6 text-center">
+            Search Properties
+          </h2>
+          
+          {/* Unified Search Input */}
+          <div className="relative mb-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                ref={searchInputRef}
+                type="text"
+                placeholder="Search by city or address..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 pr-10"
+              />
+              {searchQuery && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleClearSearch}
+                  className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 hover:bg-muted"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
               )}
             </div>
 
-            {/* Switch to Address Search */}
-            <div className="text-center mt-6">
-              <button
-                onClick={handleBackToInitial}
-                className="text-sm text-primary hover:text-primary/80 transition-colors"
-              >
-                Search by address instead
-              </button>
-            </div>
+            {/* Smart Search Results Dropdown */}
+            {showDropdown && searchResults.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-lg shadow-lg z-10 animate-fade-in max-h-80 overflow-y-auto">
+                
+                {/* City Results */}
+                {groupedResults.city && groupedResults.city.length > 0 && (
+                  <div>
+                    <div className="px-4 py-2 text-xs font-medium text-muted-foreground bg-muted/50 border-b border-border">
+                      Cities
+                    </div>
+                    {groupedResults.city.map((result) => (
+                      <button
+                        key={result.id}
+                        onClick={() => handleResultSelection(result)}
+                        className="w-full px-4 py-3 text-left hover:bg-accent transition-colors flex items-center gap-3 border-b border-border/30 last:border-b-0"
+                      >
+                        {result.icon}
+                        <span className="text-foreground">
+                          {highlightMatch(result.text, searchQuery)}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Address Results */}
+                {groupedResults.address && groupedResults.address.length > 0 && (
+                  <div>
+                    <div className="px-4 py-2 text-xs font-medium text-muted-foreground bg-muted/50 border-b border-border">
+                      Addresses
+                    </div>
+                    {groupedResults.address.map((result) => (
+                      <button
+                        key={result.id}
+                        onClick={() => handleResultSelection(result)}
+                        className="w-full px-4 py-3 text-left hover:bg-accent transition-colors flex items-center gap-3 last:rounded-b-lg"
+                      >
+                        {result.icon}
+                        <span className="text-foreground">
+                          {highlightMatch(result.text, searchQuery)}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* No Results Message */}
+            {showDropdown && searchQuery && searchResults.length === 0 && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-lg shadow-lg z-10 p-4 text-center text-muted-foreground">
+                No results found for "{searchQuery}"
+              </div>
+            )}
           </div>
-        )}
+
+          {/* Search Tips */}
+          <div className="text-center mt-6">
+            <p className="text-sm text-muted-foreground">
+              Try searching for cities like "Boston, MA" or addresses like "123 Main Street"
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
